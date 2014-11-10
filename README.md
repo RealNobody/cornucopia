@@ -21,6 +21,238 @@ Or install it yourself as:
 
 ## Usage
 
+### Hooks
+
+The primary usefulness of the system is the built in integration system.  Using your favorite supported test system
+include the appropriate files.
+
+#### RSPEC:
+
+spec_helper.rb:
+
+```
+require "cornucopia/rspec_hooks"
+```
+
+#### Cucumber:
+
+env.rb:
+
+```
+require "cornucopia/cucumber_hooks"
+```
+
+#### Spinach:
+
+env.rb:
+
+```
+require "cornucopia/spinach_hooks"
+```
+
+Once required in the hooks are installed, the system will automatically generate a report detailing the error.  The
+automatic report includes information about the failure including:
+
+* The exception
+* The callstack
+* Any instance variables for the test
+* Details about the failed test and/or step
+* Any Capybara windows and their details including a screen shot
+
+### Capybara
+
+I have added the following functions to Capybara to help simplify using it.
+
+* synchronize_test(seconds=Capybara.default_wait_time, options = {}, &block)
+
+This function yields to a block until the Capybara timeout occurs or the block returns true.
+
+    # Wait until either #some_element or #another_element exists.
+    Capybara::current_session.synchronize_test do
+      page.all("#some_element").length > 0 ||
+          page.all("#another_element").length > 0
+    end
+
+* **select_value**
+
+This function selects the option from a select box based on the value for the selected option instead of the
+value string.
+
+    page.find("#state_selector").select_value(my_address.state_abbreviation)
+
+* **value_text**
+
+This function returns the string value of the currently selected option(s).
+
+    page.find("#state_selector").value_text  # returns "Arizona" instead of "AZ"
+
+### SitePrism
+
+I love using SitePrism.  Unfortunately, I find it involves a lot of copy/paste.  To simplify the use of SitePrism, I
+have created what are basically some macros:
+
+* **patterned_elements(pattern, *element, options = {})**
+
+This allows you to define a list of multiple elements where the pattern for the finder includes the text for what you
+want the call the element.
+
+You can specify the type of finder to be used with the _finder_type_ parameter, and if necessary include additional
+parameters as well.
+
+Examples:
+
+    class MySection < SitePrism::Section
+      patterned_elements "td.column_%{element_name}",
+                         :my_element_1,
+                         :my_element_2,
+                         :my_element_3
+
+      # instead of:
+      # element :my_element_1, "td.column_my_element_1"
+      # element :my_element_2, "td.column_my_element_2"
+      # element :my_element_3, "td.column_my_element_3"
+
+      patterned_elements "//td[name = \"${element_name}\"]",
+                         :my_element_1,
+                         :my_element_2,
+                         :my_element_3,
+                         finder_type: :xpath,
+                         visible: false
+
+      # instead of:
+      # element :my_element_1, :xpath, "//td[name = \"my_element_1\"]", visible: false
+      # element :my_element_2, :xpath, "//td[name = \"my_element_2\"]", visible: false
+      # element :my_element_3, :xpath, "//td[name = \"my_element_3\"]", visible: false
+    end
+
+* **patterned_elements(form_type, *elements)**
+
+This provides a quick and easy way to define elements for the items in forms.  The ids of the elements in a form
+follow the simple pattern of:  &lt;form_name&gt;&lt;element_id&gt;.  Most of the time, you want the name of the
+element to match the &lt;element_id&gt;.
+
+Example:
+
+    = form_for my_table_object do |form|
+      = form.select :field_1
+      = form.text_box :field_2
+      = form.check_box :field_3
+
+    class MySection < SitePrism::Section
+      form_elements :my_table,
+                    :field_1,
+                    :field_2,
+                    :field_3,
+
+      # instead of:
+      # element :field_1, "#my_table_field_1"
+      # element :field_2, "#my_table_field_2"
+      # element :field_3, "#my_table_field_3"
+    end
+
+* **id_elements(*elements)**
+
+This is a quick and easy way to define elements where the name of the element is the same as the id for the element.
+
+Example:
+
+    class MySection < SitePrism::Section
+      id_elements :my_item_1,
+                  :my_item_2,
+                  :my_item_3
+
+      # instead of:
+      # element :my_item_1, "#my_item_1"
+      # element :my_item_2, "#my_item_2"
+      # element :my_item_3, "#my_item_3"
+    end
+
+* **class_elements(*elements)**
+
+This is a quick and easy way to define elements where the name of the element is the same as the class name used to
+identify the element.
+
+Example:
+
+    class MySection < SitePrism::Section
+      id_elements :my_item_1,
+                  :my_item_2,
+                  :my_item_3
+
+      # instead of:
+      # element :my_item_1, ".my_item_1"
+      # element :my_item_2, ".my_item_2"
+      # element :my_item_3, ".my_item_3"
+    end
+
+* **indexed_elements(pattern, *element, options = {})**
+
+This allows you to define a list of multiple elements where the pattern for the finder is based on an index value.
+This is useful for things like table columns.
+
+You can specify the type of finder to be used with the _finder_type_ parameter, and if necessary include additional
+parameters as well with _additional_options_.
+
+Examples:
+
+    class MySection < SitePrism::Section
+      patterned_elements "td:nth-child(%{element_index})",
+                         :my_element_1,
+                         :my_element_2,
+                         :my_element_3
+
+      # instead of:
+      # element :my_element_1, "td:nth-child(1)"
+      # element :my_element_2, "td:nth-child(2)"
+      # element :my_element_3, "td:nth-child(3)"
+
+      patterned_elements "//td_%{element_index}",
+                         :my_element_1,
+                         :my_element_2,
+                         :my_element_3,
+                         finder_type: :xpath,
+                         additional_options: { visible: false },
+                         start_index: 3,
+                         increment: 12
+
+      # instead of:
+      # element :my_element_1, :xpath, "//td_3", visible: false
+      # element :my_element_2, :xpath, "//td_15", visible: false
+      # element :my_element_3, :xpath, "//td_27", visible: false
+    end
+
+* **PageApplication**
+
+SitePrism recommends memoizing the page objects.  I found it annoying to create a class for the pages and define a
+new function for each page.  To simplify my life, I created the PageApplication class.  It will memoize pages for me
+automatically as long as I follow some simple rules.
+
+Basically, just create all of my pages underneath a single module in a single folder, and the a class derived from
+PageApplication will find the pages and memoize them for you automatically.
+
+    class MyApplication < Cornucopia::SitePrism::PageApplication
+      def pages_module
+        MyPagesModule
+      end
+    end
+
+    module MyPagesModule
+      module MyModule
+        class MyPage < SitePrism::Page
+          # your SitePirsm page definition here...
+        end
+      end
+    end
+
+    module MyPagesModule
+      class MyOtherPage < SitePrism::Page
+        # your SitePirsm page definition here...
+      end
+    end
+
+    a_memoized_page       = MyApplication.my_module__my_page
+    a_memoized_other_page = MyApplication.my_other_page
+
 ### Utilities
 
 #### Configuration
