@@ -211,7 +211,12 @@ module Cornucopia
           end
         end
 
-        unless File.exists?(report_contents_page_name)
+        if File.exists?(report_contents_page_name)
+          if Cornucopia::Util::Configuration.open_report_after_gerneration(@base_folder_name)
+            # `open #{report_base_page_name}` rescue nil
+            system("open #{report_base_page_name}") rescue nil
+          end
+        else
           initialize_report_files
           File.open(report_contents_page_name, "a:UTF-8") do |write_file|
             write_file.write %Q[<p class=\"cornucopia-no-errors\">No Errors to report</p>]

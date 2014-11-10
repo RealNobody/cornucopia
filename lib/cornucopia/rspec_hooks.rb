@@ -3,11 +3,11 @@ load ::File.expand_path("capybara/install_finder_extensions.rb", File.dirname(__
 load ::File.expand_path("site_prism/install_element_extensions.rb", File.dirname(__FILE__))
 
 RSpec.configure do |config|
-  config.before(:suite) do
+  config.before(:all) do
     Cornucopia::Util::ReportBuilder.new_report("rspec_report")
   end
 
-  config.after(:suite) do
+  config.after(:all) do
     Cornucopia::Util::ReportBuilder.current_report.close
   end
 
@@ -19,16 +19,15 @@ RSpec.configure do |config|
 
     example.run
 
-    test_example = example
-    test_example = example.example if example.respond_to?(:example)
+    test_example = self.example if self.respond_to?(:example)
     if (test_example.exception)
       puts ("random seed for testing was: #{@seed_value}")
     end
   end
 
   config.after(:each) do |example|
-    example = example.example if @example.respond_to?(:example)
-    if (@example.exception)
+    example = example.example if example.respond_to?(:example)
+    if (example.exception)
       Cornucopia::Util::ReportBuilder.current_report.
           within_section("Test Error: #{example.full_description}") do |report|
         configured_report = Cornucopia::Util::Configuration.report_configuration :rspec

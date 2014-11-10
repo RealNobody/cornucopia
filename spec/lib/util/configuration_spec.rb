@@ -215,6 +215,27 @@ describe "Cornucopia::Util::Configuration" do
     end
   end
 
+  describe "#auto_open_report_after_gerneration" do
+    after(:each) do
+      Cornucopia::Util::Configuration.class_variable_get(:@@configurations).open_report_settings = { default: false }
+    end
+
+    it "sets the default value if unspecified" do
+      Cornucopia::Util::Configuration.auto_open_report_after_gerneration(true)
+      expect(Cornucopia::Util::Configuration.class_variable_get(:@@configurations).open_report_settings)
+          .to eq({ default: true })
+    end
+
+    it "sets the value of a specific report" do
+      Cornucopia::Util::Configuration.auto_open_report_after_gerneration(true, "fred")
+      expect(Cornucopia::Util::Configuration.class_variable_get(:@@configurations).open_report_settings).
+          to eq({ default: false, "fred" => true })
+    end
+  end
+
+  describe "#open_report_after_gerneration" do
+  end
+
   # describe "#alternate_retry" do
   #   it "#can read the default" do
   #     expect(Cornucopia::Util::Configuration.alternate_retry).to be_falsy

@@ -14,9 +14,11 @@ module Cornucopia
       @@configurations.selenium_cache_retry_count = 5
       @@configurations.analyze_find_exceptions    = true
       @@configurations.retry_with_found           = false
+      @@configurations.open_report_settings       = { default: false }
+
       # @@configurations.alternate_retry            = false
 
-      @@configurations.configured_reports         = {
+      @@configurations.configured_reports = {
           rspec:                       Cornucopia::Util::ConfiguredReport.new(
               min_fields:           [
                                         :example__full_description,
@@ -399,6 +401,25 @@ module Cornucopia
 
         def retry_with_found=(value)
           @@configurations.retry_with_found = value
+        end
+
+        # To make it easier to know about and to see the reports, this configuration will cause a report to be
+        # automatically opened if there is anything to report when the report is closed.
+        #
+        # The posible values for report_name are:
+        #   nil
+        #   "rspec_report"
+        #   "cucumber_report"
+        #   "spinach_report"
+
+        def auto_open_report_after_gerneration(open_report, report_name = nil)
+          @@configurations.open_report_settings[report_name || :default] = open_report
+        end
+
+        def open_report_after_gerneration(report_name)
+          open_report = @@configurations.open_report_settings[report_name]
+          open_report = @@configurations.open_report_settings[:default] if open_report.nil?
+          open_report
         end
 
         ### Commented this out.

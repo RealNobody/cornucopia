@@ -711,8 +711,39 @@ describe Cornucopia::Util::ReportBuilder do
           expect(Cornucopia::Util::ReportBuilder.class_variable_get("@@current_report")).not_to be
         end
 
+        it "should not call open_report_after_gerneration if nothing was reported" do
+          expect(Cornucopia::Util::Configuration).not_to receive(:open_report_after_gerneration)
+
+          current_report = send(report_settings[:report])
+          current_report.close
+
+          post_data = File.read(current_report.report_contents_page_name)
+          expect(post_data).to match /No errors to report/i
+
+          expect(Cornucopia::Util::ReportBuilder.class_variable_get("@@current_report")).not_to be
+        end
+
         it "should not create an empty report if something was reported" do
           current_report = send(report_settings[:report])
+
+          section_name = Faker::Lorem.sentence
+          current_report.within_section(section_name) do |report_object|
+            expect(report_object.is_a?(Cornucopia::Util::ReportBuilder)).to be_truthy
+          end
+
+          current_report.close
+
+          post_data = File.read(current_report.report_contents_page_name)
+          expect(post_data).not_to match /No errors to report/i
+
+          expect(Cornucopia::Util::ReportBuilder.class_variable_get("@@current_report")).not_to be
+        end
+
+        it "should open the report if something was created" do
+          current_report = send(report_settings[:report])
+
+          expect(Cornucopia::Util::Configuration).to receive(:open_report_after_gerneration).and_return(true)
+          expect(current_report).to receive(:system).and_return(nil)
 
           section_name = Faker::Lorem.sentence
           current_report.within_section(section_name) do |report_object|
