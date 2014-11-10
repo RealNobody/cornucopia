@@ -5,9 +5,9 @@ describe Cornucopia::Util::LogCapture do
   let(:file_name) { Rails.root.join("sample_log.log") }
 
   around(:each) do |example|
-    expect(File.directory?(Rails.root.join("diagnostics_report/"))).to be_falsey
-    expect(File.directory?(Rails.root.join("spec/diagnostics_report/"))).to be_falsey
-    expect(File.directory?(Rails.root.join("features/diagnostics_report/"))).to be_falsey
+    expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
+    expect(File.directory?(Rails.root.join("spec/cornucopia_report/"))).to be_falsey
+    expect(File.directory?(Rails.root.join("features/cornucopia_report/"))).to be_falsey
     expect(File.exists?(file_name)).to be_falsey
 
     begin
@@ -17,9 +17,9 @@ describe Cornucopia::Util::LogCapture do
         Cornucopia::Util::ReportBuilder.current_report.close
       end
 
-      FileUtils.rm_rf Rails.root.join("diagnostics_report/")
-      FileUtils.rm_rf Rails.root.join("spec/diagnostics_report/")
-      FileUtils.rm_rf Rails.root.join("features/diagnostics_report/")
+      FileUtils.rm_rf Rails.root.join("cornucopia_report/")
+      FileUtils.rm_rf Rails.root.join("spec/cornucopia_report/")
+      FileUtils.rm_rf Rails.root.join("features/cornucopia_report/")
       FileUtils.rm_rf Rails.root.join("features") if Dir[Rails.root.join("features/*")].empty?
       FileUtils.rm_rf file_name
     end
@@ -105,7 +105,7 @@ describe Cornucopia::Util::LogCapture do
 
       Cornucopia::Util::LogCapture.capture_logs(nil)
 
-      report_data = File.read(Rails.root.join("diagnostics_report/diagnostics_report/report_contents.html"))
+      report_data = File.read(Rails.root.join("cornucopia_report/cornucopia_report/report_contents.html"))
       expect(report_data).to match /#{lines[-500..-1].join("\n")}/
       expect(report_data).to_not match /#{lines[-501..-1].join("\n")}/
     end
@@ -124,7 +124,7 @@ describe Cornucopia::Util::LogCapture do
       expect(Rails).to receive(:root).at_least(1).and_return(new_root)
       Cornucopia::Util::LogCapture.capture_logs(nil)
 
-      report_data = File.read(File.join(new_root, "diagnostics_report/diagnostics_report/report_contents.html"))
+      report_data = File.read(File.join(new_root, "cornucopia_report/cornucopia_report/report_contents.html"))
       expect(report_data).to match /#{lines[-500..-1].join("\n")}/
       expect(report_data).to_not match /#{lines[-501..-1].join("\n")}/
     end
@@ -143,7 +143,7 @@ describe Cornucopia::Util::LogCapture do
 
       Cornucopia::Util::LogCapture.capture_logs(nil)
 
-      report_data = File.read(Rails.root.join("diagnostics_report/diagnostics_report/report_contents.html"))
+      report_data = File.read(Rails.root.join("cornucopia_report/cornucopia_report/report_contents.html"))
       expect(report_data).to match /#{lines[-500..-1].join("\n")}/
       expect(report_data).to_not match /#{lines[-501..-1].join("\n")}/
     end

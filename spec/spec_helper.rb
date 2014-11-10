@@ -76,5 +76,5 @@ end
 
 require ::File.expand_path("../lib/cornucopia/site_prism/element_extensions", File.dirname(__FILE__))
 require ::File.expand_path("../lib/cornucopia/capybara/finder_extensions", File.dirname(__FILE__))
-require ::File.expand_path("pages/diagnostics_report_app", File.dirname(__FILE__))
+require ::File.expand_path("pages/cornucopia_report_app", File.dirname(__FILE__))
 require ::File.expand_path("sample_report", File.dirname(__FILE__))

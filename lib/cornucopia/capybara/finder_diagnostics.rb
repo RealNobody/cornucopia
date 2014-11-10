@@ -40,7 +40,7 @@ module Cornucopia
         find_action = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(test_object, {}, function_name, *args)
 
         results = find_action.run
-        find_action.generate_diagnostics_report "Diagnostic report on \"#{function_name.to_s}\":", nil
+        find_action.generate_report "Diagnostic report on \"#{function_name.to_s}\":", nil
 
         results
       end
@@ -150,7 +150,7 @@ module Cornucopia
           retry_successful = false
 
           if can_dump_details?(attempt_retry)
-            generate_diagnostics_report "An error occurred while processing \"#{@function_name.to_s}\":",
+            generate_report "An error occurred while processing \"#{@function_name.to_s}\":",
                                         $! do |report, report_table|
               retry_successful = perform_retry(attempt_retry, report, report_table)
             end
@@ -164,20 +164,20 @@ module Cornucopia
           retry_successful
         end
 
-        def generate_diagnostics_report(message, error = nil, &block)
+        def generate_report(message, error = nil, &block)
           if @report_options[:report] && @report_options[:table]
-            generate_diagnostics_report_in_table @report_options[:table], error, &block
+            generate_report_in_table @report_options[:table], error, &block
           else
             @report_options[:report] ||= Cornucopia::Util::ReportBuilder.current_report
             @report_options[:table]  = nil
 
             @report_options[:report].within_section(message) do |report|
-              generate_diagnostics_report_in_table @report_options[:table], error, &block
+              generate_report_in_table @report_options[:table], error, &block
             end
           end
         end
 
-        def generate_diagnostics_report_in_table(table, error = nil, &block)
+        def generate_report_in_table(table, error = nil, &block)
           @report_options[:table] = table
 
           init_search_args
@@ -279,7 +279,7 @@ module Cornucopia
                           :select,
                           options[:from])
 
-                  from_within.generate_diagnostics_report_in_table(sub_report, nil)
+                  from_within.generate_report_in_table(sub_report, nil)
                 end
               end
 

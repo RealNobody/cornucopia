@@ -6,7 +6,7 @@ require ::File.expand_path("../../../lib/cornucopia/capybara/finder_diagnostics"
 describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
   # Make sure that all tests start clean and get cleaned up afterwards...
   around(:example) do |example|
-    expect(File.directory?(Rails.root.join("diagnostics_report/"))).to be_falsey
+    expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
 
     begin
       @file_name_1 = generate_report_file("report_1")
@@ -23,7 +23,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
         end
       end
 
-      FileUtils.rm_rf Rails.root.join("diagnostics_report/")
+      FileUtils.rm_rf Rails.root.join("cornucopia_report/")
       FileUtils.rm_rf Rails.root.join("sample_report/")
     end
   end
@@ -34,7 +34,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
   end
 
   it "does nothing if found" do
-    index_page = DiagnosticsReportApp.index_page
+    index_page = CornucopiaReportApp.index_page
 
     index_page.load base_folder: "sample_report"
 
@@ -45,7 +45,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
   end
 
   it "runs a report if not found" do
-    index_page = DiagnosticsReportApp.index_page
+    index_page = CornucopiaReportApp.index_page
 
     index_page.load base_folder: "sample_report"
 
@@ -58,8 +58,8 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
 
     Cornucopia::Util::ReportBuilder.current_report.close
 
-    report_page = DiagnosticsReportApp.diagnostics_report_page
-    report_page.load(report_name: "diagnostics_report", base_folder: "diagnostics_report")
+    report_page = CornucopiaReportApp.cornucopia_report_page
+    report_page.load(report_name: "cornucopia_report", base_folder: "cornucopia_report")
     report_page.contents do |contents_frame|
       expect(contents_frame.errors.length).to be == 1
       expect(contents_frame.errors[0].name.text).to be == "An error occurred while processing \"find\":"
@@ -110,7 +110,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
   it "runs a report if too many found" do
     @file_name_1 = generate_report_file("report_1")
 
-    index_page = DiagnosticsReportApp.index_page
+    index_page = CornucopiaReportApp.index_page
 
     index_page.load base_folder: "sample_report"
 
@@ -121,8 +121,8 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
       expect { tester.run }.to raise_error(Capybara::Ambiguous)
     end
 
-    report_page = DiagnosticsReportApp.diagnostics_report_page
-    report_page.load(report_name: "diagnostics_report", base_folder: "diagnostics_report")
+    report_page = CornucopiaReportApp.cornucopia_report_page
+    report_page.load(report_name: "cornucopia_report", base_folder: "cornucopia_report")
     report_page.contents do |contents_frame|
       expect(contents_frame.errors.length).to be == 1
       expect(contents_frame.errors[0].name.text).to be == "An error occurred while processing \"find\":"
@@ -176,7 +176,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
   end
 
   it "runs the finder when test_finder is called" do
-    index_page = DiagnosticsReportApp.index_page
+    index_page = CornucopiaReportApp.index_page
 
     index_page.load base_folder: "sample_report"
 
@@ -196,7 +196,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
   end
 
   it "outputs an analysis when diagnose_finder is called" do
-    index_page = DiagnosticsReportApp.index_page
+    index_page = CornucopiaReportApp.index_page
 
     index_page.load base_folder: "sample_report"
 
@@ -208,7 +208,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
                  with(contents_frame, {}, :all, :css, "a", visible: true).
                  and_return(diag)
       expect(diag).to receive(:run).and_call_original
-      expect(diag).to receive(:generate_diagnostics_report).and_call_original
+      expect(diag).to receive(:generate_report).and_call_original
 
       find_all = contents_frame.all("a")
       test_all = Cornucopia::Capybara::FinderDiagnostics.
@@ -217,8 +217,8 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
       expect(find_all.length).to be == test_all.length
     end
 
-    report_page = DiagnosticsReportApp.diagnostics_report_page
-    report_page.load(report_name: "diagnostics_report", base_folder: "diagnostics_report")
+    report_page = CornucopiaReportApp.cornucopia_report_page
+    report_page.load(report_name: "cornucopia_report", base_folder: "cornucopia_report")
     report_page.contents do |contents_frame|
       expect(contents_frame.errors.length).to be == 1
       expect(contents_frame.errors[0].name.text).to be == "Diagnostic report on \"all\":"
@@ -290,8 +290,8 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
       base_object = ::Capybara.current_session.find(:css, "#hidden-div", visible: false)
       expect { base_object.find("input[type=button]") }.to raise_error(Capybara::ElementNotFound)
 
-      report_page = DiagnosticsReportApp.diagnostics_report_page
-      report_page.load(report_name: "diagnostics_report", base_folder: "diagnostics_report")
+      report_page = CornucopiaReportApp.cornucopia_report_page
+      report_page.load(report_name: "cornucopia_report", base_folder: "cornucopia_report")
       report_page.contents do |contents_frame|
         expect(contents_frame.errors.length).to be == 1
         contents_frame.errors[0].more_details.show_hide.click
@@ -336,7 +336,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
 
           allow(find_action).to receive(:guessed_types).and_return([])
 
-          find_action.generate_diagnostics_report("inside diagnostics") do |report, report_table|
+          find_action.generate_report("inside diagnostics") do |report, report_table|
             report_table.write_stats("inside", "value")
           end
         end
@@ -344,8 +344,8 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
 
       report.close
 
-      report_page = DiagnosticsReportApp.diagnostics_report_page
-      report_page.load(report_name: "diagnostics_report", base_folder: "diagnostics_report")
+      report_page = CornucopiaReportApp.cornucopia_report_page
+      report_page.load(report_name: "cornucopia_report", base_folder: "cornucopia_report")
       report_page.contents do |contents_frame|
         expect(contents_frame.errors.length).to be == 1
 
@@ -371,10 +371,10 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
               "100",
               from: "select-boxes"
 
-      find_action.generate_diagnostics_report("inside diagnostics")
+      find_action.generate_report("inside diagnostics")
 
-      report_page = DiagnosticsReportApp.diagnostics_report_page
-      report_page.load(report_name: "diagnostics_report", base_folder: "diagnostics_report")
+      report_page = CornucopiaReportApp.cornucopia_report_page
+      report_page.load(report_name: "cornucopia_report", base_folder: "cornucopia_report")
       report_page.contents do |contents_frame|
         expect(contents_frame.errors.length).to be == 1
 
@@ -394,8 +394,8 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
         expect(button.length).to be == 1
         expect(button[0].class).to be == ::Capybara::Node::Element
 
-        report_page = DiagnosticsReportApp.diagnostics_report_page
-        report_page.load(report_name: "diagnostics_report", base_folder: "diagnostics_report")
+        report_page = CornucopiaReportApp.cornucopia_report_page
+        report_page.load(report_name: "cornucopia_report", base_folder: "cornucopia_report")
         report_page.contents do |contents_frame|
           contents_frame.errors[0].more_details.show_hide.click
           expect(contents_frame.errors.length).to be == 1
@@ -418,8 +418,8 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
 
           expect(button.class).to be == ::Capybara::Node::Element
 
-          report_page = DiagnosticsReportApp.diagnostics_report_page
-          report_page.load(report_name: "diagnostics_report", base_folder: "diagnostics_report")
+          report_page = CornucopiaReportApp.cornucopia_report_page
+          report_page.load(report_name: "cornucopia_report", base_folder: "cornucopia_report")
           report_page.contents do |contents_frame|
             contents_frame.errors[0].more_details.show_hide.click
             expect(contents_frame.errors.length).to be == 1
@@ -448,8 +448,8 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
 
           expect(button.class).to be == ::Capybara::Node::Element
 
-          report_page = DiagnosticsReportApp.diagnostics_report_page
-          report_page.load(report_name: "diagnostics_report", base_folder: "diagnostics_report")
+          report_page = CornucopiaReportApp.cornucopia_report_page
+          report_page.load(report_name: "cornucopia_report", base_folder: "cornucopia_report")
           report_page.contents do |contents_frame|
             contents_frame.errors[0].more_details.show_hide.click
             expect(contents_frame.errors.length).to be == 1
@@ -493,7 +493,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
 
   describe "FindAction" do
     it "returns perform_analysis's result" do
-      index_page = DiagnosticsReportApp.index_page
+      index_page = CornucopiaReportApp.index_page
 
       index_page.load base_folder: "sample_report"
 

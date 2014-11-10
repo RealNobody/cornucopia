@@ -3,8 +3,8 @@ require ::File.expand_path("../../lib/cornucopia/site_prism/element_extensions",
 
 Dir[File.expand_path("**/*.rb", File.dirname(__FILE__))].each { |require_file| require require_file }
 
-class DiagnosticsReportApp < Cornucopia::SitePrism::PageApplication
+class CornucopiaReportApp < Cornucopia::SitePrism::PageApplication
   def pages_module
-    ::DiagnosticsReportPages
+    ::CornucopiaReportPages
   end
 end

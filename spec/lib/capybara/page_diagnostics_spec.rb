@@ -7,7 +7,7 @@ require ::File.expand_path("../../../lib/cornucopia/capybara/finder_extensions",
 describe Cornucopia::Capybara::PageDiagnostics, type: :feature do
   # Make sure that all tests start clean and get cleaned up afterwards...
   around(:example) do |example|
-    expect(File.directory?(Rails.root.join("diagnostics_report/"))).to be_falsey
+    expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
 
     begin
       example.run
@@ -22,7 +22,7 @@ describe Cornucopia::Capybara::PageDiagnostics, type: :feature do
         end
       end
 
-      FileUtils.rm_rf Rails.root.join("diagnostics_report/")
+      FileUtils.rm_rf Rails.root.join("cornucopia_report/")
       FileUtils.rm_rf Rails.root.join("sample_report/")
     end
   end

@@ -43,8 +43,8 @@ spec/reports
 test/tmp
 test/version_tmp
 tmp
-diagnostics_report/
-spec/dummy/diagnostics_report/
+cornucopia_report/
+spec/dummy/cornucopia_report/
 spec/dummy/sample_report/
 spec/dummy/.rspec
 test_reports/*

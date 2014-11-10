@@ -49,14 +49,14 @@ describe Cornucopia::Util::ConfiguredReport do
   let(:test) { TestClass.new }
 
   around(:each) do |example|
-    expect(File.directory?(Rails.root.join("diagnostics_report/"))).to be_falsey
+    expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
 
     begin
       example.run
     ensure
       Cornucopia::Util::ReportBuilder.current_report.close if (Cornucopia::Util::ReportBuilder.class_variable_get("@@current_report"))
 
-      FileUtils.rm_rf Rails.root.join("diagnostics_report/")
+      FileUtils.rm_rf Rails.root.join("cornucopia_report/")
     end
   end
 

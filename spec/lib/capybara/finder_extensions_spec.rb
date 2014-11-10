@@ -4,7 +4,7 @@ require ::File.expand_path("../../../lib/cornucopia/capybara/finder_extensions",
 describe Cornucopia::Capybara::FinderExtensions, type: :feature do
   # Make sure that all tests start clean and get cleaned up afterwards...
   around(:example) do |example|
-    expect(File.directory?(Rails.root.join("diagnostics_report/"))).to be_falsey
+    expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
 
     begin
       @file_name_1 = generate_report_file("report_1")
@@ -21,7 +21,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
         end
       end
 
-      FileUtils.rm_rf Rails.root.join("diagnostics_report/")
+      FileUtils.rm_rf Rails.root.join("cornucopia_report/")
       FileUtils.rm_rf Rails.root.join("sample_report/")
     end
   end
@@ -33,7 +33,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
 
   describe "#__cornucopia_finder_function" do
     it "should retry if a Selenium cache error is thrown" do
-      index_page = DiagnosticsReportApp.index_page
+      index_page = CornucopiaReportApp.index_page
 
       index_page.load base_folder: "sample_report"
 
@@ -73,7 +73,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
     end
 
     it "should call __cornucopia__analyze_finder if it cannot resolve the stale reference" do
-      index_page = DiagnosticsReportApp.index_page
+      index_page = CornucopiaReportApp.index_page
 
       index_page.load base_folder: "sample_report"
 
@@ -105,7 +105,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
     end
 
     it "should call __cornucopia__analyze_finder if an exception is thrown" do
-      index_page = DiagnosticsReportApp.index_page
+      index_page = CornucopiaReportApp.index_page
 
       index_page.load base_folder: "sample_report"
 
@@ -139,7 +139,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
 
   describe "#synchronize_test" do
     it "synchronizes a random test condition" do
-      index_page = DiagnosticsReportApp.index_page
+      index_page = CornucopiaReportApp.index_page
 
       index_page.load base_folder: "sample_report"
 
@@ -152,7 +152,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
     end
 
     it "will time out on a random test condition" do
-      index_page = DiagnosticsReportApp.index_page
+      index_page = CornucopiaReportApp.index_page
 
       index_page.load base_folder: "sample_report"
 
@@ -181,7 +181,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
   [:page, :document, :body].each do |object_type|
     describe "#__cornucopia__analyze_finder for #{object_type}" do
       it "does nothing if this is called from the analysis function" do
-        index_page = DiagnosticsReportApp.index_page
+        index_page = CornucopiaReportApp.index_page
 
         index_page.load base_folder: "sample_report"
 
@@ -195,7 +195,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
 
       it "does nothing if configuration is turned off" do
         begin
-          index_page = DiagnosticsReportApp.index_page
+          index_page = CornucopiaReportApp.index_page
 
           index_page.load base_folder: "sample_report"
 
@@ -211,7 +211,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
 
       it "calls perform analysis with values from the configuration and returns the results" do
         begin
-          index_page = DiagnosticsReportApp.index_page
+          index_page = CornucopiaReportApp.index_page
 
           index_page.load base_folder: "sample_report"
 
@@ -244,7 +244,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
 
       it "re-raises the last error if the analysis doesn't find anything" do
         begin
-          index_page = DiagnosticsReportApp.index_page
+          index_page = CornucopiaReportApp.index_page
 
           index_page.load base_folder: "sample_report"
 
@@ -279,7 +279,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
   describe "#select_value" do
     # Make sure that all tests start clean and get cleaned up afterwards...
     around(:example) do |example|
-      expect(File.directory?(Rails.root.join("diagnostics_report/"))).to be_falsey
+      expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
 
       begin
         @file_name_1 = generate_report_file("report_1")
@@ -296,7 +296,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
           end
         end
 
-        FileUtils.rm_rf Rails.root.join("diagnostics_report/")
+        FileUtils.rm_rf Rails.root.join("cornucopia_report/")
         FileUtils.rm_rf Rails.root.join("sample_report/")
       end
     end

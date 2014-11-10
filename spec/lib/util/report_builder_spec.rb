@@ -7,8 +7,8 @@ describe Cornucopia::Util::ReportBuilder do
 
   report_variation_settings = [
       { report:       :current_report,
-        index_folder: "diagnostics_report",
-        sub_folder:   "diagnostics_report" },
+        index_folder: "cornucopia_report",
+        sub_folder:   "cornucopia_report" },
       { report:       :custom_report,
         index_folder: "diag_reports",
         sub_folder:   "cool_report" }
@@ -16,7 +16,7 @@ describe Cornucopia::Util::ReportBuilder do
 
   # Make sure that all tests start clean and get cleaned up afterwards...
   around(:each) do |example|
-    expect(File.directory?(Rails.root.join("diagnostics_report/"))).to be_falsey
+    expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
     expect(File.directory?(Rails.root.join("diag_reports/"))).to be_falsey
 
     begin
@@ -26,7 +26,7 @@ describe Cornucopia::Util::ReportBuilder do
         Cornucopia::Util::ReportBuilder.current_report.close
       end
 
-      FileUtils.rm_rf Rails.root.join("diagnostics_report/")
+      FileUtils.rm_rf Rails.root.join("cornucopia_report/")
       FileUtils.rm_rf Rails.root.join("diag_reports/")
     end
   end
@@ -289,8 +289,8 @@ describe Cornucopia::Util::ReportBuilder do
   end
 
   describe "#folder_name_to_section_name" do
-    it "returns a special value for diagnostics_report" do
-      expect(Cornucopia::Util::ReportBuilder.folder_name_to_section_name("diagnostics_report")).
+    it "returns a special value for cornucopia_report" do
+      expect(Cornucopia::Util::ReportBuilder.folder_name_to_section_name("cornucopia_report")).
           to be == "Feature Tests"
     end
 
@@ -550,11 +550,11 @@ describe Cornucopia::Util::ReportBuilder do
           folder_names       = []
           file_names         = []
           empty_folder_names = []
-          folder_names << "diagnostics_report"
+          folder_names << "cornucopia_report"
           folder_names << "diagnostics_rspec_report"
 
           rand(3..5).times do
-            folder_names << "diagnostics_report_#{Faker::Lorem.word}"
+            folder_names << "cornucopia_report_#{Faker::Lorem.word}"
             folder_names << "diagnostics_rspec_report_#{Faker::Lorem.word}"
             file_name = Faker::Lorem.word
             folder_names << file_name
@@ -596,8 +596,8 @@ describe Cornucopia::Util::ReportBuilder do
 
           groups = {}
           folder_names.each do |folder_name|
-            if folder_name =~ /diagnostics_report/
-              group_name         = "diagnostics_report"
+            if folder_name =~ /cornucopia_report/
+              group_name         = "cornucopia_report"
               groups[group_name] ||= []
               groups[group_name] << (post_file =~ /h4\>Feature Tests\</i) if groups[group_name].empty?
             elsif folder_name =~ /diagnostics_rspec_report/
