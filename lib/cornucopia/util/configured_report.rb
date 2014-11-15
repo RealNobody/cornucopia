@@ -309,7 +309,8 @@ module Cornucopia
           report_object = parent_object
         else
           if parent_object.respond_to?(export_field[:report_element][level]) &&
-              parent_object.method(export_field[:report_element][level]).parameters.empty?
+              (!parent_object.methods.include?(export_field[:report_element][level]) ||
+                  parent_object.method(export_field[:report_element][level]).parameters.empty?)
             report_object = parent_object.send(export_field[:report_element][level])
           elsif parent_object.respond_to?(:[])
             key_value = export_field[:report_element][level]
