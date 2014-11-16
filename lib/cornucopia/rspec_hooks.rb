@@ -19,7 +19,8 @@ RSpec.configure do |config|
 
     example.run
 
-    test_example = self.example if self.respond_to?(:example)
+    test_example = example.example if example.respond_to?(:example)
+    test_example ||= self.example if self.respond_to?(:example)
     if (test_example.exception)
       puts ("random seed for testing was: #{@seed_value}")
     end
