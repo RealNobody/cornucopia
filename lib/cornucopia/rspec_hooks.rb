@@ -3,11 +3,11 @@ load ::File.expand_path("capybara/install_finder_extensions.rb", File.dirname(__
 load ::File.expand_path("site_prism/install_element_extensions.rb", File.dirname(__FILE__))
 
 RSpec.configure do |config|
-  config.before(:all) do
+  config.before(:suite) do |*args|
     Cornucopia::Util::ReportBuilder.new_report("rspec_report")
   end
 
-  config.after(:all) do
+  config.after(:suite) do
     Cornucopia::Util::ReportBuilder.current_report.close
   end
 

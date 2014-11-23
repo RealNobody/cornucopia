@@ -372,12 +372,15 @@ module Cornucopia
             end
           end
         end
+      rescue Exception => error
+        report_table.write_stats "Configured Report Error", "#{export_field}\nError:\n#{error.to_s}\n#{error.backtrace.join("\n")}"
       end
 
       def print_field_object(export_field, report_object, report_table, parent_expanded, options)
         unless parent_expanded &&
             exclude_variable?(export_field[:report_element][0..-2], export_field[:report_element][-1])
-          if report_object == false || !report_object.blank?
+          if report_object == false ||
+              !(report_object.nil? || (report_object.respond_to?(:empty?) && (report_object.empty? rescue nil)))
             if export_field[:report_element][-1] == :to_s
               print_name = export_field[:report_element][-2]
             else

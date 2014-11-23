@@ -36,18 +36,18 @@ module Cornucopia
                                     ],
               expand_fields:        [
                                         :example,
-                                        :example__response,
-                                        :example__controller,
-                                        :example__request,
+                                        :example__example_group_instance__response,
+                                        :example__example_group_instance__controller,
+                                        :example__example_group_instance__request,
+                                        :example__example_group_instance
                                     ],
               expand_inline_fields: [
-                                        :example____memoized
+                                        :example__example_group_instance____memoized
                                     ],
               exclude_fields:       [
                                         :example__fixture_connections,
                                         :example,
                                         :example__example_group_instance,
-                                        :example__metadata
                                     ]
           ),
           cucumber:                    Cornucopia::Util::ConfiguredReport.new(
