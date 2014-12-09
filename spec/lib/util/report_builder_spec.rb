@@ -711,8 +711,8 @@ describe Cornucopia::Util::ReportBuilder do
           expect(Cornucopia::Util::ReportBuilder.class_variable_get("@@current_report")).not_to be
         end
 
-        it "should not call open_report_after_gerneration if nothing was reported" do
-          expect(Cornucopia::Util::Configuration).not_to receive(:open_report_after_gerneration)
+        it "should not call open_report_after_generation if nothing was reported" do
+          expect(Cornucopia::Util::Configuration).not_to receive(:open_report_after_generation)
 
           current_report = send(report_settings[:report])
           current_report.close
@@ -742,7 +742,7 @@ describe Cornucopia::Util::ReportBuilder do
         it "should open the report if something was created" do
           current_report = send(report_settings[:report])
 
-          expect(Cornucopia::Util::Configuration).to receive(:open_report_after_gerneration).and_return(true)
+          expect(Cornucopia::Util::Configuration).to receive(:open_report_after_generation).and_return(true)
           expect(current_report).to receive(:system).and_return(nil)
 
           section_name = Faker::Lorem.sentence

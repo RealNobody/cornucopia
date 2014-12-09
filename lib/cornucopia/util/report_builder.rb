@@ -212,7 +212,7 @@ module Cornucopia
         end
 
         if File.exists?(report_contents_page_name)
-          if Cornucopia::Util::Configuration.open_report_after_gerneration(@base_folder_name)
+          if Cornucopia::Util::Configuration.open_report_after_generation(@base_folder_name)
             # `open #{report_base_page_name}` rescue nil
             system("open #{report_base_page_name}") rescue nil
           end
