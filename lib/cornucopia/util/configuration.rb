@@ -412,11 +412,11 @@ module Cornucopia
         #   "cucumber_report"
         #   "spinach_report"
 
-        def auto_open_report_after_gerneration(open_report, report_name = nil)
+        def auto_open_report_after_generation(open_report, report_name)
           @@configurations.open_report_settings[report_name || :default] = open_report
         end
 
-        def open_report_after_gerneration(report_name)
+        def open_report_after_generation(report_name)
           open_report = @@configurations.open_report_settings[report_name]
           open_report = @@configurations.open_report_settings[:default] if open_report.nil?
           open_report

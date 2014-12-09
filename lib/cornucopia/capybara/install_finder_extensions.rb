@@ -45,9 +45,9 @@ if Object.const_defined?("Capybara") &&
           end
         end
 
-        # select_value finds the option with the value #value then calls select_option on that item.
+        # value_text returns the text for the selected items in the select box instead of the value(s)
         #
-        # select_value only works on select boxes.
+        # value_text only works on select boxes.
         def value_text
           raise "value_text is only valid for select items" unless self.tag_name == "select"
 
