@@ -68,7 +68,7 @@ module Cornucopia
           options_array << options[:additional_options] if options[:additional_options]
 
           elements.each do |element_name|
-            options_array[element_name_index]     = element_name
+            options_array[element_name_index]     = element_name.gsub(/[-]/, "_")
             options_array[element_name_index + 1] = pattern % { element_name: element_name }
             send element_function, *options_array
           end
