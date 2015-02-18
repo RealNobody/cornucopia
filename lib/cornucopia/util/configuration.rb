@@ -15,6 +15,7 @@ module Cornucopia
       @@configurations.analyze_find_exceptions    = true
       @@configurations.retry_with_found           = false
       @@configurations.open_report_settings       = { default: false }
+      @@configurations.base_folder                = "cornucopia_report"
 
       # @@configurations.alternate_retry            = false
 
@@ -448,6 +449,17 @@ module Cornucopia
         # def alternate_retry=(value)
         #   @@configurations.alternate_retry = value
         # end
+
+        # Sets or returns the name of the folder to generate reports into.
+        #
+        # Default: "cornucopia_report"
+        def base_folder
+          @@configurations.base_folder
+        end
+
+        def base_folder=(value)
+          @@configurations.base_folder = value
+        end
       end
     end
   end
