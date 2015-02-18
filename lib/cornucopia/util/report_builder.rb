@@ -21,13 +21,13 @@ module Cornucopia
             @@current_report = nil
           end
 
-          folder_name   ||= "cornucopia_report"
-          parent_folder ||= "cornucopia_report"
+          folder_name   ||= Cornucopia::Util::Configuration.base_folder
+          parent_folder ||= Cornucopia::Util::Configuration.base_folder
 
           @@current_report ||= Cornucopia::Util::ReportBuilder.new(folder_name, parent_folder)
         end
 
-        def new_report(folder_name = "cornucopia_report", parent_folder = "cornucopia_report")
+        def new_report(folder_name = nil, parent_folder = nil)
           if (@@current_report)
             @@current_report.close
             @@current_report = nil
@@ -164,7 +164,7 @@ module Cornucopia
 
         def folder_name_to_section_name(folder_name)
           case File.basename(folder_name)
-            when "cornucopia_report"
+            when Cornucopia::Util::Configuration.base_folder
               "Feature Tests"
             when "diagnostics_rspec_report"
               "RSPEC Tests"
@@ -190,9 +190,9 @@ module Cornucopia
         end
       end
 
-      def initialize(folder_name = "cornucopia_report", parent_folder = "cornucopia_report")
-        @parent_folder_name = parent_folder
-        @base_folder_name   = folder_name
+      def initialize(folder_name = nil, parent_folder = nil)
+        @parent_folder_name = parent_folder || Cornucopia::Util::Configuration.base_folder
+        @base_folder_name   = folder_name || Cornucopia::Util::Configuration.base_folder
       end
 
       # This does nothing in a normal report because reports are built as you go.
