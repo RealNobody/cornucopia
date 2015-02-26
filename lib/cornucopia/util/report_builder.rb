@@ -309,7 +309,7 @@ module Cornucopia
 
         last_folder = nil
         group_items = []
-        Dir[File.join(@index_folder_name, "*")].each do |directory_item|
+        Dir[File.join(@index_folder_name, "*")].sort.each do |directory_item|
           if File.directory?(directory_item) && File.exists?(File.join(directory_item, "index.html"))
             directory_item = directory_item[@index_folder_name.to_s.length..-1]
 
