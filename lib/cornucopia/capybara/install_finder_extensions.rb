@@ -18,6 +18,22 @@ end
 
 if Object.const_defined?("Capybara") &&
     Capybara.const_defined?("Node") &&
+    Capybara::Node.const_defined?("Simple") &&
+    !$cornucopia_finder_extension_installed
+  module Capybara
+    module Node
+      class Simple
+        alias_method :__cornucopia_orig_find, :find
+        alias_method :__cornucopia_orig_all, :all
+
+        include Cornucopia::Capybara::FinderExtensions
+      end
+    end
+  end
+end
+
+if Object.const_defined?("Capybara") &&
+    Capybara.const_defined?("Node") &&
     Capybara::Node.const_defined?("Element") &&
     !$cornucopia_finder_extension_installed
   module Capybara
@@ -72,10 +88,10 @@ if Object.const_defined?("Capybara") &&
 
   module Capybara
     class Session
-      alias_method :__cornucopia_orig_find, :find
-      alias_method :__cornucopia_orig_all, :all
-
-      include Cornucopia::Capybara::FinderExtensions
+      # alias_method :__cornucopia_orig_find, :find
+      # alias_method :__cornucopia_orig_all, :all
+      #
+      # include Cornucopia::Capybara::FinderExtensions
 
       # This function uses Capybara's synchronize function to evaluate a block until
       # it becomes true.

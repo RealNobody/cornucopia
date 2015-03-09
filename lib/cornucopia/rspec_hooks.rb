@@ -1,5 +1,6 @@
 require ::File.expand_path("../cornucopia", File.dirname(__FILE__))
 load ::File.expand_path("capybara/install_finder_extensions.rb", File.dirname(__FILE__))
+load ::File.expand_path("capybara/install_matcher_extensions.rb", File.dirname(__FILE__))
 load ::File.expand_path("site_prism/install_element_extensions.rb", File.dirname(__FILE__))
 
 RSpec.configure do |config|

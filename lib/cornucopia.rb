@@ -10,6 +10,7 @@ require "cornucopia/util/report_builder"
 require "cornucopia/capybara/finder_diagnostics"
 require "cornucopia/capybara/page_diagnostics"
 require "cornucopia/capybara/finder_extensions"
+require "cornucopia/capybara/matcher_extensions"
 require "cornucopia/site_prism/element_extensions"
 require "cornucopia/site_prism/page_application"
 

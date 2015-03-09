@@ -3,6 +3,7 @@ require 'rack/file'
 require ::File.expand_path("../../../lib/cornucopia/util/report_builder", File.dirname(__FILE__))
 require ::File.expand_path("../../../lib/cornucopia/capybara/page_diagnostics", File.dirname(__FILE__))
 require ::File.expand_path("../../../lib/cornucopia/capybara/finder_extensions", File.dirname(__FILE__))
+require ::File.expand_path("../../../lib/cornucopia/capybara/matcher_extensions", File.dirname(__FILE__))
 
 describe Cornucopia::Capybara::PageDiagnostics, type: :feature do
   # Make sure that all tests start clean and get cleaned up afterwards...

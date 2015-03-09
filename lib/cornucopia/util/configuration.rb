@@ -5,21 +5,23 @@ require ::File.expand_path('report_formatters', File.dirname(__FILE__))
 module Cornucopia
   module Util
     class Configuration
-      @@configurations                            = Cornucopia::Util::GenericSettings.new
-      @@configurations.rand_seed                  = nil
-      @@configurations.user_log_files             = {}
-      @@configurations.default_num_lines          = 500
-      @@configurations.grab_logs                  = true
-      @@configurations.print_timeout_min          = 10
-      @@configurations.selenium_cache_retry_count = 5
-      @@configurations.analyze_find_exceptions    = true
-      @@configurations.retry_with_found           = false
-      @@configurations.open_report_settings       = { default: false }
-      @@configurations.base_folder                = "cornucopia_report"
+      @@configurations                             = Cornucopia::Util::GenericSettings.new
+      @@configurations.rand_seed                   = nil
+      @@configurations.user_log_files              = {}
+      @@configurations.default_num_lines           = 500
+      @@configurations.grab_logs                   = true
+      @@configurations.print_timeout_min           = 10
+      @@configurations.selenium_cache_retry_count  = 5
+      @@configurations.analyze_find_exceptions     = true
+      @@configurations.analyze_selector_exceptions = true
+      @@configurations.retry_with_found            = false
+      @@configurations.retry_match_with_found      = false
+      @@configurations.open_report_settings        = { default: false }
+      @@configurations.base_folder                 = "cornucopia_report"
 
       # @@configurations.alternate_retry            = false
 
-      @@configurations.configured_reports = {
+      @@configurations.configured_reports          = {
           rspec:                       Cornucopia::Util::ConfiguredReport.new(
               min_fields:           [
                                         :example__full_description,
@@ -389,6 +391,19 @@ module Cornucopia
           @@configurations.analyze_find_exceptions = value
         end
 
+        # This setting is used by the Capybara utilities.
+        #
+        # When Capybara::Node.find throws an exception, if this is set, the system will try to
+        # use the FinderDiagnostics to output some diagnostic information about the page and the
+        # selector to try to assist in determining what happened.
+        def analyze_selector_exceptions
+          @@configurations.analyze_selector_exceptions
+        end
+
+        def analyze_selector_exceptions=(value)
+          @@configurations.analyze_selector_exceptions = value
+        end
+
         # Sometimes, the analysis process found the element when it wasn't found other ways.
         # This will cause the finder to try again with the found element.
         #
@@ -402,6 +417,18 @@ module Cornucopia
 
         def retry_with_found=(value)
           @@configurations.retry_with_found = value
+        end
+
+        # Sometimes, the analysis process found the element when it wasn't found other ways.
+        # This will cause the match accessor to try again with the found element.
+        #
+        # The default is true because I have been getting a fair number of false negatives.
+        def retry_match_with_found
+          @@configurations.retry_match_with_found
+        end
+
+        def retry_match_with_found=(value)
+          @@configurations.retry_match_with_found = value
         end
 
         # To make it easier to know about and to see the reports, this configuration will cause a report to be

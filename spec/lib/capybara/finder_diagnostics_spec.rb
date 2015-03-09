@@ -38,7 +38,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
 
     index_page.load base_folder: "sample_report"
 
-    tester = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(index_page, {}, :find, "#base-contents")
+    tester = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(index_page, {}, {}, :find, "#base-contents")
     expect(tester).not_to receive(:perform_analysis)
 
     tester.run
@@ -50,7 +50,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
     index_page.load base_folder: "sample_report"
 
     index_page.contents do |contents_frame|
-      tester = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(contents_frame, {}, :find, "#base-contentss")
+      tester = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(contents_frame, {}, {}, :find, "#base-contentss")
       expect(tester).to receive(:perform_analysis).and_call_original
 
       expect { tester.run }.to raise_error(Capybara::ElementNotFound)
@@ -83,27 +83,29 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
       expect(contents_frame.errors[0].tables[0].rows[6].values[0].text.length).to be > 0
 
       contents_frame.errors[0].more_details.show_hide.click
-      expect(contents_frame.errors[0].more_details.details.rows.length).to be == 9
+      expect(contents_frame.errors[0].more_details.details.rows.length).to be == 10
       expect(contents_frame.errors[0].more_details.details.rows[0].labels[0].text).to be == "name"
       expect(contents_frame.errors[0].more_details.details.rows[0].values[0].text).to be == "Capybara::ElementNotFound"
-      expect(contents_frame.errors[0].more_details.details.rows[1].labels[0].text).to be == "page_url"
-      expect(contents_frame.errors[0].more_details.details.rows[1].values[0].text).to match /report_contents\.html/
-      expect(contents_frame.errors[0].more_details.details.rows[2].labels[0].text).to be == "title"
-      expect(contents_frame.errors[0].more_details.details.rows[2].values[0].text).to be == "Diagnostics report list"
-      expect(contents_frame.errors[0].more_details.details.rows[3].labels[0].text).to be == "screen_shot"
-      expect(contents_frame.errors[0].more_details.details.rows[3].value_images[0][:src]).to match /\/screen_shot\.png/
-      expect(contents_frame.errors[0].more_details.details.rows[4].labels[0].text).to be == "html_file"
-      expect(contents_frame.errors[0].more_details.details.rows[4].value_links[0][:href]).
+      expect(contents_frame.errors[0].more_details.details.rows[1].labels[0].text).to be == "support_options"
+      expect(contents_frame.errors[0].more_details.details.rows[1].values[0].text).to be == "{:__cornucopia_no_analysis=>true, :__cornucopia_retry_with_found=>nil}"
+      expect(contents_frame.errors[0].more_details.details.rows[2].labels[0].text).to be == "page_url"
+      expect(contents_frame.errors[0].more_details.details.rows[2].values[0].text).to match /report_contents\.html/
+      expect(contents_frame.errors[0].more_details.details.rows[3].labels[0].text).to be == "title"
+      expect(contents_frame.errors[0].more_details.details.rows[3].values[0].text).to be == "Diagnostics report list"
+      expect(contents_frame.errors[0].more_details.details.rows[4].labels[0].text).to be == "screen_shot"
+      expect(contents_frame.errors[0].more_details.details.rows[4].value_images[0][:src]).to match /\/screen_shot\.png/
+      expect(contents_frame.errors[0].more_details.details.rows[5].labels[0].text).to be == "html_file"
+      expect(contents_frame.errors[0].more_details.details.rows[5].value_links[0][:href]).
           to match /html_save_file\/__cornucopia_save_page\.html/
-      expect(contents_frame.errors[0].more_details.details.rows[5].labels[0].text).to be == "html_frame"
-      expect(contents_frame.errors[0].more_details.details.rows[5].value_frames[0][:src]).
+      expect(contents_frame.errors[0].more_details.details.rows[6].labels[0].text).to be == "html_frame"
+      expect(contents_frame.errors[0].more_details.details.rows[6].value_frames[0][:src]).
           to match /page_dump\.html/
-      expect(contents_frame.errors[0].more_details.details.rows[6].labels[0].text).to be == "html_source"
-      expect(contents_frame.errors[0].more_details.details.rows[6].value_textareas[0].text).to be
-      expect(contents_frame.errors[0].more_details.details.rows[7].labels[0].text).to be == "page_height"
-      expect(contents_frame.errors[0].more_details.details.rows[7].values[0].text).to be
-      expect(contents_frame.errors[0].more_details.details.rows[8].labels[0].text).to be == "page_width"
+      expect(contents_frame.errors[0].more_details.details.rows[7].labels[0].text).to be == "html_source"
+      expect(contents_frame.errors[0].more_details.details.rows[7].value_textareas[0].text).to be
+      expect(contents_frame.errors[0].more_details.details.rows[8].labels[0].text).to be == "page_height"
       expect(contents_frame.errors[0].more_details.details.rows[8].values[0].text).to be
+      expect(contents_frame.errors[0].more_details.details.rows[9].labels[0].text).to be == "page_width"
+      expect(contents_frame.errors[0].more_details.details.rows[9].values[0].text).to be
     end
   end
 
@@ -115,7 +117,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
     index_page.load base_folder: "sample_report"
 
     index_page.contents do |contents_frame|
-      tester = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(contents_frame, {}, :find, "a")
+      tester = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(contents_frame, {}, {}, :find, "a")
       expect(tester).to receive(:perform_analysis).and_call_original
 
       expect { tester.run }.to raise_error(Capybara::Ambiguous)
@@ -147,31 +149,33 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
 
       contents_frame.errors[0].more_details.show_hide.click
       num_rows = contents_frame.errors[0].more_details.details.rows[1].sub_tables[0].rows.length
-      expect(contents_frame.errors[0].more_details.details.rows.length).to be == 11 + num_rows
+      expect(contents_frame.errors[0].more_details.details.rows.length).to be == 12 + num_rows
       expect(contents_frame.errors[0].more_details.details.rows[0].labels[0].text).to be == "name"
       expect(contents_frame.errors[0].more_details.details.rows[0].values[0].text).to be == "Capybara::Ambiguous"
       expect(contents_frame.errors[0].more_details.details.rows[1].labels[0].text).to be == "all_elements"
       expect(contents_frame.errors[0].more_details.details.rows[1].sub_tables.length).to be > 1
       expect(contents_frame.errors[0].more_details.details.rows[num_rows + 2].labels[0].text).to be == "guessed_types"
       expect(contents_frame.errors[0].more_details.details.rows[num_rows + 2].values[0].text).to be
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 3].labels[0].text).to be == "page_url"
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 3].values[0].text).to match /report_contents\.html/
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 4].labels[0].text).to be == "title"
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 4].values[0].text).to be == "Diagnostics report list"
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 5].labels[0].text).to be == "screen_shot"
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 5].value_images[0][:src]).to match /\/screen_shot\.png/
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 6].labels[0].text).to be == "html_file"
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 6].value_links[0][:href]).
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 3].labels[0].text).to be == "support_options"
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 3].values[0].text).to be == "{:__cornucopia_no_analysis=>true, :__cornucopia_retry_with_found=>nil}"
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 4].labels[0].text).to be == "page_url"
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 4].values[0].text).to match /report_contents\.html/
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 5].labels[0].text).to be == "title"
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 5].values[0].text).to be == "Diagnostics report list"
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 6].labels[0].text).to be == "screen_shot"
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 6].value_images[0][:src]).to match /\/screen_shot\.png/
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 7].labels[0].text).to be == "html_file"
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 7].value_links[0][:href]).
           to match /html_save_file\/__cornucopia_save_page\.html/
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 7].labels[0].text).to be == "html_frame"
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 7].value_frames[0][:src]).
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 8].labels[0].text).to be == "html_frame"
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 8].value_frames[0][:src]).
           to match /page_dump\.html/
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 8].labels[0].text).to be == "html_source"
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 8].value_textareas[0].text).to be
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 9].labels[0].text).to be == "page_height"
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 9].values[0].text).to be
-      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 10].labels[0].text).to be == "page_width"
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 9].labels[0].text).to be == "html_source"
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 9].value_textareas[0].text).to be
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 10].labels[0].text).to be == "page_height"
       expect(contents_frame.errors[0].more_details.details.rows[num_rows + 10].values[0].text).to be
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 11].labels[0].text).to be == "page_width"
+      expect(contents_frame.errors[0].more_details.details.rows[num_rows + 11].values[0].text).to be
     end
   end
 
@@ -181,10 +185,10 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
     index_page.load base_folder: "sample_report"
 
     index_page.contents do |contents_frame|
-      diag = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(contents_frame, {}, :all, "a")
+      diag = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(contents_frame, {}, {}, :all, "a")
       expect(Cornucopia::Capybara::FinderDiagnostics::FindAction).
           to receive(:new).
-                 with(contents_frame, {}, :all, "a").
+                 with(contents_frame, {}, {}, :all, "a").
                  and_return(diag)
       expect(diag).to receive(:run).and_call_original
 
@@ -202,10 +206,10 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
 
     index_page.contents do |contents_frame|
       diag = Cornucopia::Capybara::FinderDiagnostics::FindAction.
-          new(contents_frame, {}, :all, :css, "a", visible: true)
+          new(contents_frame, {}, {}, :all, :css, "a", visible: true)
       expect(Cornucopia::Capybara::FinderDiagnostics::FindAction).
           to receive(:new).
-                 with(contents_frame, {}, :all, :css, "a", visible: true).
+                 with(contents_frame, {}, {}, :all, :css, "a", visible: true).
                  and_return(diag)
       expect(diag).to receive(:run).and_call_original
       expect(diag).to receive(:generate_report).and_call_original
@@ -330,6 +334,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
               new ::Capybara.current_session,
                   { report: report,
                     table:  table },
+                  {},
                   :find,
                   "100",
                   from: "select-box"
@@ -366,6 +371,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
     it "deals with it if the from isn't found" do
       find_action = Cornucopia::Capybara::FinderDiagnostics::FindAction.
           new ::Capybara.current_session,
+              {},
               {},
               :select,
               "100",
@@ -498,7 +504,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
       index_page.load base_folder: "sample_report"
 
       index_page.contents do |contents_frame|
-        tester     = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(contents_frame, {}, :find, "#base-contentss")
+        tester     = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(contents_frame, {}, {}, :find, "#base-contentss")
         test_value = [nil, true, false, Faker::Lorem.sentence].sample
 
         expect(tester).to receive(:perform_analysis).and_return true

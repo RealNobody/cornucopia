@@ -27,7 +27,7 @@ module Cornucopia
       #   Instead of calling: <test_object>.<function> <args>
       #   you would call:     test_finder <test_object>, :<function>, <args>
       def self.test_finder(test_object, function_name, *args)
-        Cornucopia::Capybara::FinderDiagnostics::FindAction.new(test_object, {}, function_name, *args).run
+        Cornucopia::Capybara::FinderDiagnostics::FindAction.new(test_object, {}, {}, function_name, *args).run
       end
 
       # This takes the same arguments as the #test_finder function, but
@@ -37,7 +37,7 @@ module Cornucopia
       # think that it may be wrong, or for whatever reason, you want
       # more information about it to be output.
       def self.diagnose_finder(test_object, function_name, *args)
-        find_action = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(test_object, {}, function_name, *args)
+        find_action = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(test_object, {}, {}, function_name, *args)
 
         results = find_action.run
         find_action.generate_report "Diagnostic report on \"#{function_name.to_s}\":", nil
@@ -80,28 +80,41 @@ module Cornucopia
         @@diagnosed_finders = {}
 
         attr_accessor :return_value
+        attr_accessor :support_options
 
-        def initialize(test_object, report_options, function_name, *args)
-          @test_object    = test_object
-          @function_name  = function_name
-          @args           = args
-          @report_options = report_options || {}
+        def initialize(test_object, report_options, support_options, function_name, *args)
+          @test_object     = test_object
+          @function_name   = function_name
+          @args            = args
+          @support_options = support_options
+          @report_options  = report_options || {}
 
           @report_options[:report] ||= Cornucopia::Util::ReportBuilder.current_report
         end
 
         def run
           begin
-            @test_object.send(@function_name, *@args)
+            simple_run
           rescue
             error = $!
-            if perform_analysis(Cornucopia::Util::Configuration.retry_with_found)
+            if perform_analysis(support_options[:__cornucopia_retry_with_found])
               # Cornucopia::Util::Configuration.alternate_retry)
               @return_value
             else
               raise error
             end
           end
+        end
+
+        def simple_run(cornucopia_args = {})
+          simple_run_args    = @args.clone
+          simple_run_options = {}
+
+          if simple_run_args.last.is_a? Hash
+            simple_run_options = simple_run_args.pop
+          end
+
+          @test_object.send(@function_name, *simple_run_args, simple_run_options.merge(cornucopia_args))
         end
 
         # def can_dump_details?(attempt_retry, attempt_alternate_retry)
@@ -117,9 +130,10 @@ module Cornucopia
 
         # def dump_detail_args(attempt_retry, attempt_alternate_retry)
         def dump_detail_args(attempt_retry)
-          check_args = @args.clone
+          check_args = search_args.clone
           my_page    = ::Capybara.current_session
 
+          check_args << options.clone
           check_args << !!attempt_retry
           # check_args << !!attempt_alternate_retry
 
@@ -151,7 +165,7 @@ module Cornucopia
 
           if can_dump_details?(attempt_retry)
             generate_report "An error occurred while processing \"#{@function_name.to_s}\":",
-                                        $! do |report, report_table|
+                            $! do |report, report_table|
               retry_successful = perform_retry(attempt_retry, report, report_table)
             end
 
@@ -193,21 +207,34 @@ module Cornucopia
 
         def retry_action_with_found_element report, report_table
           return_result = false
+          result        = "Failed"
 
-          if found_element
-            result = "Success"
+          case @function_name.to_s
+            when "assert_selector"
+              if found_element
+                @return_value = true
+                return_result = true
+                result        = "Found"
+              end
 
-            case @function_name.to_s
-              when "find"
+            when "assert_no_selector"
+              unless found_element
+                @return_value = true
+                return_result = true
+                result        = "Not Found"
+              end
+
+            when "find", "all"
+              if found_element
+                result = "Success"
+
                 @return_value = found_element
-              when "all"
-                @return_value = found_element
-            end
 
-            return_result = true
-
-            report_table.write_stats "Retrying action:", result if report_table
+                return_result = true
+              end
           end
+
+          report_table.write_stats "Retrying action:", result if report_table && return_result
 
           return_result
         end
@@ -275,6 +302,7 @@ module Cornucopia
                   from_within                = Cornucopia::Capybara::FinderDiagnostics::FindAction.
                       new(@test_object,
                           sub_report_options,
+                          {},
                           :find,
                           :select,
                           options[:from])
@@ -284,10 +312,10 @@ module Cornucopia
               end
 
               from_element = from_within.found_element
-              if @search_args[0].is_a?(Symbol)
-                @search_args[0] = :option
+              if search_args[0].is_a?(Symbol)
+                search_args[0] = :option
               end
-              @options.delete(:from)
+              options.delete(:from)
 
               unless from_element
                 @all_elements = []
@@ -352,14 +380,14 @@ module Cornucopia
         # a list of guesses as to what kind of object is being searched for
         def guessed_types
           unless @guessed_types
-            if @args.length > 0
-              if @args[0].is_a?(Symbol)
-                @guessed_types = [@args[0]]
+            if search_args.length > 0
+              if search_args[0].is_a?(Symbol)
+                @guessed_types = [search_args[0]]
               else
                 @guessed_types = [:id, :css, :xpath, :link_or_button, :fillable_field, :radio_button, :checkbox, :select, :option,
                                   :file_field, :table, :field, :fieldset, :content].select do |test_type|
                   begin
-                    @test_object.all(test_type, *@args, visible: false, __cornucopia_no_analysis: true).length > 0
+                    @test_object.all(test_type, *search_args, visible: false, __cornucopia_no_analysis: true).length > 0
                   rescue
                     # Normally bad form, but for this function, we just don't want this to throw errors.
                     # We are only concerned with whatever actually succeeds.

@@ -218,7 +218,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
           Cornucopia::Util::Configuration.analyze_find_exceptions = true
 
           the_obj        = get_object(object_type)
-          stubbed_finder = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(the_obj, {}, "boody")
+          stubbed_finder = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(the_obj, {}, {}, "boody")
           found_body     = the_obj.find("body")
 
           expect(Cornucopia::Capybara::FinderDiagnostics::FindAction).to receive(:new).and_return(stubbed_finder)
@@ -251,7 +251,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
           Cornucopia::Util::Configuration.analyze_find_exceptions = true
 
           the_obj        = get_object(object_type)
-          stubbed_finder = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(the_obj, {}, "boody")
+          stubbed_finder = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(the_obj, {}, {}, "boody")
           found_body     = the_obj.find("body")
 
           expect(Cornucopia::Capybara::FinderDiagnostics::FindAction).to receive(:new).and_return(stubbed_finder)

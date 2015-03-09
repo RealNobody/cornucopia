@@ -12,6 +12,7 @@ describe "SitePrism element_extensions" do
     describe "#{test_class.name}" do
       let(:pre_name) { Faker::Lorem.word }
       let(:element_names) { Faker::Lorem.words(rand(3..10)).map(&:to_sym) }
+      let(:class_element_names) { element_names + rand(3..10).times.map(Faker::Lorem.words(rand(2..3).join("-"))) }
       let(:increment) { rand(2..10) }
       let(:start_index) { rand(2..10) }
       let(:options) do
@@ -40,6 +41,15 @@ describe "SitePrism element_extensions" do
         it "calls element once for each element_name" do
           element_names.each do |element_name|
             expect(test_class).to receive(:element).with(element_name, "\##{pre_name}-#{element_name}")
+          end
+
+          test_class.send(:patterned_elements, "\##{pre_name}-%{element_name}", *element_names)
+        end
+
+        it "converts -'s to _" do
+          element_names.each do |element_name|
+            expect(test_class).to receive(:element).with(element_name.to_s.gsub("-", "_").to_sym,
+                                                         "\##{pre_name}-#{element_name}")
           end
 
           test_class.send(:patterned_elements, "\##{pre_name}-%{element_name}", *element_names)
