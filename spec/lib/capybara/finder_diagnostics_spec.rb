@@ -468,6 +468,92 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
         end
       end
 
+      it "works with assert_selector" do
+        # TODO: figure out why this test appears to be flakey sometimes.
+        begin
+          Cornucopia::Util::Configuration.retry_match_with_found = true
+
+          allow_any_instance_of(::Capybara::Node::Element).to receive(:outerHTML).and_return(nil)
+
+          expect(::Capybara.current_session).
+              to receive(:evaluate_script).at_least(1).times.and_raise(::Capybara::NotSupportedByDriverError)
+          expect_any_instance_of(::Selenium::WebDriver::Driver).
+              to receive(:execute_script).at_least(1).times.and_raise(::Capybara::NotSupportedByDriverError)
+
+          base_object = ::Capybara.current_session.find(:css, "#hidden-div", visible: false)
+          button      = base_object.assert_selector("Still cool!", count: 1)
+
+          expect(button).to be true
+
+          report_page = CornucopiaReportApp.cornucopia_report_page
+          report_page.load(report_name: "cornucopia_report", base_folder: "cornucopia_report")
+          report_page.contents do |contents_frame|
+            contents_frame.errors[1].more_details.show_hide.click
+            expect(contents_frame.errors.length).to be == 2
+            expect(contents_frame.errors[1].tables[0].rows.last.labels[0].text).not_to be == "Retrying action:"
+            expect(contents_frame.errors[1].more_details.details.rows.last.labels[0].text).to be == "Retrying action:"
+            expect(contents_frame.errors[1].more_details.details.rows.last.values[0].text).to be == "Found"
+          end
+        ensure
+          Cornucopia::Util::Configuration.retry_match_with_found = false
+        end
+      end
+
+      it "works with assert_no_selector" do
+        # 621023375412314903581404663773388410917
+        begin
+          Cornucopia::Util::Configuration.retry_match_with_found = true
+
+          allow_any_instance_of(::Capybara::Node::Element).to receive(:outerHTML).and_return(nil)
+
+          allow(::Capybara.current_session).
+              to receive(:evaluate_script).and_raise(::Capybara::NotSupportedByDriverError)
+          allow_any_instance_of(::Selenium::WebDriver::Driver).
+              to receive(:execute_script).and_raise(::Capybara::NotSupportedByDriverError)
+
+          base_object       = ::Capybara.current_session.find(:css, "#hidden-div", visible: false)
+          find_button       = base_object.all("#hidden-cool-button", count: 1, visible: false)
+          empty_find_button = base_object.all("#hidden-cool-button", count: 1, visible: false)
+
+          allow_any_instance_of(::Cornucopia::Capybara::FinderDiagnostics::FindAction).
+              to receive(:all_elements).and_return []
+          allow_any_instance_of(::Cornucopia::Capybara::FinderDiagnostics::FindAction).
+              to receive(:all_other_elements).and_return []
+          allow(empty_find_button).to receive(:size).and_return 0
+          allow_any_instance_of(::Capybara::Node::Element).
+              to receive(:all).
+                     and_call_original
+          allow_any_instance_of(::Capybara::Node::Element).
+              to receive(:all).
+                     with("Still cool!", { count: 1 }).
+                     and_return(find_button)
+          allow_any_instance_of(::Capybara::Node::Element).
+              to receive(:all).
+                     with(instance_of(Symbol), "Still cool!", { visible: false, __cornucopia_no_analysis: true }).
+                     and_return(empty_find_button)
+          allow_any_instance_of(::Capybara::Node::Element).
+              to receive(:all).
+                     with("Still cool!", { visible: false, __cornucopia_no_analysis: true }).
+                     and_return(empty_find_button)
+
+          button = base_object.assert_no_selector("Still cool!", count: 1)
+
+          expect(button).to be true
+
+          report_page = CornucopiaReportApp.cornucopia_report_page
+          report_page.load(report_name: "cornucopia_report", base_folder: "cornucopia_report")
+          report_page.contents do |contents_frame|
+            contents_frame.errors[0].more_details.show_hide.click
+            expect(contents_frame.errors.length).to be == 1
+            expect(contents_frame.errors[0].tables[0].rows.last.labels[0].text).not_to be == "Retrying action:"
+            expect(contents_frame.errors[0].more_details.details.rows.last.labels[0].text).to be == "Retrying action:"
+            expect(contents_frame.errors[0].more_details.details.rows.last.values[0].text).to be == "Not Found"
+          end
+        ensure
+          Cornucopia::Util::Configuration.retry_match_with_found = false
+        end
+      end
+
       it "finds selection options using the from option" do
         report = Cornucopia::Util::ReportBuilder.current_report
 

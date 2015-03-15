@@ -58,7 +58,7 @@ require ::File.expand_path("../lib/cornucopia/util/configuration", File.dirname(
 
 Capybara.default_driver = :selenium
 
-# Cornucopia::Util::Configuration.seed = 559946548704735007565227883040284615792
+# Cornucopia::Util::Configuration.seed = 1
 RSpec.configure do |config|
   config.around(:each) do |example|
     @seed_value = Cornucopia::Util::Configuration.seed ||

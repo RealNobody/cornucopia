@@ -362,6 +362,25 @@ describe Cornucopia::Util::ConfiguredReport do
   end
 
   describe "#export_field_record" do
+    it "doesn't crash if there is an exception" do
+      string_val = "string"
+
+      Cornucopia::Util::ReportTable.new do |report_table|
+        allow(report_table).to receive(:write_stats).and_call_original
+        expect(report_table).to receive(:write_stats).with(:string_val, "string", {}).and_raise(Exception, "This is an error")
+
+        simple_report.export_field_record({ report_element: [:string_val] },
+                                          string_val,
+                                          :string_val,
+                                          report_table,
+                                          0,
+                                          report_object_set: true)
+
+        expect(report_table.full_table).to match /Configured Report Error/
+        expect(report_table.full_table).to match /This is an error/
+      end
+    end
+
     it "takes a passed in parent" do
       string_val = "string"
 

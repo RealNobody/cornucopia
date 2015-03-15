@@ -49,3 +49,4 @@ spec/dummy/sample_report/
 spec/dummy/.rspec
 test_reports/*
 .idea/
+**/.DS_Store

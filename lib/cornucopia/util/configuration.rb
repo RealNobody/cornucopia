@@ -393,7 +393,7 @@ module Cornucopia
 
         # This setting is used by the Capybara utilities.
         #
-        # When Capybara::Node.find throws an exception, if this is set, the system will try to
+        # When Capybara::Node.analyze_selector throws an exception, if this is set, the system will try to
         # use the FinderDiagnostics to output some diagnostic information about the page and the
         # selector to try to assist in determining what happened.
         def analyze_selector_exceptions

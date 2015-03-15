@@ -199,6 +199,22 @@ describe "Cornucopia::Util::Configuration" do
     end
   end
 
+  describe "#analyze_selector_exceptions" do
+    it "#can read the default" do
+      expect(Cornucopia::Util::Configuration.analyze_selector_exceptions).to be_truthy
+    end
+
+    it "#can set the value" do
+      begin
+        Cornucopia::Util::Configuration.analyze_selector_exceptions = false
+
+        expect(Cornucopia::Util::Configuration.analyze_selector_exceptions).to be_falsy
+      ensure
+        Cornucopia::Util::Configuration.analyze_selector_exceptions = true
+      end
+    end
+  end
+
   describe "#retry_with_found" do
     it "#can read the default" do
       expect(Cornucopia::Util::Configuration.retry_with_found).to be_falsy
@@ -211,6 +227,22 @@ describe "Cornucopia::Util::Configuration" do
         expect(Cornucopia::Util::Configuration.retry_with_found).to be_truthy
       ensure
         Cornucopia::Util::Configuration.retry_with_found = false
+      end
+    end
+  end
+
+  describe "#retry_match_with_found" do
+    it "#can read the default" do
+      expect(Cornucopia::Util::Configuration.retry_match_with_found).to be_falsy
+    end
+
+    it "#can set the value" do
+      begin
+        Cornucopia::Util::Configuration.retry_match_with_found = true
+
+        expect(Cornucopia::Util::Configuration.retry_match_with_found).to be_truthy
+      ensure
+        Cornucopia::Util::Configuration.retry_match_with_found = false
       end
     end
   end
@@ -234,6 +266,44 @@ describe "Cornucopia::Util::Configuration" do
   end
 
   describe "#open_report_after_generation" do
+    after(:each) do
+      Cornucopia::Util::Configuration.class_variable_get(:@@configurations).open_report_settings = { default: false }
+    end
+
+    it "returns the default value" do
+      def_value = [true, false].sample
+
+      Cornucopia::Util::Configuration.auto_open_report_after_generation(def_value)
+      expect(Cornucopia::Util::Configuration.open_report_after_generation(Faker::Lorem.word)).to eq def_value
+    end
+
+    it "returns the value for a report" do
+      def_value = [true, false].sample
+      report = Faker::Lorem.word
+
+      Cornucopia::Util::Configuration.auto_open_report_after_generation(def_value)
+      Cornucopia::Util::Configuration.auto_open_report_after_generation(!def_value, report)
+
+      expect(Cornucopia::Util::Configuration.open_report_after_generation("#{report} not")).to eq def_value
+      expect(Cornucopia::Util::Configuration.open_report_after_generation(report)).to eq !def_value
+    end
+  end
+
+  describe "#base_folder" do
+    it "#can read the default" do
+      expect(Cornucopia::Util::Configuration.base_folder).to eq "cornucopia_report"
+    end
+
+    it "#can set the value" do
+      begin
+        base_value = Faker::Lorem.sentence
+        Cornucopia::Util::Configuration.base_folder = base_value
+
+        expect(Cornucopia::Util::Configuration.base_folder).to eq base_value
+      ensure
+        Cornucopia::Util::Configuration.base_folder = "cornucopia_report"
+      end
+    end
   end
 
   # describe "#alternate_retry" do

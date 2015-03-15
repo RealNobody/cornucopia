@@ -52,6 +52,8 @@ module Cornucopia
         if !support_options[:__cornucopia_no_analysis] &&
             (Cornucopia::Util::Configuration.analyze_selector_exceptions ||
                 support_options[:__cornucopia_retry_with_found])
+          support_options.merge!({ __cornucopia_no_analysis: true })
+
           find_action = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(self,
                                                                                 {},
                                                                                 support_options,
@@ -60,7 +62,7 @@ module Cornucopia
 
           if find_action.perform_analysis(Cornucopia::Util::Configuration.retry_match_with_found ||
                                               support_options[:__cornucopia_retry_with_found])
-            return_value = find_action.simple_run rescue nil
+            return_value = find_action.simple_run({ __cornucopia_no_analysis: true }) rescue nil
             return_value ||= find_action.return_value
           else
             raise error
