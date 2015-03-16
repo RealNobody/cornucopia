@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 require ::File.expand_path("../../../lib/cornucopia/util/configuration", File.dirname(__FILE__))
 
 describe "Cornucopia::Util::Configuration" do
@@ -15,6 +15,25 @@ describe "Cornucopia::Util::Configuration" do
       expect(Cornucopia::Util::Configuration.seed).to be == seed_value
     ensure
       Cornucopia::Util::Configuration.seed = nil
+    end
+  end
+
+  it "has a default order_seed value" do
+    expect(Cornucopia::Util::Configuration.order_seed).not_to be
+  end
+
+  it "can set the order_seed value" do
+    config_seed = RSpec.configuration.seed
+    begin
+      seed_value = rand(0..999999999999999999999999999)
+
+      Cornucopia::Util::Configuration.order_seed = seed_value
+
+      expect(Cornucopia::Util::Configuration.order_seed).to be == seed_value
+      expect(RSpec.configuration.seed).to be == seed_value
+    ensure
+      RSpec.configuration.seed = config_seed
+      Cornucopia::Util::Configuration.order_seed = nil
     end
   end
 

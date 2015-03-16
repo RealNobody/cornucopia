@@ -59,17 +59,19 @@ require ::File.expand_path("../lib/cornucopia/util/configuration", File.dirname(
 Capybara.default_driver = :selenium
 
 # Cornucopia::Util::Configuration.seed = 1
+# Cornucopia::Util::Configuration.order_seed = 1
+
 RSpec.configure do |config|
   config.around(:each) do |example|
-    @seed_value = Cornucopia::Util::Configuration.seed ||
+    @test_seed_value = Cornucopia::Util::Configuration.seed ||
         100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
 
-    srand(@seed_value)
+    srand(@test_seed_value)
 
     example.run
 
     if (example.exception)
-      puts("random seed for testing was: #{@seed_value}")
+      puts("random seed for testing was: #{@test_seed_value}")
     end
   end
 end

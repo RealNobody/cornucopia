@@ -79,6 +79,12 @@ module Cornucopia
       class FindAction
         @@diagnosed_finders = {}
 
+        # Clears the class variable @@diagnosed_finders between tests if called.
+        # This is done so that finder analysis is called at least once per test.
+        def self.start_test
+          @@diagnosed_finders = {}
+        end
+
         attr_accessor :return_value
         attr_accessor :support_options
 

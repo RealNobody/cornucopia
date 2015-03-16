@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 require ::File.expand_path("../../../lib/cornucopia/capybara/finder_extensions", File.dirname(__FILE__))
 
 describe Cornucopia::Capybara::FinderExtensions, type: :feature do

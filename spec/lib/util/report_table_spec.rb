@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "rails_helper"
 require ::File.expand_path("../../../lib/cornucopia/util/report_table", File.dirname(__FILE__))
 
 describe Cornucopia::Util::ReportTable do

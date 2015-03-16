@@ -8,6 +8,8 @@ Around do |scenario, block|
 
   scenario.instance_variable_set :@seed_value, seed_value
 
+  Cornucopia::Capybara::FinderDiagnostics::FindAction.start_test
+
   block.call
 
   if scenario.failed?

@@ -9,11 +9,11 @@ this is just the way it is.
 
 Add this line to your application's Gemfile:
 
-    gem 'cornucopia', '~> 0.1.0', git: "git@github.com:RealNobody/cornucopia.git"
+    gem 'cornucopia'
 
 And then execute:
 
-    $ bundle
+    $ bundle install
 
 Or install it yourself as:
 
@@ -28,7 +28,7 @@ include the appropriate files.
 
 #### RSPEC:
 
-spec_helper.rb:
+spec_helper.rb or rails_helper.rb depending on the version of RSpec you are using, or where you want to put it:
 
 ```
 require "cornucopia/rspec_hooks"
@@ -125,7 +125,7 @@ Examples:
       # element :my_element_3, :xpath, "//td[name = \"my_element_3\"]", visible: false
     end
 
-* **patterned_elements(form_type, *elements)**
+* **form_elements(form_type, *elements)**
 
 This provides a quick and easy way to define elements for the items in forms.  The ids of the elements in a form
 follow the simple pattern of:  &lt;form_name&gt;&lt;element_id&gt;.  Most of the time, you want the name of the
@@ -177,12 +177,14 @@ Example:
     class MySection < SitePrism::Section
       id_elements :my_item_1,
                   :my_item_2,
-                  :my_item_3
+                  :my_item_3,
+                  "my-class-name"
 
       # instead of:
       # element :my_item_1, ".my_item_1"
       # element :my_item_2, ".my_item_2"
       # element :my_item_3, ".my_item_3"
+      # element :my_class_name, ".my-class-name"
     end
 
 * **indexed_elements(pattern, *element, options = {})**
@@ -266,6 +268,14 @@ The configuration class contains the various configurations that are used by the
     The seed value represents the seed value for `rand`.  It is used by the testing hooks to allow tests with
     randomized values to still be repeatable.  This value can be set or read.
 
+* **order_seed**
+
+    **Experimental** The order_seed value represents the seed value for the order that RSpec tests are run in if they 
+    are run randomly.  This value in the configurations actually doesn't always work as it is very dependent on when 
+    it is set during the RSpec configuration process.  The system tries, but it may be best just to do what this does
+     and set `RSpec.configuration.seed = <your value>` youself in spec_helper.rb.  Really I've just started playing 
+     around with it and seeing what I can do with it.
+
 * **grab_logs**
 
     Indicates if the `Cornucopia::Util::LogCapture` class will capture any log files or not.
@@ -321,6 +331,20 @@ The configuration class contains the various configurations that are used by the
     literally hours to print out using `pretty_inspect`.  (I suspect an infinite loop.)  This value prevents that by
     interrupting a printout which takes too long.
 
+* **auto_open_report_after_generation**
+
+    This allows you to tell the system to open a report with errors in it after the report is closed/finished.  If 
+    you do not specify a type of report the value you specify will be the default value used for any report that is 
+    generated. 
+
+* And more...
+
+    There are more configurations.  They are commented in the configuraiton.rb file.  If I didn't include them here, 
+    then I probably thought that they were well commented in the file, or that they weren't important enough to put 
+    here, or that they shouldn't be used normally, or (hopefully not) I just forgot to update the readme.
+
+    If I forgot one and you think it should be here, let me know.
+
 #### ConfiguredReport
 
 The `Cornucopia::Util::ConfiguredReport` class allows you to configure what information is exported to generated
@@ -339,3 +363,19 @@ report files.
 ReportBuilder - delayed reports
   @delayed_reports = { key: { report_name: "", report_table: ReportTable.new do || end} }
   finder diagnostics - within sub-report.  delayed_report?
+ReportBuilder - reports by test with multiple sub-reports
+  Instead of delayed reports?
+ReportBuilder - reformat and styling of report?
+ReportBuilder - Each test in separate files so we can create a report with a list of failed tests in case there are a
+                lot of them.
+  Instead of delayed reports?
+Hooks to add stuff to reports
+  Add own section to report for test
+  Option/way to make new section a more-details section
+SitePrism override section, element, sections and elements command to allow parameters to be passed in as additional 
+    options.
+  functions to override:
+    main function (name)
+    has_
+    ???
+Make configuration a singleton

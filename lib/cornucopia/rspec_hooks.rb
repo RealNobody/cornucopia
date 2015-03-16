@@ -4,6 +4,8 @@ load ::File.expand_path("capybara/install_matcher_extensions.rb", File.dirname(_
 load ::File.expand_path("site_prism/install_element_extensions.rb", File.dirname(__FILE__))
 
 RSpec.configure do |config|
+  config.seed = Cornucopia::Util::Configuration.order_seed if Cornucopia::Util::Configuration.order_seed
+
   config.before(:suite) do |*args|
     Cornucopia::Util::ReportBuilder.new_report("rspec_report")
   end
@@ -18,6 +20,8 @@ RSpec.configure do |config|
 
     srand(@seed_value)
 
+    Cornucopia::Capybara::FinderDiagnostics::FindAction.start_test
+
     example.run
 
     test_example = example.example if example.respond_to?(:example)
@@ -29,7 +33,7 @@ RSpec.configure do |config|
           within_section("Test Error: #{test_example.full_description}") do |report|
         configured_report = Cornucopia::Util::Configuration.report_configuration :rspec
 
-        configured_report.add_report_objects example: test_example
+        configured_report.add_report_objects example: test_example, rspec: RSpec
         configured_report.generate_report(report)
       end
     end

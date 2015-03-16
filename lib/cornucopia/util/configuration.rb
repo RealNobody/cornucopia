@@ -6,6 +6,7 @@ module Cornucopia
   module Util
     class Configuration
       @@configurations                             = Cornucopia::Util::GenericSettings.new
+      @@configurations.order_seed                  = nil
       @@configurations.rand_seed                   = nil
       @@configurations.user_log_files              = {}
       @@configurations.default_num_lines           = 500
@@ -34,6 +35,7 @@ module Cornucopia
                                         :example,
                                         :example__example_group_instance,
                                         :example__metadata__caller,
+                                        :rspec__configuration__seed,
                                         :logs,
                                         :capybara_page_diagnostics
                                     ],
@@ -266,6 +268,18 @@ module Cornucopia
 
         def seed
           @@configurations.rand_seed
+        end
+
+        # order_seed is the seed value used to set the order that randomly ordered tests are run in.
+        # This is provided as a convenience method.  I think it is easier to set this in rails_helper than it is to
+        # set it on the command line.  This also provides a uniform method to do it.
+        def order_seed=(value)
+          @@configurations.order_seed = value
+          RSpec.configuration.seed = value if value
+        end
+
+        def order_seed
+          @@configurations.order_seed
         end
 
         # grab_logs indicates if the system should try to automatically grab a tail of

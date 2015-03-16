@@ -8,6 +8,8 @@ Spinach.hooks.before_scenario do |scenario, step_definitions|
       100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
 
   scenario.instance_variable_set :@seed_value, seed_value
+
+  Cornucopia::Capybara::FinderDiagnostics::FindAction.start_test
 end
 
 Spinach.hooks.after_scenario do |scenario, step_definitions|

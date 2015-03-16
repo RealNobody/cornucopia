@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 require ::File.expand_path("../../../lib/cornucopia/util/report_builder", File.dirname(__FILE__))
 require ::File.expand_path("../../../lib/cornucopia/capybara/page_diagnostics", File.dirname(__FILE__))
 require ::File.expand_path("../../../lib/cornucopia/capybara/finder_diagnostics", File.dirname(__FILE__))

@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 require ::File.expand_path("../../../lib/cornucopia/util/configured_report", File.dirname(__FILE__))
 
 class SubTestClass
