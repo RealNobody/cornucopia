@@ -1,0 +1,18 @@
+<html>
+<header><title>%{report_title}</title></header>
+<body>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<link href="cornucopia.css" rel="stylesheet" type="text/css" />
+<div class="coruncopia-report-holder-table">
+  <div class="coruncopia-report-holder-row">
+    <div class="coruncopia-report-holder-list-cell">
+      %{test_list}
+    </div>
+    <div class="coruncopia-report-body-cell">
+      <iframe class="coruncopia-report-body-frame" id="report-display-document" src=""></iframe>
+    </div>
+  </div>
+</div>
+<script src="report.js"></script>
+</body>
+</html>

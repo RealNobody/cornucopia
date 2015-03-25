@@ -159,34 +159,20 @@ module Cornucopia
         options_report_table = options.delete(:report_table)
         [@min_fields, @more_info_fields].each do |export_field_list|
           if export_field_list
-            table_pre  = nil
-            table_post = nil
-
+            table_pre      = false
+            table_function = :within_table
             if @min_fields != export_field_list && !options_report_table
               options_report_table = nil
+              table_pre            = true
 
-              table_pre = "<div class=\"cornucopia-show-hide-section\">\n"
-              table_pre << "  <div class=\"cornucopia-table\">\n"
-              table_pre << "    <div class=\"cornucopia-row\">\n"
-              table_pre << "      <div class=\"cornucopia-cell-data\">\n"
-              table_pre << "        <a class =\"cornucopia-additional-details\" href=\"#\">More Details...</a>\n"
-              table_pre << "      </div>\n"
-              table_pre << "    </div>\n"
-              table_pre << "  </div>\n"
-              table_pre << "  <div class=\"cornucopia-additional-details hidden\">\n"
-              table_pre.html_safe
-              table_post = "  </div>\n"
-              table_post << "</div>\n"
-              table_post.html_safe
+              table_function = :within_hidden_table
             end
 
-            report.within_table(table_prefix:         table_pre,
-                                table_postfix:        table_post,
-                                report_table:         options_report_table,
-                                nested_table:         options.delete(:nested_table),
-                                nested_table_label:   options.delete(:nested_table_label),
-                                not_a_table:          table_pre,
-                                suppress_blank_table: table_pre) do |outer_report_table|
+            report.send(table_function,
+                        report_table:       options_report_table,
+                        nested_table:       options.delete(:nested_table),
+                        nested_table_label: options.delete(:nested_table_label)
+            ) do |outer_report_table|
               Cornucopia::Util::ReportTable.new(
                   report_table:         table_pre ? nil : outer_report_table,
                   nested_table:         outer_report_table,

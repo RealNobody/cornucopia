@@ -624,7 +624,7 @@ describe Cornucopia::Util::ReportBuilder do
             end
 
             groups.each do |other_group_name, other_group_indexes|
-              if (other_group_name != group_name)
+              if other_group_name != group_name
                 expect((group_indexes.min < other_group_indexes.min && group_indexes.max < other_group_indexes.min) ||
                            (group_indexes.min > other_group_indexes.max && group_indexes.max > other_group_indexes.max)).
                     to be_truthy
@@ -788,7 +788,7 @@ describe Cornucopia::Util::ReportBuilder do
           end.to raise_exception
 
           post_data = File.read(current_report.report_contents_page_name)
-          expect(post_data[-1 * "\<\/div\>\n".length..-1]).to be == "\<\/div\>\n"
+          expect(post_data[-1 * "\<\/div\>\n<div class=\"cornucopia-end-section\" />\n".length..-1]).to be == "\<\/div\>\n<div class=\"cornucopia-end-section\" />\n"
         end
       end
 
@@ -807,7 +807,7 @@ describe Cornucopia::Util::ReportBuilder do
           end
 
           post_data = File.read(current_report.report_contents_page_name)
-          expect(post_data[-1 * "\<\/div\>\n".length..-1]).to be == "\<\/div\>\n"
+          expect(post_data[-1 * "\<\/div\>\n<div class=\"cornucopia-end-section\" />\n".length..-1]).to be == "\<\/div\>\n<div class=\"cornucopia-end-section\" />\n"
           expect(post_data).to match /\>\n#{table_label}\n\</
           expect(post_data).to match /\>#{table_data}\</
         end
@@ -829,7 +829,7 @@ describe Cornucopia::Util::ReportBuilder do
           end.to raise_exception
 
           post_data = File.read(current_report.report_contents_page_name)
-          expect(post_data[-1 * "\<\/div\>\n".length..-1]).to be == "\<\/div\>\n"
+          expect(post_data[-1 * "\<\/div\>\n<div class=\"cornucopia-end-section\" />\n".length..-1]).to be == "\<\/div\>\n<div class=\"cornucopia-end-section\" />\n"
           expect(post_data).to match /\>\n#{table_label}\n\</
           expect(post_data).to match /\>#{table_data}\</
           expect(post_data).to match /This is an exception/

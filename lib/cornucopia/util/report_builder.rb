@@ -193,6 +193,8 @@ module Cornucopia
       def initialize(folder_name = nil, parent_folder = nil)
         @parent_folder_name = parent_folder || Cornucopia::Util::Configuration.base_folder
         @base_folder_name   = folder_name || Cornucopia::Util::Configuration.base_folder
+        @test_name          = "unknown_test"
+        @section_number     = 0
       end
 
       # This does nothing in a normal report because reports are built as you go.
@@ -381,10 +383,22 @@ module Cornucopia
         File.open(report_contents_page_name, "a:UTF-8", &block)
       end
 
+      def within_test(test_name, &block)
+        orig_test_name = @test_name
+
+        begin
+          @test_name = test_name
+
+          block.yield
+        ensure
+          @test_name = orig_test_name
+        end
+      end
+
       def within_section(section_text, &block)
         begin
           open_report_contents_file do |write_file|
-            write_file.write "<div class=\"cornucopia-section\">\n"
+            write_file.write "<div class=\"cornucopia-section #{((@section_number += 1) % 2) == 1 ? "cornucopia-even" : "cornucopia-odd"}\">\n"
             write_file.write "<p class=\"cornucopia-section-label\">#{Cornucopia::Util::ReportBuilder.escape_string(section_text)}</p>\n".
                                  force_encoding("UTF-8")
           end
@@ -392,7 +406,35 @@ module Cornucopia
         ensure
           open_report_contents_file do |write_file|
             write_file.write "</div>\n"
+            write_file.write "<div class=\"cornucopia-end-section\" />\n"
           end
+        end
+      end
+
+      def within_hidden_table(options={}, &block)
+        table_pre = "<div class=\"cornucopia-show-hide-section\">\n"
+        table_pre << "  <div class=\"cornucopia-table\">\n"
+        table_pre << "    <div class=\"cornucopia-row\">\n"
+        table_pre << "      <div class=\"cornucopia-cell-data\">\n"
+        table_pre << "        <a class =\"cornucopia-additional-details\" href=\"#\">More Details...</a>\n"
+        table_pre << "      </div>\n"
+        table_pre << "    </div>\n"
+        table_pre << "  </div>\n"
+        table_pre << "  <div class=\"cornucopia-additional-details hidden\">\n"
+        table_pre = table_pre.html_safe
+
+        table_post = "  </div>\n"
+        table_post << "</div>\n"
+        table_post = table_post.html_safe
+
+        within_table(table_prefix:         table_pre,
+                     table_postfix:        table_post,
+                     report_table:         nil,
+                     nested_table:         options.delete(:nested_table),
+                     nested_table_label:   options.delete(:nested_table_label),
+                     not_a_table:          table_pre,
+                     suppress_blank_table: table_pre) do |outer_report_table|
+          block.yield outer_report_table
         end
       end
 
