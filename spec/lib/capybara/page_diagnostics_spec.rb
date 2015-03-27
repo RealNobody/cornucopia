@@ -57,7 +57,7 @@ describe Cornucopia::Capybara::PageDiagnostics, type: :feature do
 
       report.close
 
-      report_text = File.read(report.report_contents_page_name)
+      report_text = File.read(report.report_test_contents_page_name)
       expect(report_text).not_to match /No Errors to report/
       expect(report_text).to match /\>Page Dump:\</
       expect(report_text).to match /\>\npage_url\n\</
@@ -92,7 +92,7 @@ describe Cornucopia::Capybara::PageDiagnostics, type: :feature do
 
       report.close
 
-      report_text = File.read(report.report_contents_page_name)
+      report_text = File.read(report.report_test_contents_page_name)
       expect(report_text).not_to match /No Errors to report/
       expect(report_text).not_to match /\>\noptions\n\</
       expect(report_text).not_to match /\>\nreport\n\</
@@ -131,7 +131,7 @@ describe Cornucopia::Capybara::PageDiagnostics, type: :feature do
 
       report.close
 
-      report_text = File.read(report.report_contents_page_name)
+      report_text = File.read(report.report_test_contents_page_name)
       expect(report_text).not_to match /No Errors to report/
       expect(report_text).not_to match /\>\noptions\n\</
       expect(report_text).not_to match /\>\nreport\n\</
@@ -171,7 +171,7 @@ describe Cornucopia::Capybara::PageDiagnostics, type: :feature do
       Cornucopia::Capybara::PageDiagnostics.dump_details(report: report)
       report.close
 
-      report_text = File.read(report.report_contents_page_name)
+      report_text = File.read(report.report_test_contents_page_name)
       expect(report_text).not_to match /No Errors to report/
       expect(report_text).not_to match /\>\noptions\n\</
       expect(report_text).not_to match /\>\nreport\n\</
@@ -209,7 +209,7 @@ describe Cornucopia::Capybara::PageDiagnostics, type: :feature do
 
       report.close
 
-      report_text = File.read(report.report_contents_page_name)
+      report_text = File.read(report.report_test_contents_page_name)
       expect(report_text).not_to match /No Errors to report/
       expect(report_text.scan(/\>Super cool report dump:\</).length).to be == 1
     end
@@ -233,7 +233,7 @@ describe Cornucopia::Capybara::PageDiagnostics, type: :feature do
 
       report.close
 
-      report_text = File.read(report.report_contents_page_name)
+      report_text = File.read(report.report_test_contents_page_name)
       expect(report_text).not_to match /No Errors to report/
       expect(report_text.scan(/\>Super cool report dump:\</).length).to be == 1
       expect(report_text).to match /Could not save screen_shot./
@@ -255,7 +255,7 @@ describe Cornucopia::Capybara::PageDiagnostics, type: :feature do
 
       report.close
 
-      report_text = File.read(report.report_contents_page_name)
+      report_text = File.read(report.report_test_contents_page_name)
       expect(report_text).not_to match /No Errors to report/
       expect(report_text).to match /\>an existing section\</
       expect(report_text).to match /\>\nsomething\n\</

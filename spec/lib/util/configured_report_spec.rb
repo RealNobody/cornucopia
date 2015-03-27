@@ -831,7 +831,7 @@ describe Cornucopia::Util::ConfiguredReport do
 
       builder.generate_report(report)
 
-      full_table = File.read(report.report_contents_page_name)
+      full_table = File.read(report.report_test_contents_page_name)
 
       expect(full_table).not_to match(/\"cornucopia-show-hide-section\"/)
       expect(full_table).to match(/\>\ntest\n\</)
@@ -863,7 +863,7 @@ describe Cornucopia::Util::ConfiguredReport do
         table.write_stats("Something_Extra", "A value")
       end
 
-      full_table = File.read(report.report_contents_page_name)
+      full_table = File.read(report.report_test_contents_page_name)
 
       expect(full_table).to match(/\"cornucopia-show-hide-section\"/)
       expect(full_table).to match(/\>\ntest\n\</)
@@ -897,7 +897,7 @@ describe Cornucopia::Util::ConfiguredReport do
 
       builder.generate_report(report)
 
-      full_table = File.read(report.report_contents_page_name)
+      full_table = File.read(report.report_test_contents_page_name)
 
       expect(full_table).to match(/\"cornucopia-show-hide-section\"/)
       expect(full_table).to match(/\>\ntest\n\</)

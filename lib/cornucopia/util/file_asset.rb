@@ -17,6 +17,14 @@ module Cornucopia
         @asset_body = asset_body
       end
 
+      def body
+        unless @asset_body
+          self.source_file = path
+        end
+
+        @asset_body
+      end
+
       def source_file=(source_file_name)
         # We read the file into memory in case the file moves or is temporary.
         @asset_body = File.read(source_file_name)

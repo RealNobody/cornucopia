@@ -22,19 +22,22 @@ RSpec.configure do |config|
 
     Cornucopia::Capybara::FinderDiagnostics::FindAction.start_test
 
-    example.run
-
     test_example = example.example if example.respond_to?(:example)
     test_example ||= self.example if self.respond_to?(:example)
-    if (test_example.exception)
-      puts ("random seed for testing was: #{@seed_value}")
 
-      Cornucopia::Util::ReportBuilder.current_report.
-          within_section("Test Error: #{test_example.full_description}") do |report|
-        configured_report = Cornucopia::Util::Configuration.report_configuration :rspec
+    Cornucopia::Util::ReportBuilder.current_report.within_test(test_example.full_description) do
+      example.run
 
-        configured_report.add_report_objects example: test_example, rspec: RSpec
-        configured_report.generate_report(report)
+      if (test_example.exception)
+        puts ("random seed for testing was: #{@seed_value}")
+
+        Cornucopia::Util::ReportBuilder.current_report.
+            within_section("Test Error: #{test_example.full_description}") do |report|
+          configured_report = Cornucopia::Util::Configuration.report_configuration :rspec
+
+          configured_report.add_report_objects example: test_example, rspec: RSpec
+          configured_report.generate_report(report)
+        end
       end
     end
   end

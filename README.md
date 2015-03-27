@@ -360,18 +360,6 @@ report files.
 
 ## Todos...
 
-ReportBuilder - delayed reports
-  @delayed_reports = { key: { report_name: "", report_table: ReportTable.new do || end} }
-  finder diagnostics - within sub-report.  delayed_report?
-ReportBuilder - reports by test with multiple sub-reports
-  Instead of delayed reports?
-ReportBuilder - reformat and styling of report?
-ReportBuilder - Each test in separate files so we can create a report with a list of failed tests in case there are a
-                lot of them.
-  Instead of delayed reports?
-Hooks to add stuff to reports
-  Add own section to report for test
-  Option/way to make new section a more-details section
 SitePrism override section, element, sections and elements command to allow parameters to be passed in as additional 
     options.
   functions to override:
@@ -379,3 +367,5 @@ SitePrism override section, element, sections and elements command to allow para
     has_
     ???
 Make configuration a singleton
+SitePrism work with Capybara::Node::Simple
+ReportBuilder - reformat and styling of report?

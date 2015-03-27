@@ -152,7 +152,8 @@ module Cornucopia
           section << "</h4>\n".html_safe
           section << "  <ul class=\"index-list\">\n".html_safe
 
-          section_items.each do |section_item|
+          section << Cornucopia::Util::ReportBuilder.build_index_section_item(section_items.shift)
+          section_items.reverse.each do |section_item|
             section << Cornucopia::Util::ReportBuilder.build_index_section_item(section_item)
           end
 
@@ -193,8 +194,11 @@ module Cornucopia
       def initialize(folder_name = nil, parent_folder = nil)
         @parent_folder_name = parent_folder || Cornucopia::Util::Configuration.base_folder
         @base_folder_name   = folder_name || Cornucopia::Util::Configuration.base_folder
+        @report_title       = folder_name || Cornucopia::Util::Configuration.base_folder
         @test_name          = "unknown_test"
         @section_number     = 0
+        @test_number        = 0
+        @report_body        = "".html_safe
       end
 
       # This does nothing in a normal report because reports are built as you go.
@@ -213,14 +217,13 @@ module Cornucopia
           end
         end
 
-        if File.exists?(report_contents_page_name)
+        if File.exists?(report_base_page_name)
           if Cornucopia::Util::Configuration.open_report_after_generation(@base_folder_name)
             # `open #{report_base_page_name}` rescue nil
             system("open #{report_base_page_name}") rescue nil
           end
         else
-          initialize_report_files
-          File.open(report_contents_page_name, "a:UTF-8") do |write_file|
+          open_report_contents_file do |write_file|
             write_file.write %Q[<p class=\"cornucopia-no-errors\">No Errors to report</p>]
             write_file.write "\n"
           end
@@ -244,6 +247,15 @@ module Cornucopia
         end
 
         @report_folder_name
+      end
+
+      def report_test_folder_name
+        unless @report_test_folder_name
+          @test_number             += 1
+          @report_test_folder_name = File.join(report_folder_name, "test_#{@test_number}")
+        end
+
+        @report_test_folder_name
       end
 
       def index_folder_name
@@ -344,12 +356,37 @@ module Cornucopia
         end
       end
 
+      def rebuild_report_holder_page
+        initialize_report_files
+
+        report_folder = report_folder_name
+
+        FileUtils.mkdir_p report_folder_name
+        FileUtils.rm_rf report_base_page_name
+
+        report_holder_body = FileAsset.asset("report_holder.html").body
+        FileAsset.asset("report.js").add_file(File.join(report_folder, "report.js"))
+        FileAsset.asset("cornucopia.css").add_file(File.join(report_folder, "cornucopia.css"))
+
+        File.open(File.join(report_folder, "index.html"), "w+") do |write_file|
+          write_file << report_holder_body % { report_list: @report_body, report_title: @report_title }
+        end
+      end
+
       def report_base_page_name
         File.join(report_folder_name, "index.html")
       end
 
       def report_contents_page_name
         File.join(report_folder_name, "report_contents.html")
+      end
+
+      def report_test_base_page_name
+        File.join(report_test_folder_name, "index.html")
+      end
+
+      def report_test_contents_page_name
+        File.join(report_test_folder_name, "report_contents.html")
       end
 
       def index_base_page_name
@@ -360,12 +397,28 @@ module Cornucopia
         File.join(index_folder_name, "report_contents.html")
       end
 
-      def initialize_report_files()
+      def initialize_report_files
         support_folder_name = report_folder_name
 
         FileUtils.mkdir_p @report_folder_name
 
         unless File.exists?(report_base_page_name)
+          # use a different base index file.
+          FileAsset.asset("report_holder.html").add_file(File.join(support_folder_name, "index.html"))
+          rebuild_index_page
+        end
+
+        FileAsset.asset("report.js").add_file(File.join(support_folder_name, "report.js"))
+        FileAsset.asset("cornucopia.css").add_file(File.join(support_folder_name, "cornucopia.css"))
+      end
+
+      def initialize_basic_report_files
+        support_folder_name = report_folder_name
+
+        FileUtils.mkdir_p @report_folder_name
+
+        unless File.exists?(report_base_page_name)
+          # use a different base index file.
           FileAsset.asset("report_base.html").add_file(File.join(support_folder_name, "index.html"))
           rebuild_index_page
         end
@@ -377,34 +430,84 @@ module Cornucopia
         FileAsset.asset("cornucopia.css").add_file(File.join(support_folder_name, "cornucopia.css"))
       end
 
+      def test_list_item
+        if @test_list_item
+          nil
+        else
+          folder_name = File.basename(report_test_folder_name)
+
+          @test_list_item = "<li>\n".html_safe
+          @test_list_item += "<a class=\"coruncopia-report-link\" href=\"#{folder_name}/index.html\" target=\"_blank\">".html_safe
+          @test_list_item += @test_name
+          @test_list_item += "</a>\n".html_safe
+          @test_list_item += "</li>\n".html_safe
+
+          @test_list_item
+        end
+      end
+
+      def initialize_report_test_files
+        @report_body += test_list_item
+
+        support_folder_name = report_test_folder_name
+
+        FileUtils.mkdir_p @report_test_folder_name
+
+        unless File.exists?(report_test_base_page_name)
+          FileAsset.asset("report_base.html").add_file(File.join(support_folder_name, "index.html"))
+          rebuild_report_holder_page
+        end
+
+        FileAsset.asset("report_contents.html").add_file(File.join(support_folder_name, "report_contents.html"))
+        FileAsset.asset("collapse.gif").add_file(File.join(support_folder_name, "collapse.gif"))
+        FileAsset.asset("expand.gif").add_file(File.join(support_folder_name, "expand.gif"))
+        FileAsset.asset("more_info.js").add_file(File.join(support_folder_name, "more_info.js"))
+        FileAsset.asset("cornucopia.css").add_file(File.join(support_folder_name, "cornucopia.css"))
+      end
+
       def open_report_contents_file(&block)
-        initialize_report_files
+        initialize_basic_report_files
 
         File.open(report_contents_page_name, "a:UTF-8", &block)
       end
 
+      def open_report_test_contents_file(&block)
+        initialize_report_test_files
+
+        File.open(report_test_contents_page_name, "a:UTF-8", &block)
+      end
+
       def within_test(test_name, &block)
-        orig_test_name = @test_name
+        orig_test_name      = @test_name
+        orig_test_folder    = @report_test_folder_name
+        orig_test_list_item = @test_list_item
+        orig_section_number = @section_number
 
         begin
-          @test_name = test_name
+          @test_name               = test_name
+          @report_test_folder_name = nil
+          @test_list_item          = nil
+          @section_number          = 0
 
           block.yield
         ensure
-          @test_name = orig_test_name
+          @section_number          = orig_section_number
+          @test_name               = orig_test_name
+          @report_test_folder_name = orig_test_folder
+          @test_list_item          = orig_test_list_item
         end
       end
 
       def within_section(section_text, &block)
         begin
-          open_report_contents_file do |write_file|
+          open_report_test_contents_file do |write_file|
             write_file.write "<div class=\"cornucopia-section #{((@section_number += 1) % 2) == 1 ? "cornucopia-even" : "cornucopia-odd"}\">\n"
             write_file.write "<p class=\"cornucopia-section-label\">#{Cornucopia::Util::ReportBuilder.escape_string(section_text)}</p>\n".
                                  force_encoding("UTF-8")
           end
           block.yield self
         ensure
-          open_report_contents_file do |write_file|
+          open_report_test_contents_file do |write_file|
             write_file.write "</div>\n"
             write_file.write "<div class=\"cornucopia-end-section\" />\n"
           end
@@ -449,7 +552,7 @@ module Cornucopia
           end
         ensure
           if report_table && !options_report_table
-            open_report_contents_file do |write_file|
+            open_report_test_contents_file do |write_file|
               write_file.write report_table.full_table.force_encoding("UTF-8")
             end
           end

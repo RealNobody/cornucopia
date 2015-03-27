@@ -2,6 +2,12 @@ require ::File.expand_path("../cornucopia", File.dirname(__FILE__))
 load ::File.expand_path("capybara/install_finder_extensions.rb", File.dirname(__FILE__))
 load ::File.expand_path("site_prism/install_element_extensions.rb", File.dirname(__FILE__))
 
+Spinach.hooks.around_scenario do |scenario_data, step_definitions, &block|
+  Cornucopia::Util::ReportBuilder.current_report.within_test("#{scenario_data.feature.name} : #{scenario_data.name}") do
+    block.call
+  end
+end
+
 Spinach.hooks.before_scenario do |scenario, step_definitions|
   @running_scenario = scenario
   seed_value        = Cornucopia::Util::Configuration.seed ||

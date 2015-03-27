@@ -10,7 +10,9 @@ Around do |scenario, block|
 
   Cornucopia::Capybara::FinderDiagnostics::FindAction.start_test
 
-  block.call
+  Cornucopia::Util::ReportBuilder.current_report.within_test("#{scenario.feature.title} : #{scenario.title}") do
+    block.call
+  end
 
   if scenario.failed?
     seed_value = scenario.instance_variable_get(:@seed_value)

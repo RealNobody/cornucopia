@@ -430,6 +430,11 @@ describe Cornucopia::Util::ReportBuilder do
             to be == File.join(report_folder, "index.html").to_s
       end
 
+      it "returns the #report_test_base_page_name" do
+        expect(send(report_settings[:report]).report_test_base_page_name).
+            to be == File.join(report_folder, "test_1/index.html").to_s
+      end
+
       it "returns the #index_base_page_name" do
         expect(send(report_settings[:report]).index_base_page_name).to be == File.join(index_folder, "index.html").to_s
       end
@@ -437,6 +442,11 @@ describe Cornucopia::Util::ReportBuilder do
       it "returns the #report_contents_page_name" do
         expect(send(report_settings[:report]).report_contents_page_name).
             to be == File.join(report_folder, "report_contents.html").to_s
+      end
+
+      it "returns the #report_test_contents_page_name" do
+        expect(send(report_settings[:report]).report_test_contents_page_name).
+            to be == File.join(report_folder, "test_1/report_contents.html").to_s
       end
 
       it "returns the #index_contents_page_name" do
@@ -642,6 +652,102 @@ describe Cornucopia::Util::ReportBuilder do
         end
       end
 
+      describe "#rebuild_report_holder_page" do
+        it "intializes report files" do
+          current_report = send(report_settings[:report])
+
+          expect(current_report).to receive(:initialize_report_files).and_call_original
+
+          current_report.rebuild_report_holder_page
+
+          expect(File.exists?(File.join(report_folder, "index.html"))).to be_truthy
+          expect(File.exists?(File.join(report_folder, "report.js"))).to be_truthy
+          expect(File.exists?(File.join(report_folder, "cornucopia.css"))).to be_truthy
+        end
+
+        it "creates the report folder" do
+          current_report = send(report_settings[:report])
+
+          current_report.rebuild_report_holder_page
+
+          expect(File.directory?(report_folder)).to be_truthy
+        end
+
+        it "builds the holder file" do
+          current_report = send(report_settings[:report])
+
+          test_names  = []
+          report_body = "".html_safe
+
+          rand(1..5).times do
+            test_name = Faker::Lorem.sentence
+            test_names << test_name
+
+            current_report.instance_variable_set(:@test_name, test_name)
+            current_report.instance_variable_set(:@test_list_item, nil)
+
+            report_body += current_report.test_list_item
+          end
+
+          current_report.instance_variable_set(:@report_body, report_body)
+
+          current_report.rebuild_report_holder_page
+
+          report_page = Capybara::Node::Simple.new(File.read(File.join(report_folder, "index.html")))
+
+          expect(report_page.all(".coruncopia-report-link").length).to eq(test_names.length)
+          expect(report_page.find("#report-display-document")).to be
+
+          test_names.each_with_index do |test_name, test_index|
+            expect(report_page.all(".coruncopia-report-link")[test_index].text).to eq(test_name)
+          end
+        end
+      end
+
+      describe "#test_list_item" do
+        it "is html_safe?" do
+          current_report = send(report_settings[:report])
+
+          expect(current_report.test_list_item).to be_html_safe
+        end
+
+        it "creates a list item" do
+          current_report = send(report_settings[:report])
+
+          list_item = current_report.test_list_item
+          expect(list_item).to match /\<a class=\"coruncopia-report-link\"/
+          expect(list_item).to match /\<li\>/
+          expect(list_item).to match /\<\/li\>/
+        end
+      end
+
+      describe "#initialize_report_test_files" do
+        it "should create the report test folder" do
+          current_report = send(report_settings[:report])
+
+          FileUtils.mkdir_p current_report.index_folder_name
+          current_report.rebuild_index_page
+
+          post_file = File.read(File.join(current_report.index_folder_name, "report_contents.html"))
+          expect(post_file).not_to match /\>#{report_settings[:sub_folder]}\</
+
+          current_report.initialize_report_test_files
+
+          test_report_folder = current_report.report_test_folder_name
+          expect(File.exists?(test_report_folder)).to be_truthy
+
+          post_file = File.read(File.join(current_report.index_folder_name, "report_contents.html"))
+          expect(post_file).to match /\>#{report_settings[:sub_folder]}\</
+
+          expect(File.exists?(File.join(test_report_folder, "index.html"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "report_contents.html"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "collapse.gif"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "expand.gif"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "more_info.js"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "cornucopia.css"))).to be_truthy
+        end
+      end
+
       describe "#initialize_report_files" do
         it "should create the report folder" do
           current_report = send(report_settings[:report])
@@ -654,18 +760,42 @@ describe Cornucopia::Util::ReportBuilder do
 
           current_report.initialize_report_files
 
-          report_folder = current_report.report_folder_name
-          expect(File.exists?(report_folder)).to be_truthy
+          test_report_folder = current_report.report_folder_name
+          expect(File.exists?(test_report_folder)).to be_truthy
 
           post_file = File.read(File.join(current_report.index_folder_name, "report_contents.html"))
           expect(post_file).to match /\>#{report_settings[:sub_folder]}\</
 
-          expect(File.exists?(File.join(report_folder, "index.html"))).to be_truthy
-          expect(File.exists?(File.join(report_folder, "report_contents.html"))).to be_truthy
-          expect(File.exists?(File.join(report_folder, "collapse.gif"))).to be_truthy
-          expect(File.exists?(File.join(report_folder, "expand.gif"))).to be_truthy
-          expect(File.exists?(File.join(report_folder, "more_info.js"))).to be_truthy
-          expect(File.exists?(File.join(report_folder, "cornucopia.css"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "index.html"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "report.js"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "cornucopia.css"))).to be_truthy
+        end
+      end
+
+      describe "#initialize_basic_report_files" do
+        it "should create the report folder" do
+          current_report = send(report_settings[:report])
+
+          FileUtils.mkdir_p current_report.index_folder_name
+          current_report.rebuild_index_page
+
+          post_file = File.read(File.join(current_report.index_folder_name, "report_contents.html"))
+          expect(post_file).not_to match /\>#{report_settings[:sub_folder]}\</
+
+          current_report.initialize_basic_report_files
+
+          test_report_folder = current_report.report_folder_name
+          expect(File.exists?(test_report_folder)).to be_truthy
+
+          post_file = File.read(File.join(current_report.index_folder_name, "report_contents.html"))
+          expect(post_file).to match /\>#{report_settings[:sub_folder]}\</
+
+          expect(File.exists?(File.join(test_report_folder, "index.html"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "report_contents.html"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "collapse.gif"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "expand.gif"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "more_info.js"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "cornucopia.css"))).to be_truthy
         end
       end
 
@@ -683,10 +813,35 @@ describe Cornucopia::Util::ReportBuilder do
         end
       end
 
+      describe "#report_test_folder_name" do
+        it "calls report_folder_name" do
+          current_report = send(report_settings[:report])
+
+          expect(current_report).to receive(:report_folder_name).and_call_original
+
+          expect(current_report.report_test_folder_name.to_s).to be == Rails.root.join(report_settings[:index_folder],
+                                                                                       report_settings[:sub_folder]).to_s + "/test_1"
+
+          expect(File.exists?(current_report.report_test_contents_page_name)).to be_falsey
+        end
+
+        it "gets a different folder inside within_table" do
+          current_report = send(report_settings[:report])
+
+          expect(current_report.report_test_folder_name.to_s).to be == Rails.root.join(report_settings[:index_folder],
+                                                                                       report_settings[:sub_folder]).to_s + "/test_1"
+
+          current_report.within_test(Faker::Lorem.sentence) do
+            expect(current_report.report_test_folder_name.to_s).to be == Rails.root.join(report_settings[:index_folder],
+                                                                                         report_settings[:sub_folder]).to_s + "/test_2"
+          end
+        end
+      end
+
       describe "#open_report_contents_file" do
         it "initializes the report_contents file" do
           current_report = send(report_settings[:report])
-          expect(current_report).to receive(:initialize_report_files).and_call_original
+          expect(current_report).to receive(:initialize_basic_report_files).and_call_original
           write_contents = Faker::Lorem.paragraphs(rand(5..8)).join("\n\n")
 
           current_report.open_report_contents_file do |writer|
@@ -696,6 +851,23 @@ describe Cornucopia::Util::ReportBuilder do
           write_contents = "".html_safe + write_contents
 
           post_data = File.read(current_report.report_contents_page_name)
+          expect(post_data).to match /#{write_contents}/
+        end
+      end
+
+      describe "#open_report_test_contents_file" do
+        it "initializes the report_contents file" do
+          current_report = send(report_settings[:report])
+          expect(current_report).to receive(:initialize_report_test_files).and_call_original
+          write_contents = Faker::Lorem.paragraphs(rand(5..8)).join("\n\n")
+
+          current_report.open_report_test_contents_file do |writer|
+            writer.write(write_contents)
+          end
+
+          write_contents = "".html_safe + write_contents
+
+          post_data = File.read(current_report.report_test_contents_page_name)
           expect(post_data).to match /#{write_contents}/
         end
       end
@@ -733,7 +905,7 @@ describe Cornucopia::Util::ReportBuilder do
 
           current_report.close
 
-          post_data = File.read(current_report.report_contents_page_name)
+          post_data = File.read(current_report.report_test_contents_page_name)
           expect(post_data).not_to match /No errors to report/i
 
           expect(Cornucopia::Util::ReportBuilder.class_variable_get("@@current_report")).not_to be
@@ -752,10 +924,186 @@ describe Cornucopia::Util::ReportBuilder do
 
           current_report.close
 
-          post_data = File.read(current_report.report_contents_page_name)
+          post_data = File.read(current_report.report_test_contents_page_name)
           expect(post_data).not_to match /No errors to report/i
 
           expect(Cornucopia::Util::ReportBuilder.class_variable_get("@@current_report")).not_to be
+        end
+      end
+
+      describe "#within_test" do
+        let(:test_names) do
+          rand(3..5).times.map do
+            Faker::Lorem.sentence
+          end
+        end
+        let(:section_names) do
+          test_names.length.times.map do
+            Faker::Lorem.sentence
+          end
+        end
+
+        it "starts a test with a specific name" do
+          current_report = send(report_settings[:report])
+
+          current_report.within_test(test_names[0]) do
+            current_report.within_section(section_names[0]) do |report_section|
+              report_section.within_table do |report_table|
+                report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+              end
+            end
+          end
+
+          current_report.close
+
+          report_page = Capybara::Node::Simple.new(File.read(current_report.report_base_page_name))
+
+          expect(report_page.all(".coruncopia-report-link").length).to eq 1
+          expect(report_page.all(".coruncopia-report-link")[0].text).to eq test_names[0]
+          expect(report_page.all(".coruncopia-report-link")[0]["href"]).to eq "test_1/index.html"
+        end
+
+        it "doesn't output anything if nothing is written to a section or table" do
+          current_report = send(report_settings[:report])
+
+          current_report.within_test(test_names[0]) do
+          end
+
+          current_report.close
+
+          report_page = Capybara::Node::Simple.new(File.read(current_report.report_contents_page_name))
+
+          expect(report_page.all(".cornucopia-no-errors").length).to eq 1
+          expect(report_page.all(".cornucopia-no-errors")[0].text).to eq "No Errors to report"
+        end
+
+        it "outputs multiple tests" do
+          current_report = send(report_settings[:report])
+
+          test_names.each_with_index do |test_name, test_index|
+            current_report.within_test(test_name) do
+              current_report.within_section(section_names[test_index]) do |report_section|
+                report_section.within_table do |report_table|
+                  report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+                end
+              end
+            end
+          end
+
+          current_report.close
+
+          report_page = Capybara::Node::Simple.new(File.read(current_report.report_base_page_name))
+
+          expect(report_page.all(".coruncopia-report-link").length).to eq test_names.length
+
+          test_names.each_with_index do |test_name, test_index|
+            expect(report_page.all(".coruncopia-report-link")[test_index].text).to eq test_name
+            expect(report_page.all(".coruncopia-report-link")[test_index]["href"]).to eq "test_#{test_index + 1}/index.html"
+          end
+        end
+
+        it "handles a test within a test as an independent test" do
+          current_report = send(report_settings[:report])
+
+          current_report.within_test(test_names[0]) do
+            current_report.within_section(section_names[0]) do |report_section|
+              report_section.within_table do |report_table|
+                report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+                current_report.within_test(test_names[1]) do
+                  current_report.within_section(section_names[1]) do |report_section|
+                    report_section.within_table do |report_table|
+                      report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          current_report.close
+
+          report_page = Capybara::Node::Simple.new(File.read(current_report.report_base_page_name))
+
+          expect(report_page.all(".coruncopia-report-link").length).to eq 2
+          expect(report_page.all(".coruncopia-report-link")[0].text).to eq test_names[0]
+          expect(report_page.all(".coruncopia-report-link")[0]["href"]).to eq "test_1/index.html"
+          expect(report_page.all(".coruncopia-report-link")[1].text).to eq test_names[1]
+          expect(report_page.all(".coruncopia-report-link")[1]["href"]).to eq "test_2/index.html"
+
+          report_page = Capybara::Node::Simple.new(File.read(File.join(current_report.report_folder_name, "test_1/report_contents.html")))
+          expect(report_page.all(".cornucopia-section-label").length).to eq 1
+          expect(report_page.all(".cornucopia-section-label")[0].text).to eq section_names[0]
+
+          report_page = Capybara::Node::Simple.new(File.read(File.join(current_report.report_folder_name, "test_2/report_contents.html")))
+          expect(report_page.all(".cornucopia-section-label").length).to eq 1
+          expect(report_page.all(".cornucopia-section-label")[0].text).to eq section_names[1]
+        end
+
+        it "restores to the old test if a test within a test" do
+          current_report = send(report_settings[:report])
+
+          current_report.within_test(test_names[0]) do
+            current_report.within_section(section_names[0]) do |report_section|
+              report_section.within_table do |report_table|
+                report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+                current_report.within_test(test_names[1]) do
+                  current_report.within_section(section_names[1]) do |report_section|
+                    report_section.within_table do |report_table|
+                      report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+                    end
+                  end
+                end
+              end
+            end
+
+            current_report.within_section(section_names[2]) do |report_section|
+              report_section.within_table do |report_table|
+                report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+              end
+            end
+          end
+
+          current_report.close
+
+          report_page = Capybara::Node::Simple.new(File.read(current_report.report_base_page_name))
+
+          expect(report_page.all(".coruncopia-report-link").length).to eq 2
+          expect(report_page.all(".coruncopia-report-link")[0].text).to eq test_names[0]
+          expect(report_page.all(".coruncopia-report-link")[0]["href"]).to eq "test_1/index.html"
+          expect(report_page.all(".coruncopia-report-link")[1].text).to eq test_names[1]
+          expect(report_page.all(".coruncopia-report-link")[1]["href"]).to eq "test_2/index.html"
+
+          report_page = Capybara::Node::Simple.new(File.read(File.join(current_report.report_folder_name, "test_1/report_contents.html")))
+          expect(report_page.all(".cornucopia-section-label").length).to eq 2
+          expect(report_page.all(".cornucopia-section-label")[0].text).to eq section_names[0]
+          expect(report_page.all(".cornucopia-section-label")[1].text).to eq section_names[2]
+        end
+
+        it "numbers tests based on the tests that actually output something" do
+          current_report = send(report_settings[:report])
+
+          test_names.each_with_index do |test_name, test_index|
+            if test_index == 0 || test_index == test_names.length - 1
+              current_report.within_test(test_name) do
+                current_report.within_section(section_names[test_index]) do |report_section|
+                  report_section.within_table do |report_table|
+                    report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+                  end
+                end
+              end
+            end
+          end
+
+          current_report.close
+
+          report_page = Capybara::Node::Simple.new(File.read(current_report.report_base_page_name))
+
+          expect(report_page.all(".coruncopia-report-link").length).to eq 2
+
+          expect(report_page.all(".coruncopia-report-link")[0].text).to eq test_names[0]
+          expect(report_page.all(".coruncopia-report-link")[0]["href"]).to eq "test_1/index.html"
+          expect(report_page.all(".coruncopia-report-link")[1].text).to eq test_names[-1]
+          expect(report_page.all(".coruncopia-report-link")[1]["href"]).to eq "test_2/index.html"
         end
       end
 
@@ -770,7 +1118,7 @@ describe Cornucopia::Util::ReportBuilder do
             expect(report_object.is_a?(Cornucopia::Util::ReportBuilder)).to be_truthy
           end
 
-          post_data = File.read(current_report.report_contents_page_name)
+          post_data = File.read(current_report.report_test_contents_page_name)
           expect(post_data).to match /\>#{section_name}\</i
         end
 
@@ -787,7 +1135,7 @@ describe Cornucopia::Util::ReportBuilder do
             end
           end.to raise_exception
 
-          post_data = File.read(current_report.report_contents_page_name)
+          post_data = File.read(current_report.report_test_contents_page_name)
           expect(post_data[-1 * "\<\/div\>\n<div class=\"cornucopia-end-section\" />\n".length..-1]).to be == "\<\/div\>\n<div class=\"cornucopia-end-section\" />\n"
         end
       end
@@ -806,7 +1154,7 @@ describe Cornucopia::Util::ReportBuilder do
             end
           end
 
-          post_data = File.read(current_report.report_contents_page_name)
+          post_data = File.read(current_report.report_test_contents_page_name)
           expect(post_data[-1 * "\<\/div\>\n<div class=\"cornucopia-end-section\" />\n".length..-1]).to be == "\<\/div\>\n<div class=\"cornucopia-end-section\" />\n"
           expect(post_data).to match /\>\n#{table_label}\n\</
           expect(post_data).to match /\>#{table_data}\</
@@ -828,7 +1176,7 @@ describe Cornucopia::Util::ReportBuilder do
             end
           end.to raise_exception
 
-          post_data = File.read(current_report.report_contents_page_name)
+          post_data = File.read(current_report.report_test_contents_page_name)
           expect(post_data[-1 * "\<\/div\>\n<div class=\"cornucopia-end-section\" />\n".length..-1]).to be == "\<\/div\>\n<div class=\"cornucopia-end-section\" />\n"
           expect(post_data).to match /\>\n#{table_label}\n\</
           expect(post_data).to match /\>#{table_data}\</
@@ -847,13 +1195,13 @@ describe Cornucopia::Util::ReportBuilder do
                 sub_table.write_stats "stat", "value"
               end
 
-              mid_data = File.read(current_report.report_contents_page_name)
+              mid_data = File.read(current_report.report_test_contents_page_name)
             end
           end
 
           current_report.close
 
-          post_data = File.read(current_report.report_contents_page_name)
+          post_data = File.read(current_report.report_test_contents_page_name)
 
           expect(post_data).to match /\>\nstat\n\</
           expect(mid_data).not_to match /\>\nstat\n\</
@@ -862,8 +1210,8 @@ describe Cornucopia::Util::ReportBuilder do
 
       describe "#unique_folder_name" do
         it "returns the folder if there is no folder with that name" do
-          current_report = send(report_settings[:report])
-          report_folder  = current_report.report_folder_name
+          current_report     = send(report_settings[:report])
+          test_report_folder = current_report.report_folder_name
 
           new_folder = Faker::Lorem.word
 
@@ -871,15 +1219,15 @@ describe Cornucopia::Util::ReportBuilder do
         end
 
         it "returns a uniqe folder if there is a folder with that name" do
-          current_report = send(report_settings[:report])
-          report_folder  = current_report.report_folder_name
+          current_report     = send(report_settings[:report])
+          test_report_folder = current_report.report_folder_name
 
           new_folder  = Faker::Lorem.word
           num_folders = rand(5..10)
 
-          FileUtils.mkdir_p File.join(report_folder, new_folder)
+          FileUtils.mkdir_p File.join(test_report_folder, new_folder)
           num_folders.times do |folder_number|
-            FileUtils.mkdir_p File.join(report_folder, "#{new_folder}_#{folder_number}")
+            FileUtils.mkdir_p File.join(test_report_folder, "#{new_folder}_#{folder_number}")
           end
 
           expect(current_report.unique_folder_name(new_folder)).to be == "#{new_folder}_#{num_folders}"
@@ -888,8 +1236,8 @@ describe Cornucopia::Util::ReportBuilder do
 
       describe "#unique_file_name" do
         it "creates a unique file name if there are no files" do
-          current_report = send(report_settings[:report])
-          report_folder  = current_report.report_folder_name
+          current_report     = send(report_settings[:report])
+          test_report_folder = current_report.report_folder_name
 
           prefix  = Faker::Lorem.word
           postfix = Faker::Lorem.word
@@ -898,8 +1246,8 @@ describe Cornucopia::Util::ReportBuilder do
         end
 
         it "creates a unique file name if there are some files already" do
-          current_report = send(report_settings[:report])
-          report_folder  = current_report.report_folder_name
+          current_report     = send(report_settings[:report])
+          test_report_folder = current_report.report_folder_name
 
           prefix    = Faker::Lorem.word
           postfix   = Faker::Lorem.word
@@ -919,23 +1267,23 @@ describe Cornucopia::Util::ReportBuilder do
 
       describe "#image_link" do
         it "moves the image file and creates an image element" do
-          current_report = send(report_settings[:report])
-          report_folder  = current_report.report_folder_name
+          current_report     = send(report_settings[:report])
+          test_report_folder = current_report.report_folder_name
 
           prefix  = Faker::Lorem.word
           postfix = Faker::Lorem.word
 
-          FileUtils.mkdir_p report_folder
+          FileUtils.mkdir_p test_report_folder
           Cornucopia::Util::FileAsset.asset("cornucopia.css").
-              add_file(File.join(report_folder, "#{prefix}.#{postfix}"))
+              add_file(File.join(test_report_folder, "#{prefix}.#{postfix}"))
 
-          expect(File.exists?(File.join(report_folder, "#{prefix}.#{postfix}"))).to be_truthy
-          expect(File.exists?(File.join(report_folder, "#{prefix}_1.#{postfix}"))).to be_falsey
+          expect(File.exists?(File.join(test_report_folder, "#{prefix}.#{postfix}"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "#{prefix}_1.#{postfix}"))).to be_falsey
 
-          image_link = current_report.image_link(File.join(report_folder, "#{prefix}.#{postfix}"))
+          image_link = current_report.image_link(File.join(test_report_folder, "#{prefix}.#{postfix}"))
 
-          expect(File.exists?(File.join(report_folder, "#{prefix}.#{postfix}"))).to be_falsey
-          expect(File.exists?(File.join(report_folder, "#{prefix}_1.#{postfix}"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "#{prefix}.#{postfix}"))).to be_falsey
+          expect(File.exists?(File.join(test_report_folder, "#{prefix}_1.#{postfix}"))).to be_truthy
 
           expect(image_link).to be_html_safe
           expect(image_link).to match /^\<img/i
@@ -945,25 +1293,25 @@ describe Cornucopia::Util::ReportBuilder do
 
       describe "#page_frame" do
         it "dumps the html to a file, and returns an iframe element" do
-          current_report = send(report_settings[:report])
-          report_folder  = current_report.report_folder_name
-          source_html    = "<html>\n<body>\nThis is some &amp; awesome text</body>\n</html>"
+          current_report     = send(report_settings[:report])
+          test_report_folder = current_report.report_folder_name
+          source_html        = "<html>\n<body>\nThis is some &amp; awesome text</body>\n</html>"
 
-          FileUtils.mkdir_p report_folder
-          Cornucopia::Util::FileAsset.asset("cornucopia.css").add_file(File.join(report_folder, "page_dump.html"))
+          FileUtils.mkdir_p test_report_folder
+          Cornucopia::Util::FileAsset.asset("cornucopia.css").add_file(File.join(test_report_folder, "page_dump.html"))
 
-          expect(File.exists?(File.join(report_folder, "page_dump.html"))).to be_truthy
-          expect(File.exists?(File.join(report_folder, "page_dump_1.html"))).to be_falsey
+          expect(File.exists?(File.join(test_report_folder, "page_dump.html"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "page_dump_1.html"))).to be_falsey
 
           page_link = current_report.page_frame(source_html)
 
-          expect(File.exists?(File.join(report_folder, "page_dump.html"))).to be_truthy
-          expect(File.exists?(File.join(report_folder, "page_dump_1.html"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "page_dump.html"))).to be_truthy
+          expect(File.exists?(File.join(test_report_folder, "page_dump_1.html"))).to be_truthy
 
           expect(page_link).to be_html_safe
           expect(page_link).to match /\<iframe/i
           expect(page_link).to match /src=\"page_dump_1.html\"/i
-          expect(File.read(File.join(report_folder, "page_dump_1.html"))).to be == source_html
+          expect(File.read(File.join(test_report_folder, "page_dump_1.html"))).to be == source_html
         end
       end
 
