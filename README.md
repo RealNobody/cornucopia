@@ -65,7 +65,9 @@ I have added the following functions to Capybara to help simplify using it.
 
 * synchronize_test(seconds=Capybara.default_wait_time, options = {}, &block)
 
-This function yields to a block until the Capybara timeout occurs or the block returns true.
+This function yields to a block until the Capybara timeout occurs or the block returns true.  I added it because I 
+find that simple synchronized find functions are not always sufficient.  This will allow the system to wait till any 
+random block returns true, synchronizing to a wide variety of conditions.
 
     # Wait until either #some_element or #another_element exists.
     Capybara::current_session.synchronize_test do
@@ -78,13 +80,20 @@ This function yields to a block until the Capybara timeout occurs or the block r
 This function selects the option from a select box based on the value for the selected option instead of the
 value string.
 
+If I have the a SELECT list with the following option:
+
+    <option value="AZ">Arizona</option>
+
+The following line will select the "Arizona" option:
+
+    my_address.state_abbreviation = "AZ"
     page.find("#state_selector").select_value(my_address.state_abbreviation)
 
 * **value_text**
 
 This function returns the string value of the currently selected option(s).
 
-    page.find("#state_selector").value_text  # returns "Arizona" instead of "AZ"
+    page.find("#state_selector").value_text  # returns "Arizona" instead of "AZ" if "AZ" is selected.
 
 ### SitePrism
 
@@ -232,7 +241,7 @@ automatically as long as I follow some simple rules.
 Basically, just create all of my pages underneath a single module in a single folder, and the a class derived from
 PageApplication will find the pages and memoize them for you automatically.
 
-    class MyApplication < Cornucopia::SitePrism::PageApplication
+    class MyPageApplication < Cornucopia::SitePrism::PageApplication
       def pages_module
         MyPagesModule
       end
@@ -252,8 +261,32 @@ PageApplication will find the pages and memoize them for you automatically.
       end
     end
 
-    a_memoized_page       = MyApplication.my_module__my_page
-    a_memoized_other_page = MyApplication.my_other_page
+    a_memoized_page       = MyPageApplication.my_module__my_page
+    a_memoized_other_page = MyPageApplication.my_other_page
+
+#### Capybara::Node::Simple integration
+
+SitePrism is very useful, but it only works with the main page:  `Capybara::current_session.page`.  I have found that 
+there are times where it is very useful to use the `Capybara::Node::Simple` object.  The problem I have is that I can't
+use my SitePrism pages with the SimpleNode.
+
+I therefore added a property `owner_node` to the `SitePrism::Page` and `SitePrism::Section` classes.  You can assign 
+to this property the `Capybara::Node` that you want to execute the finder functions against.
+
+An example might be something like:
+
+    RSpec.describe MyController, type: :controller do
+      get :index
+
+      expect(response.status).to eq 200
+
+      my_node = Capybara::Node::Simple.new(response.body)
+      my_page = MyPageApplication.my_page
+
+      my_page.owner_node = my_node
+
+      expect(my_page.my_section.my_list[0].my_element.text).to eq(my_expectation)
+    end
 
 ### Utilities
 
@@ -349,6 +382,102 @@ The configuration class contains the various configurations that are used by the
 
 The `Cornucopia::Util::ConfiguredReport` class allows you to configure what information is exported to generated
 report files.
+
+I've tried to create reasonable default configuration for what gets reported when there is an error in the test 
+environments that I know enough to support:  Cucumber, RSpec, and Spinach.  I also provided a default configuration 
+for what to report when an error occurs a Capybara page is open.
+
+You can override these defaults if you find a need and specify the configured report that is used when an exception 
+occurs in a particular environment.
+
+The default configurations will output the following information that it can find/is available:
+
+* The exception that caused the problem and its call stack
+* Test details such as the test name, file path, etc.
+* Any instance variables for the test
+* Any values defined using `let`
+* The log for the current environment
+* Any additional log files specified by the user
+* Any Capybara details that can be determined like the HTML source, a screen shot, etc.
+
+The ConfiguredReport class and the example configurations detail how the configured reports work if you feel the need
+to create your own. 
+
+#### ReportBuilder
+
+The ReportBuilder is the tool which is used to create the reports that are generated when an exception is caught.  
+There are 3 basic objects to work with in a report:
+
+##### Tests
+
+A test is basically a new sub-report.  When you create a new test, you will pass in a name for the test.  This name 
+will appear in the left portion of the report.  When the user clicks on the test, the report for the test will appear
+on the right side.  You will likely not need to create your own tests.  To do so, you call `within_test`.
+
+An example:
+
+    Cornucopia::ReportBuilder.current_report.within_test("This is the name of my test") do
+      # build your test report here.
+    end
+
+##### Sections
+
+A section is a block within a test.  The section has a header that describes the section and is the primary container
+for tables.  Multiple sections are allowed within a test and are colored alternating colors to distinguish them.
+
+An example:
+
+    Cornucopia::ReportBuilder.current_report.within_section("Section header") do |section|
+      # Build the details for the section here.
+      
+      # NOTE:  Currently section is == Cornucopia::ReportBuilder.current_report  This may or may not be so in the 
+      #        future.
+    end
+
+Note that only one test is allowed to be active at all times and that if no other test is active a defaut "unknown" 
+test will be used.  As a result, you can call the `within_section` function directly from the report object and it 
+will be within the currently active test.
+
+##### Tables
+
+A table is exactly what it sounds like it is a table of information.  Tables have rows of information pairs - a label
+and the information to be shown.  Unlike Sections and Tests, Tables can be nested inside each other.  That is the 
+information in a table row can be another table.
+
+If the information for a particular cell is too large, that information will be partially hidden from view so that 
+the table size doesn't get out of hand.
+
+To write out a value, you simply use `write_stats` and pass in a label and a value.
+
+An example:
+
+    Cornucopia::ReportBuilder.current_report.within_section("Section header") do |section|
+      section.within_table do |table|
+        table.write_stats "Statistic name", "Statistic value"
+
+        ReportTable.new nested_table: table, nested_table_label: "Sub Table" do |sub_table|
+          sub_table.write_stats "Sub statistic name", "Sub statistic value"
+        end
+      end
+    end
+
+Tables have a lot of options:
+
+* **table_prefix** - This is the value to use to "open" the table.
+* **table_postfix** - This is the value to use to "close" the table.
+* **report_table** - If set, all table calls are passed through to this table object.  The purpose of this value is 
+to allow for an optional sub-table.  That is the code acts as if it is working on a sub-table, but in reality it is 
+working in the report_table.
+* **nested_table** - This is the table that the table being created will be a sub-table of.  When the new table is 
+completed, it till be output into a row of the specified table.
+* **nested_table_label** - This is the lable that will be used for this table when it is output in the nested_table.
+* **nested_table_options** - A hash of options that will be used to determine the look and feel of the nested table 
+when it is output.  These options are passed into write_stats when the table is output.
+* **not_a_table** - If set, then when write_stats is called, the label value is ignored and the value is simply 
+appended to the table as-is.
+* **suppress_blank_table** - If set, the table will not be output if it is blank.
+
+
 
 ## Contributing
 

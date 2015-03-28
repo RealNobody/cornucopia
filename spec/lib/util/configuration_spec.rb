@@ -32,7 +32,7 @@ describe "Cornucopia::Util::Configuration" do
       expect(Cornucopia::Util::Configuration.order_seed).to be == seed_value
       expect(RSpec.configuration.seed).to be == seed_value
     ensure
-      RSpec.configuration.seed = config_seed
+      RSpec.configuration.seed                   = config_seed
       Cornucopia::Util::Configuration.order_seed = nil
     end
   end
@@ -161,9 +161,52 @@ describe "Cornucopia::Util::Configuration" do
   end
 
   describe "configured_reports" do
+    let(:sample_configuaration) do
+      config = {}
+      rand(5..10).times do
+        config[Faker::Lorem.word] = Faker::Lorem.sentence
+      end
+
+      config
+    end
+
     [:rspec, :cucumber, :spinach, :capybara_page_diagnostics].each do |report_type|
       it "has a #{report_type} report" do
         expect(Cornucopia::Util::Configuration.report_configuration(report_type)).to be
+      end
+
+      it "has a default #{report_type} report" do
+        expect(Cornucopia::Util::Configuration.default_report_configuration(report_type)).to be
+      end
+
+      it "can set a #{report_type} report" do
+        Cornucopia::Util::Configuration.set_report_configuration(report_type, sample_configuaration)
+        expect(Cornucopia::Util::Configuration.report_configuration(report_type)).to be_a(Cornucopia::Util::ConfiguredReport)
+      end
+
+      it "can set a #{report_type} report to a ConfiguredReport" do
+        configured_report = Cornucopia::Util::ConfiguredReport.
+            new(Cornucopia::Util::Configuration.default_report_configuration(report_type))
+
+        Cornucopia::Util::Configuration.set_report_configuration(report_type, configured_report)
+        expect(Cornucopia::Util::Configuration.report_configuration(report_type)).to eq configured_report
+      end
+
+      it "doesn't change the default #{report_type} report" do
+        orig = Cornucopia::Util::Configuration.default_report_configuration(report_type).clone
+        Cornucopia::Util::Configuration.set_report_configuration(report_type, sample_configuaration)
+        expect(Cornucopia::Util::Configuration.default_report_configuration(report_type)).to eq orig
+      end
+
+      it "you can't change the default #{report_type} report" do
+        defaults = Cornucopia::Util::Configuration.default_report_configuration(report_type)
+        orig     = defaults.clone
+
+        config_value           =Faker::Lorem.sentence
+        defaults[config_value] = config_value
+
+        expect(Cornucopia::Util::Configuration.default_report_configuration(report_type)).to eq orig
+        expect(Cornucopia::Util::Configuration.default_report_configuration(report_type)[config_value]).not_to be
       end
     end
   end
@@ -298,7 +341,7 @@ describe "Cornucopia::Util::Configuration" do
 
     it "returns the value for a report" do
       def_value = [true, false].sample
-      report = Faker::Lorem.word
+      report    = Faker::Lorem.word
 
       Cornucopia::Util::Configuration.auto_open_report_after_generation(def_value)
       Cornucopia::Util::Configuration.auto_open_report_after_generation(!def_value, report)
@@ -315,7 +358,7 @@ describe "Cornucopia::Util::Configuration" do
 
     it "#can set the value" do
       begin
-        base_value = Faker::Lorem.sentence
+        base_value                                  = Faker::Lorem.sentence
         Cornucopia::Util::Configuration.base_folder = base_value
 
         expect(Cornucopia::Util::Configuration.base_folder).to eq base_value

@@ -22,8 +22,8 @@ module Cornucopia
 
       # @@configurations.alternate_retry            = false
 
-      @@configurations.configured_reports          = {
-          rspec:                       Cornucopia::Util::ConfiguredReport.new(
+      @@configurations.default_configuration       = {
+          rspec:                       {
               min_fields:           [
                                         :example__full_description,
                                         :example__location,
@@ -54,8 +54,8 @@ module Cornucopia
                                         :example,
                                         :example__example_group_instance,
                                     ]
-          ),
-          cucumber:                    Cornucopia::Util::ConfiguredReport.new(
+          },
+          cucumber:                    {
               min_fields:           [
                                         {
                                             report_element: :scenario__feature__title,
@@ -111,8 +111,8 @@ module Cornucopia
                                         :cucumber___rack_mock_sessions,
                                         :cucumber__integration_session
                                     ]
-          ),
-          spinach:                     Cornucopia::Util::ConfiguredReport.new(
+          },
+          spinach:                     {
               min_fields:           [
                                         :failure_description,
                                         :running_scenario__feature__name,
@@ -147,8 +147,8 @@ module Cornucopia
                                         :step_data__name,
                                         :step_data__line
                                     ]
-          ),
-          capybara_page_diagnostics:   Cornucopia::Util::ConfiguredReport.new(
+          },
+          capybara_page_diagnostics:   {
               min_fields:           [
                                         :capybara__page_url,
                                         :capybara__title,
@@ -208,8 +208,8 @@ module Cornucopia
                                           report_options: { exclude_code_block: true },
                                         }
                                     ]
-          ),
-          capybara_finder_diagnostics: Cornucopia::Util::ConfiguredReport.new(
+          },
+          capybara_finder_diagnostics: {
               min_fields:           [
                                         :finder__function_name,
                                         :finder__args__0,
@@ -251,8 +251,10 @@ module Cornucopia
                                         "finder__all_elements__*__found_element",
                                         "finder__all_other_elements__*__found_element"
                                     ]
-          )
+          }
       }
+
+      @@configurations.configured_reports = {}
 
       class << self
         # rand_seed is the seed value used to seed the srand function at the start of a test
@@ -275,7 +277,7 @@ module Cornucopia
         # set it on the command line.  This also provides a uniform method to do it.
         def order_seed=(value)
           @@configurations.order_seed = value
-          RSpec.configuration.seed = value if value
+          RSpec.configuration.seed    = value if value
         end
 
         def order_seed
@@ -351,7 +353,34 @@ module Cornucopia
         #   :spinach
         #   :capybara_page_diagnostics
         def report_configuration(report_name)
-          @@configurations.configured_reports[report_name]
+          @@configurations.configured_reports[report_name] ||=
+              Cornucopia::Util::ConfiguredReport.new(@@configurations.default_configuration[report_name])
+        end
+
+        # sets the report configuration object for that type of report from a configuration has that is passed in
+        #
+        # values for report_name:
+        #   :rspec
+        #   :cucumber
+        #   :spinach
+        #   :capybara_page_diagnostics
+        def set_report_configuration(report_name, configuration)
+          if configuration.is_a?(Cornucopia::Util::ConfiguredReport)
+            @@configurations.configured_reports[report_name] = configuration
+          else
+            @@configurations.configured_reports[report_name] = Cornucopia::Util::ConfiguredReport.new(configuration)
+          end
+        end
+
+        # returns the report configuration object for that type of report
+        #
+        # values for report_name:
+        #   :rspec
+        #   :cucumber
+        #   :spinach
+        #   :capybara_page_diagnostics
+        def default_report_configuration(report_name)
+          @@configurations.default_configuration[report_name].try :clone
         end
 
         # Sets or returns the minimum amount of time in seconds to allow for the printing of variables.
