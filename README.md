@@ -366,6 +366,6 @@ SitePrism override section, element, sections and elements command to allow para
     main function (name)
     has_
     ???
+  Already done only if original definition doesn't have options
 Make configuration a singleton
-SitePrism work with Capybara::Node::Simple
 ReportBuilder - reformat and styling of report?

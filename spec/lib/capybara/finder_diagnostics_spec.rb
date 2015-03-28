@@ -239,6 +239,8 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
     report_page.displayed_test do |test_page|
       test_page.contents do |contents_frame|
         expect(contents_frame.errors.length).to be == 1
+        # this line is the same as the next one.  I added this line to test a line in the site-prims extentions.
+        expect(contents_frame.errors[0].find("p").text).to be == "Diagnostic report on \"all\":"
         expect(contents_frame.errors[0].name.text).to be == "Diagnostic report on \"all\":"
         expect(contents_frame.errors[0].tables[0].rows.length).to be == 7
         expect(contents_frame.errors[0].tables[0].rows[0].labels[0].text).to be == "function_name"

@@ -266,6 +266,14 @@ module Cornucopia
         #   end
         # end
       end
+
+      def owner_node
+        @__corunucopia_base_node
+      end
+
+      def owner_node=(base_node)
+        @__corunucopia_base_node = base_node
+      end
     end
   end
 end

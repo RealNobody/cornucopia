@@ -2,6 +2,16 @@ require "rails_helper"
 require ::File.expand_path("../../../lib/cornucopia/util/report_builder", File.dirname(__FILE__))
 
 describe Cornucopia::Util::ReportBuilder do
+  let(:test_names) do
+    rand(3..5).times.map do
+      Faker::Lorem.sentence
+    end
+  end
+  let(:section_names) do
+    test_names.length.times.map do
+      Faker::Lorem.sentence
+    end
+  end
   let(:current_report) { Cornucopia::Util::ReportBuilder.new_report }
   let(:custom_report) { Cornucopia::Util::ReportBuilder.new_report("cool_report", "diag_reports") }
 
@@ -932,17 +942,6 @@ describe Cornucopia::Util::ReportBuilder do
       end
 
       describe "#within_test" do
-        let(:test_names) do
-          rand(3..5).times.map do
-            Faker::Lorem.sentence
-          end
-        end
-        let(:section_names) do
-          test_names.length.times.map do
-            Faker::Lorem.sentence
-          end
-        end
-
         it "starts a test with a specific name" do
           current_report = send(report_settings[:report])
 
@@ -1327,5 +1326,31 @@ describe Cornucopia::Util::ReportBuilder do
         end
       end
     end
+  end
+
+  it "outputs multiple tests" do
+    test_names.each_with_index do |test_name, test_index|
+      current_report.within_test(test_name) do
+        current_report.within_section(section_names[test_index]) do |report_section|
+          report_section.within_table do |report_table|
+            report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+          end
+        end
+      end
+    end
+
+    current_report.close
+    current_report.instance_variable_set(:@test_number, 0)
+
+    report_page = Capybara::Node::Simple.new(File.read(current_report.report_test_contents_page_name))
+    report_table = CornucopiaReportApp.cornucopia_report_test_contents_page
+
+    report_table.owner_node = report_page
+
+    expect(report_table.errors.count).to eq 1
+    section = report_table.errors[0]
+    # this line is the same as the next one.  I added this line to test a line in the site-prims extentions.
+    expect(section.find("p").text).to eq section_names[0]
+    expect(section.name.text).to eq section_names[0]
   end
 end
