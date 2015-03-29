@@ -171,42 +171,51 @@ describe "Cornucopia::Util::Configuration" do
     end
 
     [:rspec, :cucumber, :spinach, :capybara_page_diagnostics].each do |report_type|
-      it "has a #{report_type} report" do
-        expect(Cornucopia::Util::Configuration.report_configuration(report_type)).to be
-      end
+      describe "#{report_type} configured reports" do
+        after(:each) do
+          Cornucopia::Util::Configuration.set_report_configuration(
+              report_type,
+              Cornucopia::Util::Configuration.default_report_configuration(report_type)
+          )
+        end
 
-      it "has a default #{report_type} report" do
-        expect(Cornucopia::Util::Configuration.default_report_configuration(report_type)).to be
-      end
+        it "has a #{report_type} report" do
+          expect(Cornucopia::Util::Configuration.report_configuration(report_type)).to be
+        end
 
-      it "can set a #{report_type} report" do
-        Cornucopia::Util::Configuration.set_report_configuration(report_type, sample_configuaration)
-        expect(Cornucopia::Util::Configuration.report_configuration(report_type)).to be_a(Cornucopia::Util::ConfiguredReport)
-      end
+        it "has a default #{report_type} report" do
+          expect(Cornucopia::Util::Configuration.default_report_configuration(report_type)).to be
+        end
 
-      it "can set a #{report_type} report to a ConfiguredReport" do
-        configured_report = Cornucopia::Util::ConfiguredReport.
-            new(Cornucopia::Util::Configuration.default_report_configuration(report_type))
+        it "can set a #{report_type} report" do
+          Cornucopia::Util::Configuration.set_report_configuration(report_type, sample_configuaration)
+          expect(Cornucopia::Util::Configuration.report_configuration(report_type)).to be_a(Cornucopia::Util::ConfiguredReport)
+        end
 
-        Cornucopia::Util::Configuration.set_report_configuration(report_type, configured_report)
-        expect(Cornucopia::Util::Configuration.report_configuration(report_type)).to eq configured_report
-      end
+        it "can set a #{report_type} report to a ConfiguredReport" do
+          configured_report = Cornucopia::Util::ConfiguredReport.
+              new(Cornucopia::Util::Configuration.default_report_configuration(report_type))
 
-      it "doesn't change the default #{report_type} report" do
-        orig = Cornucopia::Util::Configuration.default_report_configuration(report_type).clone
-        Cornucopia::Util::Configuration.set_report_configuration(report_type, sample_configuaration)
-        expect(Cornucopia::Util::Configuration.default_report_configuration(report_type)).to eq orig
-      end
+          Cornucopia::Util::Configuration.set_report_configuration(report_type, configured_report)
+          expect(Cornucopia::Util::Configuration.report_configuration(report_type)).to eq configured_report
+        end
 
-      it "you can't change the default #{report_type} report" do
-        defaults = Cornucopia::Util::Configuration.default_report_configuration(report_type)
-        orig     = defaults.clone
+        it "doesn't change the default #{report_type} report" do
+          orig = Cornucopia::Util::Configuration.default_report_configuration(report_type).clone
+          Cornucopia::Util::Configuration.set_report_configuration(report_type, sample_configuaration)
+          expect(Cornucopia::Util::Configuration.default_report_configuration(report_type)).to eq orig
+        end
 
-        config_value           =Faker::Lorem.sentence
-        defaults[config_value] = config_value
+        it "you can't change the default #{report_type} report" do
+          defaults = Cornucopia::Util::Configuration.default_report_configuration(report_type)
+          orig     = defaults.clone
 
-        expect(Cornucopia::Util::Configuration.default_report_configuration(report_type)).to eq orig
-        expect(Cornucopia::Util::Configuration.default_report_configuration(report_type)[config_value]).not_to be
+          config_value           =Faker::Lorem.sentence
+          defaults[config_value] = config_value
+
+          expect(Cornucopia::Util::Configuration.default_report_configuration(report_type)).to eq orig
+          expect(Cornucopia::Util::Configuration.default_report_configuration(report_type)[config_value]).not_to be
+        end
       end
     end
   end
