@@ -226,7 +226,7 @@ describe Cornucopia::Capybara::PageDiagnostics, type: :feature do
 
       allow_any_instance_of(Cornucopia::Capybara::PageDiagnostics).
           to receive(:execute_driver_function).
-                 with(:save_screenshot, nil, File.join(report.report_folder_name, "temporary_folder", "screen_shot.png")).
+                 with(:save_screenshot, nil, File.join(report.report_test_folder_name, "temporary_folder", "screen_shot.png")).
                  and_return nil
 
       Cornucopia::Capybara::PageDiagnostics.dump_details(report: report, section_label: "Super cool report dump:")

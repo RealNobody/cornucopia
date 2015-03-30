@@ -15,11 +15,15 @@ Spinach.hooks.before_scenario do |scenario, step_definitions|
 
   scenario.instance_variable_set :@seed_value, seed_value
 
-  Cornucopia::Capybara::FinderDiagnostics::FindAction.start_test
+  Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
+  Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
 end
 
 Spinach.hooks.after_scenario do |scenario, step_definitions|
   @running_scenario = nil
+
+  Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
+  Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
 end
 
 Spinach.hooks.on_failed_step do |step_data, exception, location, step_definitions|

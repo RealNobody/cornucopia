@@ -1,11 +1,22 @@
+require "singleton"
+
 module Cornucopia
   module Util
+    class FileAssetCache
+      include Singleton
+
+      attr_accessor :asset_cache
+
+      def initialize
+        @asset_cache = {}
+      end
+    end
+
     class FileAsset
       class << self
         def asset(asset_name)
-          @@asset_list                    ||= {}
-          @@asset_list[asset_name.to_sym] = FileAsset.new(asset_name) unless @@asset_list[asset_name.to_sym]
-          @@asset_list[asset_name.to_sym]
+          Cornucopia::Util::FileAssetCache.instance.asset_cache[asset_name.to_sym] ||= FileAsset.new(asset_name)
+          Cornucopia::Util::FileAssetCache.instance.asset_cache[asset_name.to_sym]
         end
       end
 

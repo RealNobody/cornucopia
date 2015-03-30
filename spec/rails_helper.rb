@@ -42,7 +42,8 @@ RSpec.configure do |config|
   config.infer_spec_type_from_file_location!
 
   config.before(:each) do
-    Cornucopia::Capybara::FinderDiagnostics::FindAction.start_test
+    Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
+    Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
 
     expect(Cornucopia::Capybara::FinderDiagnostics::FindAction.class_variable_get(:@@diagnosed_finders)).to be_blank
   end

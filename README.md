@@ -489,12 +489,4 @@ appended to the table as-is.
 
 ## Todos...
 
-SitePrism override section, element, sections and elements command to allow parameters to be passed in as additional 
-    options.
-  functions to override:
-    main function (name)
-    has_
-    ???
-  Already done only if original definition doesn't have options
-Make configuration a singleton
 ReportBuilder - reformat and styling of report?

@@ -562,7 +562,7 @@ module Cornucopia
       def image_link(image_file_name)
         dest_file_name = unique_file_name(File.basename(image_file_name))
 
-        FileUtils.mv image_file_name, File.join(report_folder_name, dest_file_name)
+        FileUtils.mv image_file_name, File.join(report_test_folder_name, dest_file_name)
 
         "<img class=\"cornucopia-section-image\" src=\"./#{dest_file_name}\" />".html_safe
       end
@@ -574,7 +574,7 @@ module Cornucopia
       def page_frame(page_html)
         dump_file_name = unique_file_name("page_dump.html")
 
-        File.open(File.join(report_folder_name, dump_file_name), "w:UTF-8") do |dump_file|
+        File.open(File.join(report_test_folder_name, dump_file_name), "w:UTF-8") do |dump_file|
           page_text = page_html.to_s
           page_text = page_text + "" if page_text.frozen?
           dump_file.write page_text.force_encoding("UTF-8")
@@ -596,7 +596,7 @@ module Cornucopia
 
         unique_num = 1
         num_string = ""
-        while File.exists?(File.join(report_folder_name, "#{base_name}#{num_string}.#{extension}"))
+        while File.exists?(File.join(report_test_folder_name, "#{base_name}#{num_string}.#{extension}"))
           num_string = "_#{unique_num}"
           unique_num += 1
         end
@@ -607,7 +607,7 @@ module Cornucopia
       def unique_folder_name(folder_base_name)
         unique_num = 1
         num_string = ""
-        while File.exists?(File.join(report_folder_name, "#{folder_base_name}#{num_string}"))
+        while File.exists?(File.join(report_test_folder_name, "#{folder_base_name}#{num_string}"))
           num_string = "_#{unique_num}"
           unique_num += 1
         end

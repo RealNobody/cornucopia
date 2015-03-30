@@ -20,7 +20,8 @@ RSpec.configure do |config|
 
     srand(@seed_value)
 
-    Cornucopia::Capybara::FinderDiagnostics::FindAction.start_test
+    Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
+    Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
 
     test_example = example.example if example.respond_to?(:example)
     test_example ||= self.example if self.respond_to?(:example)
@@ -40,5 +41,8 @@ RSpec.configure do |config|
         end
       end
     end
+
+    Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
+    Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
   end
 end

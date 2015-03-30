@@ -1219,7 +1219,7 @@ describe Cornucopia::Util::ReportBuilder do
 
         it "returns a uniqe folder if there is a folder with that name" do
           current_report     = send(report_settings[:report])
-          test_report_folder = current_report.report_folder_name
+          test_report_folder = current_report.report_test_folder_name
 
           new_folder  = Faker::Lorem.word
           num_folders = rand(5..10)
@@ -1246,18 +1246,18 @@ describe Cornucopia::Util::ReportBuilder do
 
         it "creates a unique file name if there are some files already" do
           current_report     = send(report_settings[:report])
-          test_report_folder = current_report.report_folder_name
+          test_report_folder = current_report.report_test_folder_name
 
           prefix    = Faker::Lorem.word
           postfix   = Faker::Lorem.word
           num_files = rand(3..5)
 
-          FileUtils.mkdir_p report_folder
+          FileUtils.mkdir_p test_report_folder
           Cornucopia::Util::FileAsset.asset("cornucopia.css").
-              add_file(File.join(report_folder, "#{prefix}.#{postfix}"))
+              add_file(File.join(test_report_folder, "#{prefix}.#{postfix}"))
           (1..num_files).to_a.each do |file_index|
             Cornucopia::Util::FileAsset.asset("cornucopia.css").
-                add_file(File.join(report_folder, "#{prefix}_#{file_index}.#{postfix}"))
+                add_file(File.join(test_report_folder, "#{prefix}_#{file_index}.#{postfix}"))
           end
 
           expect(current_report.unique_file_name("#{prefix}.#{postfix}")).to be == "#{prefix}_#{num_files + 1}.#{postfix}"
@@ -1267,7 +1267,7 @@ describe Cornucopia::Util::ReportBuilder do
       describe "#image_link" do
         it "moves the image file and creates an image element" do
           current_report     = send(report_settings[:report])
-          test_report_folder = current_report.report_folder_name
+          test_report_folder = current_report.report_test_folder_name
 
           prefix  = Faker::Lorem.word
           postfix = Faker::Lorem.word
@@ -1293,7 +1293,7 @@ describe Cornucopia::Util::ReportBuilder do
       describe "#page_frame" do
         it "dumps the html to a file, and returns an iframe element" do
           current_report     = send(report_settings[:report])
-          test_report_folder = current_report.report_folder_name
+          test_report_folder = current_report.report_test_folder_name
           source_html        = "<html>\n<body>\nThis is some &amp; awesome text</body>\n</html>"
 
           FileUtils.mkdir_p test_report_folder
@@ -1342,7 +1342,7 @@ describe Cornucopia::Util::ReportBuilder do
     current_report.close
     current_report.instance_variable_set(:@test_number, 0)
 
-    report_page = Capybara::Node::Simple.new(File.read(current_report.report_test_contents_page_name))
+    report_page  = Capybara::Node::Simple.new(File.read(current_report.report_test_contents_page_name))
     report_table = CornucopiaReportApp.cornucopia_report_test_contents_page
 
     report_table.owner_node = report_page

@@ -8,7 +8,8 @@ Around do |scenario, block|
 
   scenario.instance_variable_set :@seed_value, seed_value
 
-  Cornucopia::Capybara::FinderDiagnostics::FindAction.start_test
+  Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
+  Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
 
   Cornucopia::Util::ReportBuilder.current_report.within_test("#{scenario.feature.title} : #{scenario.title}") do
     block.call
@@ -18,6 +19,9 @@ Around do |scenario, block|
     seed_value = scenario.instance_variable_get(:@seed_value)
     puts ("random seed for testing was: #{seed_value}")
   end
+
+  Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
+  Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
 end
 
 After do |scenario|

@@ -189,7 +189,7 @@ module Cornucopia
       end
 
       def screen_shot
-        dir_name = File.join(@report.report_folder_name, "temporary_folder")
+        dir_name = File.join(@report.report_test_folder_name, "temporary_folder")
 
         begin
           page_name = @options[:screen_shot_name] || "screen_shot"
@@ -217,9 +217,9 @@ module Cornucopia
 
       def html_file
         dir_name = @report.unique_folder_name("html_save_file")
-        FileUtils.mkdir_p File.join(@report.report_folder_name, dir_name)
+        FileUtils.mkdir_p File.join(@report.report_test_folder_name, dir_name)
         ::Capybara.current_session.
-            save_page(File.join(@report.report_folder_name, dir_name, "__cornucopia_save_page.html"))
+            save_page(File.join(@report.report_test_folder_name, dir_name, "__cornucopia_save_page.html"))
         "<a href=\"#{File.join(dir_name, "__cornucopia_save_page.html")}\" target=\"_blank\">Saved Page</a>".
             html_safe
       end

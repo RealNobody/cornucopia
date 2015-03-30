@@ -79,9 +79,13 @@ module Cornucopia
       class FindAction
         @@diagnosed_finders = {}
 
+        Cornucopia::Util::ReportBuilder.on_close do
+          Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
+        end
+
         # Clears the class variable @@diagnosed_finders between tests if called.
         # This is done so that finder analysis is called at least once per test.
-        def self.start_test
+        def self.clear_diagnosed_finders
           @@diagnosed_finders = {}
         end
 
