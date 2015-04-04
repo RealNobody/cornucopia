@@ -9,6 +9,8 @@ if Object.const_defined?("Capybara") &&
       class Document
         alias_method :__cornucopia_orig_assert_selector, :assert_selector
         alias_method :__cornucopia_orig_assert_no_selector, :assert_no_selector
+        alias_method :__cornucopia_orig_has_selector?, :has_selector?
+        alias_method :__cornucopia_orig_has_no_selector?, :has_no_selector?
 
         include Cornucopia::Capybara::MatcherExtensions
       end
@@ -25,6 +27,8 @@ if Object.const_defined?("Capybara") &&
       class Element
         alias_method :__cornucopia_orig_assert_selector, :assert_selector
         alias_method :__cornucopia_orig_assert_no_selector, :assert_no_selector
+        alias_method :__cornucopia_orig_has_selector?, :has_selector?
+        alias_method :__cornucopia_orig_has_no_selector?, :has_no_selector?
 
         include Cornucopia::Capybara::MatcherExtensions
       end

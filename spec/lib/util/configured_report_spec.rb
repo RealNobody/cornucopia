@@ -987,11 +987,53 @@ describe Cornucopia::Util::ConfiguredReport do
           leaf_pos += leaf_size
         end
 
-        rand_item = rand(0..leaf_pos - 1)
+        rand_item = rand(0..leaf_options.length - 1)
 
         simple_report.leaf_options = leaf_options
-        expect(simple_report.find_leaf_options(leaf_elements[rand_item])).to be == leaf_options[rand_item / leaf_size]
-        expect(simple_report.find_leaf_options(leaf_elements[leaf_pos])).not_to be
+        expect(simple_report.find_leaf_options(leaf_options[rand_item])).to be == leaf_options[rand_item]
+        expect(simple_report.find_leaf_options({ report_element: [leaf_elements[leaf_pos]] })).not_to be
+      end
+
+      it "ignores to_s" do
+        leaf_options  = []
+        leaf_elements = rand(40..50).times.map { Faker::Lorem.word.to_sym }.uniq
+        num_items     = rand(5..10)
+        leaf_pos      = 0
+        leaf_size     = (leaf_elements.size - 1) / num_items
+
+        num_items.times do
+          some_options = { some_option: Faker::Lorem.sentence }
+          leaf_options << { report_element: [*leaf_elements[leaf_pos..leaf_pos + leaf_size - 1], :to_s],
+                            report_options: some_options }
+          leaf_pos += leaf_size
+        end
+
+        rand_item = rand(0..leaf_options.length - 1)
+
+        simple_report.leaf_options = leaf_options
+        expect(simple_report.find_leaf_options(leaf_options[rand_item])).to be == leaf_options[rand_item]
+        expect(simple_report.find_leaf_options({ report_element: [leaf_elements[leaf_pos]] })).not_to be
+      end
+
+      it "ignores array indexes" do
+        leaf_options  = []
+        leaf_elements = rand(40..50).times.map { Faker::Lorem.word.to_sym }.uniq
+        num_items     = rand(5..10)
+        leaf_pos      = 0
+        leaf_size     = (leaf_elements.size - 1) / num_items
+
+        num_items.times do
+          some_options = { some_option: Faker::Lorem.sentence }
+          leaf_options << { report_element: [*leaf_elements[leaf_pos..leaf_pos + leaf_size - 1], rand(0..1000).to_s.to_sym],
+                            report_options: some_options }
+          leaf_pos += leaf_size
+        end
+
+        rand_item = rand(0..leaf_options.length - 1)
+
+        simple_report.leaf_options = leaf_options
+        expect(simple_report.find_leaf_options(leaf_options[rand_item])).to be == leaf_options[rand_item]
+        expect(simple_report.find_leaf_options({ report_element: [leaf_elements[leaf_pos]] })).not_to be
       end
     end
 

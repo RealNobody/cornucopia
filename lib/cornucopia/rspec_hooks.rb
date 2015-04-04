@@ -14,6 +14,13 @@ RSpec.configure do |config|
     Cornucopia::Util::ReportBuilder.current_report.close
   end
 
+  config.before(:all) do
+    @context_seed_value = Cornucopia::Util::Configuration.context_seed ||
+        100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
+
+    srand(@context_seed_value)
+  end
+
   config.around(:each) do |example|
     @seed_value = Cornucopia::Util::Configuration.seed ||
         100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
@@ -30,7 +37,7 @@ RSpec.configure do |config|
       example.run
 
       if (test_example.exception)
-        puts ("random seed for testing was: #{@seed_value}")
+        puts ("random seed for testing was: #{@context_seed_value}, #{@seed_value}")
 
         Cornucopia::Util::ReportBuilder.current_report.
             within_section("Test Error: #{test_example.full_description}") do |report|
@@ -39,6 +46,8 @@ RSpec.configure do |config|
           configured_report.add_report_objects example: test_example, rspec: RSpec
           configured_report.generate_report(report)
         end
+      else
+        Cornucopia::Util::ReportBuilder.current_report.test_succeeded
       end
     end
 

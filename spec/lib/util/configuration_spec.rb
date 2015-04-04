@@ -18,15 +18,49 @@ describe "Cornucopia::Util::Configuration" do
     end
   end
 
+  it "has a default context_seed value" do
+    expect(Cornucopia::Util::Configuration.context_seed).not_to be
+  end
+
+  it "can set the context_seed value" do
+    begin
+      context_seed_value = rand(0..999999999999999999999999999)
+
+      Cornucopia::Util::Configuration.context_seed = context_seed_value
+
+      expect(Cornucopia::Util::Configuration.context_seed).to be == context_seed_value
+    ensure
+      Cornucopia::Util::Configuration.context_seed = nil
+    end
+  end
+
   it "has a default order_seed value" do
     expect(Cornucopia::Util::Configuration.order_seed).not_to be
   end
 
   it "can set the order_seed value" do
     config_seed = RSpec.configuration.seed
+
     begin
       seed_value = rand(0..999999999999999999999999999)
 
+      Cornucopia::Util::Configuration.order_seed = seed_value
+
+      expect(Cornucopia::Util::Configuration.order_seed).to be == seed_value
+      expect(RSpec.configuration.seed).to be == seed_value
+    ensure
+      RSpec.configuration.seed                   = config_seed
+      Cornucopia::Util::Configuration.order_seed = nil
+    end
+  end
+
+  it "can set the order_seed value on a newer version of RSpec" do
+    config_seed = RSpec.configuration.seed
+
+    begin
+      seed_value = rand(0..999999999999999999999999999)
+
+      expect(RSpec.configuration).to receive(:respond_to?).and_return false
       Cornucopia::Util::Configuration.order_seed = seed_value
 
       expect(Cornucopia::Util::Configuration.order_seed).to be == seed_value
@@ -282,6 +316,38 @@ describe "Cornucopia::Util::Configuration" do
         expect(Cornucopia::Util::Configuration.analyze_selector_exceptions).to be_falsy
       ensure
         Cornucopia::Util::Configuration.analyze_selector_exceptions = true
+      end
+    end
+  end
+
+  describe "#ignore_finder_errors_on_success" do
+    it "#can read the default" do
+      expect(Cornucopia::Util::Configuration.ignore_finder_errors_on_success).to be_truthy
+    end
+
+    it "#can set the value" do
+      begin
+        Cornucopia::Util::Configuration.ignore_finder_errors_on_success = false
+
+        expect(Cornucopia::Util::Configuration.ignore_finder_errors_on_success).to be_falsy
+      ensure
+        Cornucopia::Util::Configuration.ignore_finder_errors_on_success = true
+      end
+    end
+  end
+
+  describe "#ignore_has_selector_errors" do
+    it "#can read the default" do
+      expect(Cornucopia::Util::Configuration.ignore_has_selector_errors).to be_truthy
+    end
+
+    it "#can set the value" do
+      begin
+        Cornucopia::Util::Configuration.ignore_has_selector_errors = false
+
+        expect(Cornucopia::Util::Configuration.ignore_has_selector_errors).to be_falsy
+      ensure
+        Cornucopia::Util::Configuration.ignore_has_selector_errors = true
       end
     end
   end

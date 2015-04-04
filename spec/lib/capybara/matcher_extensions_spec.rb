@@ -224,13 +224,13 @@ describe Cornucopia::Capybara::MatcherExtensions, type: :feature do
 
           expect(Cornucopia::Capybara::FinderDiagnostics::FindAction).to receive(:new).and_return(stubbed_finder)
 
-          retry_found                                      = [true, false].sample
+          retry_found                                            = [true, false].sample
           # retry_alt   = [true, false].sample
 
           Cornucopia::Util::Configuration.retry_match_with_found = retry_found
           # Cornucopia::Util::Configuration.alternate_retry  = retry_alt
 
-          retry_found                                      = retry_found || nil
+          retry_found                                            = retry_found || nil
           # retry_alt   = retry_alt || nil
 
           expect(stubbed_finder).to receive(:perform_analysis).with(retry_found).and_return true
@@ -257,13 +257,13 @@ describe Cornucopia::Capybara::MatcherExtensions, type: :feature do
 
           expect(Cornucopia::Capybara::FinderDiagnostics::FindAction).to receive(:new).and_return(stubbed_finder)
 
-          retry_found                                      = [true, false].sample
+          retry_found                                            = [true, false].sample
           # retry_alt   = [true, false].sample
 
           Cornucopia::Util::Configuration.retry_match_with_found = retry_found
           # Cornucopia::Util::Configuration.alternate_retry  = retry_alt
 
-          retry_found                                      = retry_found || nil
+          retry_found                                            = retry_found || nil
           # retry_alt   = retry_alt || nil
 
           expect(stubbed_finder).to receive(:perform_analysis).with(retry_found).and_return true
@@ -290,13 +290,13 @@ describe Cornucopia::Capybara::MatcherExtensions, type: :feature do
 
           expect(Cornucopia::Capybara::FinderDiagnostics::FindAction).to receive(:new).and_return(stubbed_finder)
 
-          retry_found                                      = [true, false].sample
+          retry_found                                            = [true, false].sample
           # retry_alt   = [true, false].sample
 
           Cornucopia::Util::Configuration.retry_match_with_found = retry_found
           # Cornucopia::Util::Configuration.alternate_retry  = retry_alt
 
-          retry_found                                      = retry_found || nil
+          retry_found                                            = retry_found || nil
           # retry_alt   = retry_alt || nil
 
           expect(stubbed_finder).to receive(:perform_analysis).with(retry_found).and_return false
@@ -322,13 +322,13 @@ describe Cornucopia::Capybara::MatcherExtensions, type: :feature do
 
           expect(Cornucopia::Capybara::FinderDiagnostics::FindAction).to receive(:new).and_return(stubbed_finder)
 
-          retry_found                                      = [true, false].sample
+          retry_found                                            = [true, false].sample
           # retry_alt   = [true, false].sample
 
           Cornucopia::Util::Configuration.retry_match_with_found = retry_found
           # Cornucopia::Util::Configuration.alternate_retry  = retry_alt
 
-          retry_found                                      = retry_found || nil
+          retry_found                                            = retry_found || nil
           # retry_alt   = retry_alt || nil
 
           expect(stubbed_finder).to receive(:perform_analysis).with(retry_found).and_return false
@@ -338,6 +338,37 @@ describe Cornucopia::Capybara::MatcherExtensions, type: :feature do
           Cornucopia::Util::Configuration.retry_match_with_found = false
           # Cornucopia::Util::Configuration.alternate_retry  = false
         end
+      end
+    end
+
+    context "with a sample test file" do
+      let(:base_folder) { File.absolute_path(File.join(File.dirname(@file_name_1), "../..")) }
+
+      before(:example) do
+        Cornucopia::Util::FileAsset.new("../../../spec/fixtures/sample_page.html").
+            create_file(File.join(base_folder, "sample_report/sample_file.html"))
+
+        ::Capybara.current_session.visit("/sample_report/sample_file.html")
+      end
+
+      it "finds a has_selector? item and does not create a report" do
+        expect(::Capybara.current_session.has_selector?("\#select-box")).to be_truthy
+        expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
+      end
+
+      it "does not find a has_selector? item and does not create a report" do
+        expect(::Capybara.current_session.has_selector?("\#select-box-not-there")).to be_falsey
+        expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
+      end
+
+      it "finds a has_no_selector? item and does not create a report" do
+        expect(::Capybara.current_session.has_no_selector?("\#select-box-not-there")).to be_truthy
+        expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
+      end
+
+      it "does not find a has_no_selector? item and does not create a report" do
+        expect(::Capybara.current_session.has_no_selector?("\#select-box")).to be_falsey
+        expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
       end
     end
   end

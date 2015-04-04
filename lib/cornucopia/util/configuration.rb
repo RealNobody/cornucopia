@@ -13,23 +13,26 @@ module Cornucopia
       def initialize
         @configurations = Cornucopia::Util::GenericSettings.new
 
-        configurations.order_seed                  = nil
-        configurations.rand_seed                   = nil
-        configurations.user_log_files              = {}
-        configurations.default_num_lines           = 500
-        configurations.grab_logs                   = true
-        configurations.print_timeout_min           = 10
-        configurations.selenium_cache_retry_count  = 5
-        configurations.analyze_find_exceptions     = true
-        configurations.analyze_selector_exceptions = true
-        configurations.retry_with_found            = false
-        configurations.retry_match_with_found      = false
-        configurations.open_report_settings        = { default: false }
-        configurations.base_folder                 = "cornucopia_report"
+        configurations.order_seed                      = nil
+        configurations.rand_seed                       = nil
+        configurations.rand_context_seed               = nil
+        configurations.user_log_files                  = {}
+        configurations.default_num_lines               = 500
+        configurations.grab_logs                       = true
+        configurations.print_timeout_min               = 10
+        configurations.selenium_cache_retry_count      = 5
+        configurations.analyze_find_exceptions         = true
+        configurations.analyze_selector_exceptions     = true
+        configurations.ignore_finder_errors_on_success = true
+        configurations.ignore_has_selector_errors      = true
+        configurations.retry_with_found                = false
+        configurations.retry_match_with_found          = false
+        configurations.open_report_settings            = { default: false }
+        configurations.base_folder                     = "cornucopia_report"
 
         # configurations.alternate_retry            = false
 
-        configurations.default_configuration       = {
+        configurations.default_configuration           = {
             rspec:                       {
                 min_fields:           [
                                           :example__full_description,
@@ -42,7 +45,14 @@ module Cornucopia
                                           :example,
                                           :example__example_group_instance,
                                           :example__metadata__caller,
-                                          :rspec__configuration__seed,
+                                          {
+                                              report_element: :rspec__configuration__seed,
+                                              report_options: { ignore_missing: true }
+                                          },
+                                          {
+                                              report_element: :rspec__configuration__ordering_manager__seed,
+                                              report_options: { ignore_missing: true }
+                                          },
                                           :logs,
                                           :capybara_page_diagnostics
                                       ],
@@ -60,7 +70,7 @@ module Cornucopia
                                           :example__fixture_connections,
                                           :example,
                                           :example__example_group_instance,
-                                      ]
+                                      ],
             },
             cucumber:                    {
                 min_fields:           [
@@ -280,12 +290,36 @@ module Cornucopia
           Cornucopia::Util::Configuration.instance.configurations.rand_seed
         end
 
+        # rand_context_seed is the seed value used to seed the srand function at the start of a context.
+        # This is done to allow tests with random elements in them to be repeatable.
+        # If a test fails, simply set Cornucopia::Util::Configuration.rand_context_seed to the
+        # value of the failed tests context_seed value (output in the stdout and the generated report)
+        # and run the test again.  This should re-run the exact same test, resulting in a
+        # repeatable test even with randomization in it.
+        def context_seed=(value)
+          Cornucopia::Util::Configuration.instance.configurations.rand_context_seed = value
+          srand(value) if value
+        end
+
+        def context_seed
+          Cornucopia::Util::Configuration.instance.configurations.rand_context_seed
+        end
+
         # order_seed is the seed value used to set the order that randomly ordered tests are run in.
         # This is provided as a convenience method.  I think it is easier to set this in rails_helper than it is to
         # set it on the command line.  This also provides a uniform method to do it.
         def order_seed=(value)
           Cornucopia::Util::Configuration.instance.configurations.order_seed = value
-          RSpec.configuration.seed    = value if value
+
+          if value
+            if RSpec.configuration.respond_to?(:seed)
+              RSpec.configuration.seed = value
+            else
+              # :nocov:
+              RSpec.configuration.ordering_manager.seed = value
+              # :nocov:
+            end
+          end
         end
 
         def order_seed
@@ -456,6 +490,33 @@ module Cornucopia
 
         def analyze_selector_exceptions=(value)
           Cornucopia::Util::Configuration.instance.configurations.analyze_selector_exceptions = value
+        end
+
+        # This setting is used by the report builder.
+        #
+        # If a test has finder errors but still succeeds, ignore the errors and do not report them.  This is useful
+        # for tests that test the existence of an element on the page using something like:
+        # expect(my_page).not_to have_page_element
+        def ignore_finder_errors_on_success
+          Cornucopia::Util::Configuration.instance.configurations.ignore_finder_errors_on_success
+        end
+
+        def ignore_finder_errors_on_success=(value)
+          Cornucopia::Util::Configuration.instance.configurations.ignore_finder_errors_on_success = value
+        end
+
+        # This setting is used by the matcher analysis.
+        #
+        # Generally speaking has_selector? is allowed to return true or false without needing to be to analyzed.
+        # So, the system ignores has_selector? failures and doesn't output an analysis.
+        #
+        # This will perform an analysis for each has_selector? failure.
+        def ignore_has_selector_errors
+          Cornucopia::Util::Configuration.instance.configurations.ignore_has_selector_errors
+        end
+
+        def ignore_has_selector_errors=(value)
+          Cornucopia::Util::Configuration.instance.configurations.ignore_has_selector_errors = value
         end
 
         # Sometimes, the analysis process found the element when it wasn't found other ways.

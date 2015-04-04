@@ -18,14 +18,7 @@ Around do |scenario, block|
   if scenario.failed?
     seed_value = scenario.instance_variable_get(:@seed_value)
     puts ("random seed for testing was: #{seed_value}")
-  end
 
-  Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
-  Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
-end
-
-After do |scenario|
-  if scenario.failed?
     Cornucopia::Util::ReportBuilder.current_report.
         within_section("Test Error: #{scenario.feature.title}:#{scenario.title}") do |report|
       configured_report = Cornucopia::Util::Configuration.report_configuration :cucumber
@@ -33,14 +26,12 @@ After do |scenario|
       configured_report.add_report_objects scenario: scenario, cucumber: self
       configured_report.generate_report(report)
     end
-
-    # Cornucopia::DiagnosticsReportBuilder.current_report.within_section("Error:") do |report|
-    #   report_generator = Cornucopia::Configuration.report_configuration(:cucumber)
-    #
-    #   report_generator.add_report_objects(self: self, scenario: scenario)
-    #   report_generator.generate_report_for_object(report, diagnostics_name: scenario.file_colon_line)
-    # end
+  else
+    Cornucopia::Util::ReportBuilder.current_report.test_succeeded
   end
+
+  Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
+  Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
 end
 
 at_exit do

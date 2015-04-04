@@ -482,6 +482,7 @@ module Cornucopia
             instance_variable_set("@native_class", @found_element[:class])
 
             if ::Capybara.current_session.driver.respond_to?(:browser) &&
+                ::Capybara.current_session.driver.browser.respond_to?(:execute_script) &&
                 ::Capybara.current_session.driver.browser.method(:execute_script).arity != 1
               begin
                 # This is a "trick" that works with Selenium, but which might not work with other drivers...

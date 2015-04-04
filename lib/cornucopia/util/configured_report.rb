@@ -311,10 +311,12 @@ module Cornucopia
             if instance_variable_name
               report_object = parent_object.instance_variable_get(instance_variable_name)
             else
-              report_object = nil
-              print_value   = "Could not identify field: #{export_field[:report_element][0..level].join("__")} while exporting #{export_field[:report_element].join("__")}"
+              unless report_options(export_field)[:ignore_missing]
+                report_object = nil
+                print_value   = "Could not identify field: #{export_field[:report_element][0..level].join("__")} while exporting #{export_field[:report_element].join("__")}"
 
-              report_table.write_stats "ERROR", print_value
+                report_table.write_stats "ERROR", print_value
+              end
             end
           end
         end
@@ -382,9 +384,7 @@ module Cornucopia
               end
             end
 
-            print_options = export_field[:report_options]
-            print_options ||= find_leaf_options(print_name).try(:[], :report_options)
-            print_options ||= {}
+            print_options = report_options(export_field)
 
             if print_options[:label]
               print_name = print_options[:label]
@@ -395,8 +395,28 @@ module Cornucopia
         end
       end
 
-      def find_leaf_options(variable_name)
+      def report_options(export_field)
+        print_options = export_field[:report_options]
+        print_options ||= find_leaf_options(export_field).try(:[], :report_options)
+        print_options ||= {}
+
+        print_options
+      end
+
+      def find_leaf_options(export_field)
         found_options = nil
+
+        if export_field[:report_element][-1] == :to_s
+          variable_name = export_field[:report_element][-2]
+        else
+          variable_name = export_field[:report_element][-1]
+        end
+
+        if export_field[:report_element].length >= 2
+          if variable_name.to_s =~ /^-?[0-9]+$/
+            variable_name = export_field[:report_element][-2]
+          end
+        end
 
         if @leaf_options
           @leaf_options.each do |leaf_option|

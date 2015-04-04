@@ -941,6 +941,90 @@ describe Cornucopia::Util::ReportBuilder do
         end
       end
 
+      describe "#test_succeeded" do
+        it "deletes a sub-test as if nothing failed if it is the only one." do
+          current_report = send(report_settings[:report])
+
+          test_folder = nil
+          test_file   = nil
+
+          rand(1..3).times do
+            current_report.within_test(test_names[0]) do
+              current_report.within_section(section_names[0]) do |report_section|
+                report_section.within_table do |report_table|
+                  report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+                end
+              end
+
+              test_folder = current_report.report_test_folder_name
+              test_file   = current_report.report_base_page_name
+
+              expect(File.exists?(test_file)).to be_truthy
+              expect(File.directory?(test_folder)).to be_truthy
+
+              current_report.test_succeeded
+
+              expect(File.exists?(test_file)).to be_falsey
+              expect(File.directory?(test_folder)).to be_falsey
+            end
+          end
+
+          current_report.close
+
+          expect(File.exists?(test_file)).to be_truthy
+          expect(File.directory?(test_folder)).to be_falsey
+
+          read_file = File.read(current_report.report_contents_page_name)
+          expect(read_file).not_to match /#{test_names[0]}/
+          expect(read_file).to match /No Errors to report/
+        end
+
+        it "deletes a sub-test as if it doesn't exist" do
+          current_report = send(report_settings[:report])
+
+          current_report.within_test(test_names[0]) do
+            current_report.within_section(section_names[0]) do |report_section|
+              report_section.within_table do |report_table|
+                report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+              end
+            end
+          end
+
+          test_folder = nil
+          test_file   = nil
+
+          rand(1..3).times do
+            current_report.within_test(test_names[1]) do
+              current_report.within_section(section_names[1]) do |report_section|
+                report_section.within_table do |report_table|
+                  report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+                end
+              end
+
+              test_folder = current_report.report_test_folder_name
+              test_file   = current_report.report_base_page_name
+
+              expect(File.exists?(test_file)).to be_truthy
+              expect(File.directory?(test_folder)).to be_truthy
+
+              current_report.test_succeeded
+
+              expect(File.exists?(test_file)).to be_truthy
+              expect(File.directory?(test_folder)).to be_falsey
+            end
+          end
+
+          current_report.close
+
+          expect(File.exists?(test_file)).to be_truthy
+          expect(File.directory?(test_folder)).to be_falsey
+
+          read_file = File.read(current_report.report_base_page_name)
+          expect(read_file).to match /#{test_names[0]}/
+          expect(read_file).not_to match /#{test_names[1]}/
+        end
+      end
+
       describe "#within_test" do
         it "starts a test with a specific name" do
           current_report = send(report_settings[:report])

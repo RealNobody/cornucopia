@@ -447,7 +447,7 @@ module Cornucopia
       end
 
       def initialize_report_test_files
-        @report_body += test_list_item
+        @report_body += test_list_item.to_s
 
         support_folder_name = report_test_folder_name
 
@@ -475,6 +475,24 @@ module Cornucopia
         initialize_report_test_files
 
         File.open(report_test_contents_page_name, "a:UTF-8", &block)
+      end
+
+      def test_succeeded
+        if @report_test_folder_name
+          FileUtils.rm_rf report_test_folder_name
+          @report_body.gsub!(@test_list_item, "")
+
+          if @report_body.blank?
+            FileUtils.rm_rf report_base_page_name
+            FileUtils.rm_rf File.join(report_folder_name, "report.js")
+            FileUtils.rm_rf File.join(report_folder_name, "cornucopia.css")
+            @report_body = "".html_safe
+          else
+            rebuild_report_holder_page
+          end
+
+          @test_number -= 1
+        end
       end
 
       def within_test(test_name, &block)

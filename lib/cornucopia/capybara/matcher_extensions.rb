@@ -12,11 +12,34 @@ module Cornucopia
         __cornucopia_assert_selector_function(:assert_no_selector, *args)
       end
 
+      def has_selector?(*args)
+        new_args = args.dup
+        options  = (new_args.pop if new_args.length > 1 && new_args[-1].is_a?(Hash)) || {}
+
+        if Cornucopia::Util::Configuration.instance.ignore_has_selector_errors
+          options = { __cornucopia_no_analysis: true }.merge options
+        end
+
+        __cornucopia_assert_selector_function(:has_selector?, *new_args, options)
+      end
+
+      def has_no_selector?(*args)
+        new_args = args.dup
+        options  = (new_args.pop if new_args.length > 1 && new_args[-1].is_a?(Hash)) || {}
+
+        if Cornucopia::Util::Configuration.instance.ignore_has_selector_errors
+          options = { __cornucopia_no_analysis: true }.merge options
+        end
+        __cornucopia_assert_selector_function(:has_no_selector?, *new_args, options)
+      end
+
       def __cornucopia_assert_selector_function(assert_selector_function, *args)
         retry_count = 0
         result      = nil
 
-        support_options = __cornucopia__extract_selector_support_options(*args)
+        unless [:has_selector?, :has_no_selector?].include?(assert_selector_function)
+          support_options = __cornucopia__extract_selector_support_options(*args)
+        end
 
         begin
           retry_count += 1
