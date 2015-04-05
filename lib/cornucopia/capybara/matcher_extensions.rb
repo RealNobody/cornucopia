@@ -16,7 +16,7 @@ module Cornucopia
         new_args = args.dup
         options  = (new_args.pop if new_args.length > 1 && new_args[-1].is_a?(Hash)) || {}
 
-        if Cornucopia::Util::Configuration.instance.ignore_has_selector_errors
+        if Cornucopia::Util::Configuration.ignore_has_selector_errors
           options = { __cornucopia_no_analysis: true }.merge options
         end
 
@@ -27,7 +27,7 @@ module Cornucopia
         new_args = args.dup
         options  = (new_args.pop if new_args.length > 1 && new_args[-1].is_a?(Hash)) || {}
 
-        if Cornucopia::Util::Configuration.instance.ignore_has_selector_errors
+        if Cornucopia::Util::Configuration.ignore_has_selector_errors
           options = { __cornucopia_no_analysis: true }.merge options
         end
         __cornucopia_assert_selector_function(:has_no_selector?, *new_args, options)

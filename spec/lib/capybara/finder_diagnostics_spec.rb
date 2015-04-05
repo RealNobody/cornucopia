@@ -516,7 +516,6 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
       end
 
       it "works with assert_selector" do
-        # TODO: figure out why this test appears to be flakey sometimes.
         begin
           Cornucopia::Util::Configuration.retry_match_with_found = true
 
@@ -539,11 +538,11 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
           report_page.tests[0].click
           report_page.displayed_test do |test_page|
             test_page.contents do |contents_frame|
-              contents_frame.errors[1].more_details.show_hide.click
-              expect(contents_frame.errors.length).to be == 2
-              expect(contents_frame.errors[1].tables[0].rows.last.labels[0].text).not_to be == "Retrying action:"
-              expect(contents_frame.errors[1].more_details.details.rows.last.labels[0].text).to be == "Retrying action:"
-              expect(contents_frame.errors[1].more_details.details.rows.last.values[0].text).to be == "Found"
+              contents_frame.errors[0].more_details.show_hide.click
+              expect(contents_frame.errors.length).to be == 1
+              expect(contents_frame.errors[0].tables[0].rows.last.labels[0].text).not_to be == "Retrying action:"
+              expect(contents_frame.errors[0].more_details.details.rows.last.labels[0].text).to be == "Retrying action:"
+              expect(contents_frame.errors[0].more_details.details.rows.last.values[0].text).to be == "Found"
             end
           end
         ensure

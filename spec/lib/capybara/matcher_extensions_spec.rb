@@ -351,24 +351,64 @@ describe Cornucopia::Capybara::MatcherExtensions, type: :feature do
         ::Capybara.current_session.visit("/sample_report/sample_file.html")
       end
 
-      it "finds a has_selector? item and does not create a report" do
-        expect(::Capybara.current_session.has_selector?("\#select-box")).to be_truthy
-        expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
+      describe "ignore_has_selector_errors = false" do
+        before(:example) do
+          Cornucopia::Util::Configuration.ignore_has_selector_errors = true
+        end
+
+        after(:example) do
+          Cornucopia::Util::Configuration.ignore_has_selector_errors = true
+        end
+
+        it "finds a has_selector? item and does not create a report" do
+          expect(::Capybara.current_session.has_selector?("\#select-box")).to be_truthy
+          expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
+        end
+
+        it "does not find a has_selector? item and does not create a report" do
+          expect(::Capybara.current_session.has_selector?("\#select-box-not-there")).to be_falsey
+          expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
+        end
+
+        it "finds a has_no_selector? item and does not create a report" do
+          expect(::Capybara.current_session.has_no_selector?("\#select-box-not-there")).to be_truthy
+          expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
+        end
+
+        it "does not find a has_no_selector? item and does not create a report" do
+          expect(::Capybara.current_session.has_no_selector?("\#select-box")).to be_falsey
+          expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
+        end
       end
 
-      it "does not find a has_selector? item and does not create a report" do
-        expect(::Capybara.current_session.has_selector?("\#select-box-not-there")).to be_falsey
-        expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
-      end
+      describe "ignore_has_selector_errors = false" do
+        before(:example) do
+          Cornucopia::Util::Configuration.ignore_has_selector_errors = false
+        end
 
-      it "finds a has_no_selector? item and does not create a report" do
-        expect(::Capybara.current_session.has_no_selector?("\#select-box-not-there")).to be_truthy
-        expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
-      end
+        after(:example) do
+          Cornucopia::Util::Configuration.ignore_has_selector_errors = true
+        end
 
-      it "does not find a has_no_selector? item and does not create a report" do
-        expect(::Capybara.current_session.has_no_selector?("\#select-box")).to be_falsey
-        expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
+        it "finds a has_selector? item and does not create a report" do
+          expect(::Capybara.current_session.has_selector?("\#select-box")).to be_truthy
+          expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
+        end
+
+        it "does not find a has_selector? item and does not create a report" do
+          expect(::Capybara.current_session.has_selector?("\#select-box-not-there")).to be_falsey
+          expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_truthy
+        end
+
+        it "finds a has_no_selector? item and does not create a report" do
+          expect(::Capybara.current_session.has_no_selector?("\#select-box-not-there")).to be_truthy
+          expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
+        end
+
+        it "does not find a has_no_selector? item and does not create a report" do
+          expect(::Capybara.current_session.has_no_selector?("\#select-box")).to be_falsey
+          expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_truthy
+        end
       end
     end
   end
