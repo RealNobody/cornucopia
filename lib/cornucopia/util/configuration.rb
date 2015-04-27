@@ -129,6 +129,61 @@ module Cornucopia
                                           :cucumber__integration_session
                                       ]
             },
+            cucumber_outline:            {
+                min_fields:           [
+                                          {
+                                              report_element: :scenario__scenario_outline__name,
+                                              report_options: { label: "feature_outline" }
+                                          },
+                                          {
+                                              report_element: :scenario__name,
+                                              report_options: { label: "scenario_example" }
+                                          },
+                                          {
+                                              report_element: :scenario__scenario_outline__example_sections__0__0__0,
+                                              # report_options: { format: ->(value) { "#{value.file}:#{value.line}" } }
+                                              report_options: { format_object:   Cornucopia::Util::CucumberFormatter,
+                                                                format_function: :format_location }
+                                          },
+                                          :scenario__exception__to_s,
+                                          :scenario__exception__backtrace
+                                      ],
+                more_info_fields:     [
+                                          :scenario__exception__class__name,
+                                          :scenario,
+                                          :scenario__scenario_outline__example_sections__0__1__comments,
+                                          :scenario__scenario_outline__example_sections__0__1__keyword,
+                                          :scenario__scenario_outline__example_sections__0__1__description,
+                                          :scenario__source_tag_names,
+                                          :scenario__scenario_outline__example_sections__0__1__tags,
+                                          :scenario__scenario_outline__example_sections__0__0,
+                                          :scenario__scenario_outline,
+                                          :cucumber,
+                                          :logs,
+                                          :capybara_page_diagnostics
+                                      ],
+                expand_fields:        [
+                                          :scenario,
+                                          :scenario__scenario_outline,
+                                          :cucumber,
+                                      ],
+                expand_inline_fields: [
+                                      ],
+                exclude_fields:       [
+                                          :scenario__background,
+                                          :scenario__scenario_outline__background,
+                                          :scenario__table,
+                                          :scenario__feature,
+                                          :scenario__current_visitor,
+                                          :scenario__raw_steps,
+                                          :scenario__title,
+                                          :cucumber____cucumber_runtime,
+                                          :cucumber____natural_language,
+                                          :cucumber___rack_test_sessions,
+                                          :cucumber___rack_mock_sessions,
+                                          :cucumber__integration_session
+                                      ]
+            },
             spinach:                     {
                 min_fields:           [
                                           :failure_description,

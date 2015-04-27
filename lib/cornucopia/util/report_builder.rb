@@ -12,6 +12,9 @@ module Cornucopia
 
       MAX_OLD_FOLDERS = 5
 
+      class TestDataHolder
+      end
+
       class << self
         def current_report(folder_name = nil, parent_folder = nil)
           if (@@current_report &&
@@ -101,8 +104,7 @@ module Cornucopia
             rescue Timeout::Error
               timed_out = true
             end
-          rescue Exception => error
-            error.to_s
+          rescue Exception
           end
 
           # If it timed out or threw an exception, try .to_s
@@ -114,6 +116,8 @@ module Cornucopia
               end
             rescue Timeout::Error
               return_value = "Timed out rendering"
+            rescue => error
+              return_value = "Rendering error => #{error.to_s}\n#{error.backtrace.join("\n")}"
             end
           end
 
@@ -495,24 +499,41 @@ module Cornucopia
         end
       end
 
+      def start_test(stack_object, test_name)
+        test_data =
+            {
+                orig_test_name:      @test_name,
+                orig_test_folder:    @report_test_folder_name,
+                orig_test_list_item: @test_list_item,
+                orig_section_number: @section_number
+            }
+
+        stack_object.instance_variable_set(:@report_builder_test_start_data, test_data)
+
+        @test_name               = test_name
+        @report_test_folder_name = nil
+        @test_list_item          = nil
+        @section_number          = 0
+      end
+
+      def end_test(stack_object)
+        test_data = stack_object.instance_variable_get(:@report_builder_test_start_data)
+
+        @section_number          = test_data[:orig_section_number]
+        @test_name               = test_data[:orig_test_name]
+        @report_test_folder_name = test_data[:orig_test_folder]
+        @test_list_item          = test_data[:orig_test_list_item]
+      end
+
       def within_test(test_name, &block)
-        orig_test_name      = @test_name
-        orig_test_folder    = @report_test_folder_name
-        orig_test_list_item = @test_list_item
-        orig_section_number = @section_number
+        test_data_holder = TestDataHolder.new
 
         begin
-          @test_name               = test_name
-          @report_test_folder_name = nil
-          @test_list_item          = nil
-          @section_number          = 0
+          start_test(test_data_holder, test_name)
 
           block.yield
         ensure
-          @section_number          = orig_section_number
-          @test_name               = orig_test_name
-          @report_test_folder_name = orig_test_folder
-          @test_list_item          = orig_test_list_item
+          end_test(test_data_holder)
         end
       end
 

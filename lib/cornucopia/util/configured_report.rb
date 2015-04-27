@@ -290,6 +290,7 @@ module Cornucopia
       def export_field_record(export_field, parent_object, parent_object_name, report_table, level, options = {})
         parent_expanded = options.delete(:expanded_field)
         report_object   = nil
+        reported        = false
 
         if (options.delete(:report_object_set))
           report_object = parent_object
@@ -298,14 +299,21 @@ module Cornucopia
               (!parent_object.methods.include?(export_field[:report_element][level]) ||
                   parent_object.method(export_field[:report_element][level]).parameters.empty?)
             report_object = parent_object.send(export_field[:report_element][level])
+            reported      = true
           elsif parent_object.respond_to?(:[])
             key_value = export_field[:report_element][level]
             if key_value.to_s =~ /^-?[0-9]+$/
               key_value = key_value.to_s.to_i
             end
 
-            report_object = parent_object.send(:[], key_value)
-          else
+            begin
+              report_object = parent_object.send(:[], key_value)
+              reported      = true
+            rescue
+            end
+          end
+
+          unless reported
             instance_variable_name = instance_variables_contain(parent_object, export_field[:report_element][level])
 
             if instance_variable_name
@@ -515,11 +523,21 @@ module Cornucopia
       end
 
       def get_instance_variable(the_object, instance_variable, variable_name)
+        fetched = false
+
         if the_object.respond_to?(variable_name)
-          the_object.send(variable_name)
-        else
-          the_object.instance_variable_get(instance_variable)
+          begin
+            return_value = the_object.send(variable_name)
+            fetched      = true
+          rescue
+          end
         end
+
+        unless fetched
+          return_value = the_object.instance_variable_get(instance_variable)
+        end
+
+        return_value
       end
     end
   end

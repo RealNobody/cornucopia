@@ -215,6 +215,16 @@ describe Cornucopia::Util::ReportBuilder do
       expect(Cornucopia::Util::ReportBuilder.pretty_object(test_object)).to be == "{:a=>\"b\"}"
     end
 
+    it "deals with exceptions" do
+      test_object = { a: "b" }
+
+      expect(test_object).to receive(:pretty_inspect) { raise "this is an error" }
+      expect(test_object).to receive(:to_s) { raise "this is an error" }
+      expect(Cornucopia::Util::ReportBuilder).not_to receive(:pretty_array)
+
+      expect(Cornucopia::Util::ReportBuilder.pretty_object(test_object)).to match /Rendering error =\>/
+    end
+
     it "times out after a long time with t_s too" do
       test_object = { a: "b" }
 
