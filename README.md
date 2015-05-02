@@ -313,6 +313,11 @@ The configuration class contains the various configurations that are used by the
 
     Indicates if the `Cornucopia::Util::LogCapture` class will capture any log files or not.
 
+* **backup_logs_on_failure**
+
+    Indicates if the `Cornucopia::Util::LogCapture` class will backup the full log file at the end of the test suite 
+    if there is an error.
+
 * **user_log_files**
 
     Returns a list of the log files which will be captures.  Changing the returned value will not affect log

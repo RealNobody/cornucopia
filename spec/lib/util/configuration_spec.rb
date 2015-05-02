@@ -76,13 +76,27 @@ describe "Cornucopia::Util::Configuration" do
       expect(Cornucopia::Util::Configuration.grab_logs).to be_truthy
     end
 
-    it "can set the seed value" do
+    it "can set the grab_logs value" do
       begin
         Cornucopia::Util::Configuration.grab_logs = false
 
         expect(Cornucopia::Util::Configuration.grab_logs).to be_falsey
       ensure
         Cornucopia::Util::Configuration.grab_logs = true
+      end
+    end
+
+    it "backs up logs on failure by default" do
+      expect(Cornucopia::Util::Configuration.backup_logs_on_failure).to be_truthy
+    end
+
+    it "can set the backup_logs_on_failure value" do
+      begin
+        Cornucopia::Util::Configuration.backup_logs_on_failure = false
+
+        expect(Cornucopia::Util::Configuration.backup_logs_on_failure).to be_falsey
+      ensure
+        Cornucopia::Util::Configuration.backup_logs_on_failure = true
       end
     end
 

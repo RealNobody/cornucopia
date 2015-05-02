@@ -3,12 +3,16 @@ require ::File.expand_path("../../../lib/cornucopia/util/log_capture", File.dirn
 
 describe Cornucopia::Util::LogCapture do
   let(:file_name) { Rails.root.join("sample_log.log") }
+  let(:dest_folder) { Rails.root.join("fake_logs/") }
 
   around(:each) do |example|
+    pwd = FileUtils.pwd
+
     expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
     expect(File.directory?(Rails.root.join("spec/cornucopia_report/"))).to be_falsey
     expect(File.directory?(Rails.root.join("features/cornucopia_report/"))).to be_falsey
     expect(File.exists?(file_name)).to be_falsey
+    expect(File.directory?(dest_folder)).to be_falsey
 
     begin
       example.run
@@ -22,6 +26,13 @@ describe Cornucopia::Util::LogCapture do
       FileUtils.rm_rf Rails.root.join("features/cornucopia_report/")
       FileUtils.rm_rf Rails.root.join("features") if Dir[Rails.root.join("features/*")].empty?
       FileUtils.rm_rf file_name
+      FileUtils.rm_rf dest_folder
+
+      Dir[File.join(dest_folder, "sample_log*.log")].each do |file_name|
+        FileUtils.rm_rf file_name
+      end
+
+      FileUtils.cd pwd
     end
   end
 
@@ -88,6 +99,69 @@ describe Cornucopia::Util::LogCapture do
     end
   end
 
+  describe "#backup_log_files" do
+    before(:each) do
+      FileUtils.mkdir_p dest_folder
+      Cornucopia::Util::FileAsset.asset("report.js").add_file(file_name)
+    end
+
+    after(:each) do
+      Cornucopia::Util::Configuration.remove_log_file("sample_log.log")
+    end
+
+    it "goes up one level if you are in spec or features" do
+      Cornucopia::Util::Configuration.add_log_file("sample_log.log")
+
+      expect(File.exists?(file_name)).to be_truthy
+      expect(File.exists?(File.join(dest_folder, "sample_log.log"))).to be_falsey
+
+      new_root = Rails.root.join(%w(features spec).sample).to_s
+      expect(Rails).to receive(:root).at_least(1).and_return(new_root)
+
+      Cornucopia::Util::LogCapture.backup_log_files(dest_folder)
+
+      expect(File.exists?(File.join(dest_folder, "sample_log.log"))).to be_truthy
+    end
+
+    it "resolves file conflicts" do
+      file_num = rand(1..5)
+      Cornucopia::Util::Configuration.add_log_file("sample_log.log")
+
+      expect(File.exists?(file_name)).to be_truthy
+      FileUtils.cp file_name, File.join(dest_folder, "sample_log.log")
+      expect(File.exists?(File.join(dest_folder, "sample_log.log"))).to be_truthy
+
+      index = 1
+      while index < file_num
+        FileUtils.cp file_name, File.join(dest_folder, "sample_log_#{index}.log")
+        expect(File.exists?(File.join(dest_folder, "sample_log_#{index}.log"))).to be_truthy
+        index += 1
+      end
+      expect(File.exists?(File.join(dest_folder, "sample_log_#{file_num}.log"))).to be_falsey
+
+      new_root = Rails.root.join(%w(features spec).sample).to_s
+      expect(Rails).to receive(:root).at_least(1).and_return(new_root)
+
+      Cornucopia::Util::LogCapture.backup_log_files(dest_folder)
+
+      expect(File.exists?(File.join(dest_folder, "sample_log_#{file_num}.log"))).to be_truthy
+    end
+
+    it "does not require Rails" do
+      Cornucopia::Util::Configuration.add_log_file("sample_log.log")
+
+      expect(File.exists?(file_name)).to be_truthy
+      expect(File.exists?(File.join(dest_folder, "sample_log.log"))).to be_falsey
+
+      FileUtils.cd Rails.root.to_s
+      expect(Object).to receive(:const_defined?).at_least(1).with("Rails").and_return(false)
+
+      Cornucopia::Util::LogCapture.backup_log_files(dest_folder)
+
+      expect(File.exists?(File.join(dest_folder, "sample_log.log"))).to be_truthy
+    end
+  end
+
   describe "#capture_logs" do
     after(:each) do
       Cornucopia::Util::Configuration.remove_log_file("sample_log.log")
@@ -120,7 +194,7 @@ describe Cornucopia::Util::LogCapture do
         write_file.write(lines.join("\n"))
       end
 
-      new_root = Rails.root.join(%w(features features).sample).to_s
+      new_root = Rails.root.join(%w(features spec).sample).to_s
       expect(Rails).to receive(:root).at_least(1).and_return(new_root)
       Cornucopia::Util::LogCapture.capture_logs(nil)
 

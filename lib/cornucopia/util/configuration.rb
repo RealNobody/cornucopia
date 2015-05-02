@@ -19,6 +19,7 @@ module Cornucopia
         configurations.user_log_files                  = {}
         configurations.default_num_lines               = 500
         configurations.grab_logs                       = true
+        configurations.backup_logs_on_failure          = true
         configurations.print_timeout_min               = 10
         configurations.selenium_cache_retry_count      = 5
         configurations.analyze_find_exceptions         = true
@@ -403,6 +404,29 @@ module Cornucopia
 
         def grab_logs
           Cornucopia::Util::Configuration.instance.configurations.grab_logs
+        end
+
+        # backup_logs_on_failure causes the system to copy the log files at the end of the report cycle if there were
+        # any errors during the creation of the report system.
+        #
+        # The system will try to grab the following log files:
+        #   * Rails.env.log
+        #   * any user specified logs
+        #
+        # The log capture is done with a simple file copy.
+        #
+        # Related options:
+        #   user_log_files
+        #   num_lines
+        #   add_log_file
+        #   remove_log_file
+        #   grab_logs
+        def backup_logs_on_failure=(value)
+          Cornucopia::Util::Configuration.instance.configurations.backup_logs_on_failure = value
+        end
+
+        def backup_logs_on_failure
+          Cornucopia::Util::Configuration.instance.configurations.backup_logs_on_failure
         end
 
         # user_log_files returns a hash of all of the log files which

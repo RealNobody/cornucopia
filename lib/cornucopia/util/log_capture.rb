@@ -7,6 +7,42 @@ module Cornucopia
       class << self
         TAIL_BUF_LENGTH = 1 << 16
 
+        def backup_log_files(backup_folder)
+          if Object.const_defined?("Rails")
+            log_folder = Rails.root.to_s
+            if (log_folder =~ /\/features\/?$/ || log_folder =~ /\/spec\/?$/)
+              log_folder = File.join(log_folder, "../")
+            end
+
+            default_log_file = "log/#{Rails.env.to_s}.log"
+
+            copy_log_file backup_folder, File.join(log_folder, default_log_file)
+          else
+            log_folder = FileUtils.pwd
+          end
+
+          Cornucopia::Util::Configuration.user_log_files.each do |relative_log_file, options|
+            copy_log_file backup_folder, File.join(log_folder, relative_log_file)
+          end
+        end
+
+        def copy_log_file(dest_folder, source_file)
+          extension = File.extname(source_file)
+          file_name = File.basename(source_file, extension)
+          dest_name = File.join(dest_folder, "#{file_name}#{extension}")
+          index     = 0
+
+          while File.exists?(dest_name)
+            index     += 1
+            dest_name = File.join(dest_folder, "#{file_name}_#{index}#{extension}")
+          end
+
+          if File.exists?(source_file)
+            FileUtils.mkdir_p File.dirname(dest_name)
+            FileUtils.cp source_file, dest_name
+          end
+        end
+
         # This function will capture the logs and output them to the report
         def capture_logs(report_table)
           if report_table

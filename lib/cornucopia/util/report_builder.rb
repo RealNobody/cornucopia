@@ -63,8 +63,9 @@ module Cornucopia
               format_value = value.to_s if value.is_a?(Array)
 
               if format_sub_items
-                Cornucopia::Util::ReportBuilder.pretty_format(format_value).rstrip
+                Cornucopia::Util::ReportBuilder.pretty_format(format_value, in_pretty_print: true).rstrip
               else
+                # "".html_safe + format_value
                 format_value
               end
             end.join("\n").html_safe
@@ -78,7 +79,7 @@ module Cornucopia
         # either the class prints quickly, or we kill it and try something else.
         #
         # If the something else doesn't work, we just give up...
-        def pretty_object(value)
+        def pretty_object(value, options = {})
           timed_out    = false
           return_value = nil
 
@@ -94,7 +95,7 @@ module Cornucopia
                 if value.is_a?(String)
                   return_value = value
                 elsif value.is_a?(Array)
-                  return_value = Cornucopia::Util::ReportBuilder.pretty_array(value, false)
+                  return_value = Cornucopia::Util::ReportBuilder.pretty_array(value, !options[:in_pretty_print])
                 elsif value.respond_to?(:pretty_inspect)
                   return_value = value.pretty_inspect
                 else
@@ -124,10 +125,10 @@ module Cornucopia
           return_value
         end
 
-        def pretty_format(value)
+        def pretty_format(value, options = {})
           pretty_text = value
 
-          pretty_text = Cornucopia::Util::ReportBuilder.pretty_object(pretty_text)
+          pretty_text = Cornucopia::Util::ReportBuilder.pretty_object(pretty_text, options)
           pretty_text = Cornucopia::Util::ReportBuilder.escape_string(pretty_text)
           pretty_text = Cornucopia::Util::PrettyFormatter.format_string(pretty_text)
           pretty_text = Cornucopia::Util::ReportBuilder.format_code_refs(pretty_text)
@@ -222,6 +223,10 @@ module Cornucopia
         end
 
         if File.exists?(report_base_page_name)
+          if Cornucopia::Util::Configuration.backup_logs_on_failure
+            backup_log_files
+          end
+
           if Cornucopia::Util::Configuration.open_report_after_generation(@base_folder_name)
             # `open #{report_base_page_name}` rescue nil
             system("open #{report_base_page_name}") rescue nil
@@ -434,17 +439,23 @@ module Cornucopia
         FileAsset.asset("cornucopia.css").add_file(File.join(support_folder_name, "cornucopia.css"))
       end
 
+      def body_list_item(name, path)
+        body_list_item = "<li>\n".html_safe
+        body_list_item += "<a class=\"coruncopia-report-link\" href=\"#{path}\" target=\"_blank\">".html_safe
+        body_list_item += name
+        body_list_item += "</a>\n".html_safe
+        body_list_item += "</li>\n".html_safe
+
+        body_list_item
+      end
+
       def test_list_item
         if @test_list_item
           nil
         else
           folder_name = File.basename(report_test_folder_name)
 
-          @test_list_item = "<li>\n".html_safe
-          @test_list_item += "<a class=\"coruncopia-report-link\" href=\"#{folder_name}/index.html\" target=\"_blank\">".html_safe
-          @test_list_item += @test_name
-          @test_list_item += "</a>\n".html_safe
-          @test_list_item += "</li>\n".html_safe
+          @test_list_item = body_list_item(@test_name, File.join(folder_name, "index.html"))
 
           @test_list_item
         end
@@ -628,14 +639,16 @@ module Cornucopia
         padded_val << "</div>".html_safe
       end
 
-      def unique_file_name(file_base_name)
+      def unique_file_name(file_base_name, base_folder = nil)
         file_parts = file_base_name.split(".")
         base_name  = file_parts[0..-2].join(".")
         extension  = file_parts[-1]
 
+        base_folder ||= report_test_folder_name
+
         unique_num = 1
         num_string = ""
-        while File.exists?(File.join(report_test_folder_name, "#{base_name}#{num_string}.#{extension}"))
+        while File.exists?(File.join(base_folder, "#{base_name}#{num_string}.#{extension}"))
           num_string = "_#{unique_num}"
           unique_num += 1
         end
@@ -643,15 +656,31 @@ module Cornucopia
         "#{base_name}#{num_string}.#{extension}"
       end
 
-      def unique_folder_name(folder_base_name)
+      def unique_folder_name(folder_base_name, base_folder = nil)
         unique_num = 1
         num_string = ""
-        while File.exists?(File.join(report_test_folder_name, "#{folder_base_name}#{num_string}"))
+
+        base_folder ||= report_test_folder_name
+
+        while File.exists?(File.join(base_folder, "#{folder_base_name}#{num_string}"))
           num_string = "_#{unique_num}"
           unique_num += 1
         end
 
         "#{folder_base_name}#{num_string}"
+      end
+
+      def backup_log_files
+        log_folder = unique_folder_name "log_files", report_folder_name
+
+        Cornucopia::Util::LogCapture.backup_log_files File.join(report_folder_name, log_folder)
+
+        log_files = Dir[File.join(report_folder_name, log_folder, "**", "*")]
+        log_files.each do |log_file|
+          @report_body += body_list_item(File.basename(log_file), log_file[report_folder_name.length..-1])
+        end
+
+        rebuild_report_holder_page
       end
     end
   end
