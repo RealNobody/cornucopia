@@ -3,6 +3,30 @@ load ::File.expand_path("capybara/install_finder_extensions.rb", File.dirname(__
 load ::File.expand_path("site_prism/install_element_extensions.rb", File.dirname(__FILE__))
 
 if Cucumber::VERSION.split[0].to_i >= 2
+  After do |scenario, block|
+    if scenario.failed?
+      report_name = "Page Dump for: Unknown"
+      if scenario.respond_to?(:feature)
+        report_name = "Page Dump for: #{scenario.feature.title}:#{scenario.title}"
+      else
+        report_name = "Page Dump for: Line - #{scenario.line}"
+      end
+
+      report = Cornucopia::Util::ReportBuilder.current_report
+
+      report.within_section(report_name) do |report|
+        report.within_hidden_table do |table|
+          Cornucopia::Util::ReportTable.new(
+              report_table:         nil,
+              nested_table:         table,
+              suppress_blank_table: true) do |sub_tables|
+            Cornucopia::Capybara::PageDiagnostics.dump_details_in_table(report, sub_tables)
+          end
+        end
+      end
+    end
+  end
+
   Around do |scenario, block|
     seed_value = Cornucopia::Util::Configuration.seed ||
         100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)

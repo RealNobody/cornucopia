@@ -21,6 +21,29 @@ RSpec.configure do |config|
     srand(@context_seed_value)
   end
 
+  # Capybara resets the page in an after or around block before the around diagnostics can get around to dumping it
+  # so by adding an after block here, we can dump the Capybara results if there is a problem.
+  config.after(:each) do |example|
+    test_example = example
+    test_example ||= example.example if example.respond_to?(:example)
+    test_example ||= self.example if self.respond_to?(:example)
+
+    if (test_example.exception)
+      report = Cornucopia::Util::ReportBuilder.current_report
+
+      report.within_section("Page Dump for: #{test_example.full_description}") do |report|
+        report.within_hidden_table do |table|
+          Cornucopia::Util::ReportTable.new(
+              report_table:         nil,
+              nested_table:         table,
+              suppress_blank_table: true) do |sub_tables|
+            Cornucopia::Capybara::PageDiagnostics.dump_details_in_table(report, sub_tables)
+          end
+        end
+      end
+    end
+  end
+
   config.around(:each) do |example|
     @seed_value = Cornucopia::Util::Configuration.seed ||
         100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
