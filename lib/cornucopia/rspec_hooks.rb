@@ -24,9 +24,9 @@ RSpec.configure do |config|
   # Capybara resets the page in an after or around block before the around diagnostics can get around to dumping it
   # so by adding an after block here, we can dump the Capybara results if there is a problem.
   config.after(:each) do |example|
-    test_example = example
-    test_example ||= example.example if example.respond_to?(:example)
+    test_example = example.example if example.respond_to?(:example)
     test_example ||= self.example if self.respond_to?(:example)
+    test_example ||= example
 
     if (test_example.exception)
       report = Cornucopia::Util::ReportBuilder.current_report
@@ -55,6 +55,7 @@ RSpec.configure do |config|
 
     test_example = example.example if example.respond_to?(:example)
     test_example ||= self.example if self.respond_to?(:example)
+    test_example ||= example
 
     Cornucopia::Util::ReportBuilder.current_report.within_test(test_example.full_description) do
       example.run
