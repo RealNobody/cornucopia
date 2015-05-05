@@ -122,6 +122,54 @@ describe Cornucopia::Util::ReportBuilder do
 
       expect(Cornucopia::Util::ReportBuilder.format_code_refs(sample_string)).to be_html_safe
     end
+
+    it "formats the refs in a string" do
+      sample_string = "This is a sample string ./features/admin2/step_definitions/daily_email_deal_scheduling_steps.rb:445 > :in `block (2 levels) in <top (required)>'"
+      result_string = "This is a sample string ./ <span class=\"cornucopia-app-file\">features/admin2/step_definitions/daily_email_deal_scheduling_steps.rb:445</span>  &gt; :in `block (2 levels) in &lt;top (required)&gt;&#39;"
+
+      expect(Cornucopia::Util::ReportBuilder.format_code_refs(sample_string)).to be == result_string
+    end
+
+    it "formats the refs in a string but not the : after unless it has a number" do
+      sample_string = "This is a sample string ./features/admin2/step_definitions/daily_email_deal_scheduling_steps.rb :in `block (2 levels) in <top (required)>'"
+      result_string = "This is a sample string ./ <span class=\"cornucopia-app-file\">features/admin2/step_definitions/daily_email_deal_scheduling_steps.rb</span>  :in `block (2 levels) in &lt;top (required)&gt;&#39;"
+
+      expect(Cornucopia::Util::ReportBuilder.format_code_refs(sample_string)).to be == result_string
+    end
+
+    it "formats the refs in a string starting with features" do
+      sample_string = "features/admin2/step_definitions/daily_email_deal_scheduling_steps.rb : 445 > :in `block (2 levels) in <top (required)>'"
+      result_string = " <span class=\"cornucopia-app-file\">features/admin2/step_definitions/daily_email_deal_scheduling_steps.rb : 445</span>  &gt; :in `block (2 levels) in &lt;top (required)&gt;&#39;"
+
+      expect(Cornucopia::Util::ReportBuilder.format_code_refs(sample_string)).to be == result_string
+    end
+
+    it "formats the refs in a string starting with spec" do
+      sample_string = "spec/admin2/step_definitions/daily_email_deal_scheduling_steps.rb : 445 > :in `block (2 levels) in <top (required)>'"
+      result_string = " <span class=\"cornucopia-app-file\">spec/admin2/step_definitions/daily_email_deal_scheduling_steps.rb : 445</span>  &gt; :in `block (2 levels) in &lt;top (required)&gt;&#39;"
+
+      expect(Cornucopia::Util::ReportBuilder.format_code_refs(sample_string)).to be == result_string
+    end
+
+    it "formats the refs root refs in a string" do
+      sample_string = "This is a sample string c:/bizarro/features/admin2/step_definitions/daily_email_deal_scheduling_steps.rb:445 > :in `block (2 levels) in <top (required)>'"
+      result_string = "This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features/admin2/step_definitions/daily_email_deal_scheduling_steps.rb:445</span>  &gt; :in `block (2 levels) in &lt;top (required)&gt;&#39;"
+
+      allow(Cornucopia::Util::ReportBuilder).to receive(:root_folder).and_return("c:/bizarro/")
+
+      expect(Cornucopia::Util::ReportBuilder.format_code_refs(sample_string)).to be == result_string
+    end
+
+    it "formats multiple refs root refs in a string" do
+      sample_string = "This is a sample string c:/bizarro/features/admin2/step_definitions/daily_email_deal_scheduling_steps.rb:445 > :in `block (2 levels) in <top (required)>'
+This is a sample string c:/bizarro/features/admin2/step_definitions/daily_email_deal_scheduling_steps.rb:445 > :in `block (2 levels) in <top (required)>'"
+      result_string = "This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features/admin2/step_definitions/daily_email_deal_scheduling_steps.rb:445</span>  &gt; :in `block (2 levels) in &lt;top (required)&gt;&#39;
+This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features/admin2/step_definitions/daily_email_deal_scheduling_steps.rb:445</span>  &gt; :in `block (2 levels) in &lt;top (required)&gt;&#39;"
+
+      allow(Cornucopia::Util::ReportBuilder).to receive(:root_folder).and_return("c:/bizarro/")
+
+      expect(Cornucopia::Util::ReportBuilder.format_code_refs(sample_string)).to be == result_string
+    end
   end
 
   describe "#root_folder" do

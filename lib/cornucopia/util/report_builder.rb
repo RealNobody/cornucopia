@@ -48,8 +48,8 @@ module Cornucopia
         def format_code_refs(value)
           safe_text = Cornucopia::Util::ReportBuilder.escape_string(value)
 
-          safe_text = safe_text.gsub(/(#{Cornucopia::Util::ReportBuilder.root_folder}|\.\/|(?=(?:^features|^spec)\/))([^\:\r\n &]*(?:\:[^\:\r\n\>& ]*)?)/,
-                                     "\\1 <span class=\"cornucopia-app-file\">\\2\\3</span> ").html_safe
+          safe_text = safe_text.gsub(/(#{Cornucopia::Util::ReportBuilder.root_folder}|\.\/|(?=(?:^features|^spec)\/))([^\:\r\n &]*(?: *\: *[0-9]+)?)/,
+                                     "\\1 <span class=\"cornucopia-app-file\">\\2</span> ").html_safe
 
           safe_text
         end
