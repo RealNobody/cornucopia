@@ -472,11 +472,11 @@ module Cornucopia
             @found_element = found_element
             ELEMENT_ATTRIBUTES.each do |attrib|
               variable_name = attrib.to_s.gsub("?", "")
-              instance_variable_set("@elem_#{variable_name}", get_attribute(attrib))
+              instance_variable_set("@elem_#{variable_name.gsub(/[\-]/, "_")}", get_attribute(attrib))
             end
 
             NATIVE_ATTRIBUTES.each do |attrib|
-              instance_variable_set("@native_#{attrib}", get_native_attribute(attrib))
+              instance_variable_set("@native_#{attrib.gsub(/[\-]/, "_")}", get_native_attribute(attrib))
             end
 
             instance_variable_set("@native_class", @found_element[:class])
@@ -498,7 +498,7 @@ return attrib_list;"
                 attributes = ::Capybara.current_session.driver.browser.execute_script(script, @found_element.native)
                 attributes.each do |attritue|
                   unless PREDEFINED_ATTRIBUTES.include?(attritue)
-                    instance_variable_set("@native_#{attritue}", @found_element[attritue])
+                    instance_variable_set("@native_#{attritue.gsub(/[\-]/, "_")}", @found_element[attritue])
                   end
                 end
 

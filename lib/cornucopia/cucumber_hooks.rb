@@ -12,18 +12,7 @@ if Cucumber::VERSION.split[0].to_i >= 2
         report_name = "Page Dump for: Line - #{scenario.line}"
       end
 
-      report = Cornucopia::Util::ReportBuilder.current_report
-
-      report.within_section(report_name) do |report|
-        report.within_hidden_table do |table|
-          Cornucopia::Util::ReportTable.new(
-              report_table:         nil,
-              nested_table:         table,
-              suppress_blank_table: true) do |sub_tables|
-            Cornucopia::Capybara::PageDiagnostics.dump_details_in_table(report, sub_tables)
-          end
-        end
-      end
+      Cornucopia::Capybara::PageDiagnostics.dump_details(section_label: report_name)
     end
   end
 

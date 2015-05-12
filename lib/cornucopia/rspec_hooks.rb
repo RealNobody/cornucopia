@@ -29,18 +29,7 @@ RSpec.configure do |config|
     test_example ||= example
 
     if (test_example.exception)
-      report = Cornucopia::Util::ReportBuilder.current_report
-
-      report.within_section("Page Dump for: #{test_example.full_description}") do |report|
-        report.within_hidden_table do |table|
-          Cornucopia::Util::ReportTable.new(
-              report_table:         nil,
-              nested_table:         table,
-              suppress_blank_table: true) do |sub_tables|
-            Cornucopia::Capybara::PageDiagnostics.dump_details_in_table(report, sub_tables)
-          end
-        end
-      end
+      Cornucopia::Capybara::PageDiagnostics.dump_details(section_label: "Page Dump for: #{test_example.full_description}")
     end
   end
 
