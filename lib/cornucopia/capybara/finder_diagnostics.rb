@@ -335,9 +335,16 @@ module Cornucopia
               from_element = @test_object
             end
 
-            @all_elements = from_element.all(*search_args, visible: false, __cornucopia_no_analysis: true).
-                to_a.map do |element|
-              FoundElement.new(element)
+            begin
+              @all_elements = from_element.all(*search_args, visible: false, __cornucopia_no_analysis: true).to_a
+            rescue
+              @all_elements = []
+            end
+
+            if @all_elements
+              @all_elements = @all_elements.map do |element|
+                FoundElement.new(element)
+              end.compact
             end
           end
 
@@ -348,13 +355,20 @@ module Cornucopia
           unless @all_other_elements
             from_element = ::Capybara::current_session
 
-            @all_other_elements = from_element.all(*search_args, visible: false, __cornucopia_no_analysis: true).
-                to_a.map do |element|
-              FoundElement.new(element) unless all_elements.include?(element)
+            begin
+              @all_other_elements = from_element.all(*search_args, visible: false, __cornucopia_no_analysis: true).to_a
+            rescue
+              @all_other_elements = []
             end
 
-            @all_other_elements = @all_other_elements - @all_elements
-            @all_other_elements.compact!
+            if @all_other_elements
+              @all_other_elements = @all_other_elements.map do |element|
+                FoundElement.new(element) unless all_elements.include?(element)
+              end
+
+              @all_other_elements = @all_other_elements - @all_elements
+              @all_other_elements.compact!
+            end
           end
 
           @all_other_elements

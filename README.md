@@ -375,6 +375,22 @@ The configuration class contains the various configurations that are used by the
     you do not specify a type of report the value you specify will be the default value used for any report that is 
     generated. 
 
+* **record_test_start_and_end_in_log**
+
+    When true, this causes Cornucopia to output a line in the log file indicating the start and end of a test.
+
+    The default value is true.
+
+* **record_test_start_and_end_format**
+
+    This parameter specifies the format of the message that is recorded in the log file.  You can use the following 
+    variables in the format string to get the appropriate values:
+    
+    * `%{start_end}` - This will be the words "Start" or "End"
+    * `%{test_name}` - This will be the name of the test.
+
+    The default value is "******** %{start_end}: %{test_name}".
+
 * And more...
 
     There are more configurations.  They are commented in the configuraiton.rb file.  If I didn't include them here, 

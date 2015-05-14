@@ -13,27 +13,29 @@ module Cornucopia
       def initialize
         @configurations = Cornucopia::Util::GenericSettings.new
 
-        configurations.order_seed                      = nil
-        configurations.rand_seed                       = nil
-        configurations.rand_context_seed               = nil
-        configurations.user_log_files                  = {}
-        configurations.default_num_lines               = 500
-        configurations.grab_logs                       = true
-        configurations.backup_logs_on_failure          = true
-        configurations.print_timeout_min               = 10
-        configurations.selenium_cache_retry_count      = 5
-        configurations.analyze_find_exceptions         = true
-        configurations.analyze_selector_exceptions     = true
-        configurations.ignore_finder_errors_on_success = true
-        configurations.ignore_has_selector_errors      = true
-        configurations.retry_with_found                = false
-        configurations.retry_match_with_found          = false
-        configurations.open_report_settings            = { default: false }
-        configurations.base_folder                     = "cornucopia_report"
+        configurations.order_seed                       = nil
+        configurations.rand_seed                        = nil
+        configurations.rand_context_seed                = nil
+        configurations.user_log_files                   = {}
+        configurations.default_num_lines                = 500
+        configurations.grab_logs                        = true
+        configurations.backup_logs_on_failure           = true
+        configurations.print_timeout_min                = 10
+        configurations.selenium_cache_retry_count       = 5
+        configurations.analyze_find_exceptions          = true
+        configurations.analyze_selector_exceptions      = true
+        configurations.ignore_finder_errors_on_success  = true
+        configurations.ignore_has_selector_errors       = true
+        configurations.record_test_start_and_end_in_log = true
+        configurations.record_test_start_and_end_format = "******** %{start_end}: %{test_name}"
+        configurations.retry_with_found                 = false
+        configurations.retry_match_with_found           = false
+        configurations.open_report_settings             = { default: false }
+        configurations.base_folder                      = "cornucopia_report"
 
         # configurations.alternate_retry            = false
 
-        configurations.default_configuration           = {
+        configurations.default_configuration            = {
             rspec:                       {
                 min_fields:           [
                                           :example__full_description,
@@ -680,6 +682,33 @@ module Cornucopia
 
         def base_folder=(value)
           Cornucopia::Util::Configuration.instance.configurations.base_folder = value
+        end
+
+        # This setting is used by the test system hooks.
+        #
+        # If true (the default) this will cause the system to output a line to the Rails log indicating when a test
+        # starts and when it ends.
+        def record_test_start_and_end_in_log
+          Cornucopia::Util::Configuration.instance.configurations.record_test_start_and_end_in_log
+        end
+
+        def record_test_start_and_end_in_log=(value)
+          Cornucopia::Util::Configuration.instance.configurations.record_test_start_and_end_in_log = value
+        end
+
+        # This setting is used by the test system hooks.
+        #
+        # This value specifies the text that is output into the log file at the start/end of a test.
+        # Two variables are passed into the format string to be inserted into the text:
+        #
+        #   * %{start_end} - This will be either "Start" or "End"
+        #   * %{test_name} - This will the the name of the test.
+        def record_test_start_and_end_format
+          Cornucopia::Util::Configuration.instance.configurations.record_test_start_and_end_format
+        end
+
+        def record_test_start_and_end_format=(value)
+          Cornucopia::Util::Configuration.instance.configurations.record_test_start_and_end_format = value
         end
       end
     end

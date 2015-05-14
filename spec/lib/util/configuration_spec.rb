@@ -457,6 +457,44 @@ describe "Cornucopia::Util::Configuration" do
     end
   end
 
+  describe "#record_test_start_and_end_in_log" do
+    it "has a default value" do
+      expect(Cornucopia::Util::Configuration.record_test_start_and_end_in_log).to be_truthy
+    end
+
+    it "can set the value" do
+      begin
+        new_value = false
+
+        Cornucopia::Util::Configuration.record_test_start_and_end_in_log = new_value
+
+        expect(Cornucopia::Util::Configuration.record_test_start_and_end_in_log).to be_falsey
+      ensure
+        Cornucopia::Util::Configuration.record_test_start_and_end_in_log = true
+      end
+    end
+  end
+
+  describe "#record_test_start_and_end_format" do
+    it "has a default value" do
+      expect(Cornucopia::Util::Configuration.record_test_start_and_end_format).to eq "******** %{start_end}: %{test_name}"
+    end
+
+    it "can set the value" do
+      orig_value = Cornucopia::Util::Configuration.record_test_start_and_end_format
+
+      begin
+        new_value = Faker::Lorem.sentence
+
+        Cornucopia::Util::Configuration.record_test_start_and_end_format = new_value
+
+        expect(Cornucopia::Util::Configuration.record_test_start_and_end_format).to eq new_value
+      ensure
+        Cornucopia::Util::Configuration.record_test_start_and_end_format = orig_value
+      end
+    end
+  end
+
   # describe "#alternate_retry" do
   #   it "#can read the default" do
   #     expect(Cornucopia::Util::Configuration.alternate_retry).to be_falsy

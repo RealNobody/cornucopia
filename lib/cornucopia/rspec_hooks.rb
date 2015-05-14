@@ -34,6 +34,12 @@ RSpec.configure do |config|
   end
 
   config.around(:each) do |example|
+    test_example = example.example if example.respond_to?(:example)
+    test_example ||= self.example if self.respond_to?(:example)
+    test_example ||= example
+
+    Cornucopia::Util::TestHelper.instance.record_test_start(test_example.full_description)
+
     @seed_value = Cornucopia::Util::Configuration.seed ||
         100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
 
@@ -41,10 +47,6 @@ RSpec.configure do |config|
 
     Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
     Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
-
-    test_example = example.example if example.respond_to?(:example)
-    test_example ||= self.example if self.respond_to?(:example)
-    test_example ||= example
 
     Cornucopia::Util::ReportBuilder.current_report.within_test(test_example.full_description) do
       example.run
@@ -66,5 +68,7 @@ RSpec.configure do |config|
 
     Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
     Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
+
+    Cornucopia::Util::TestHelper.instance.record_test_end(test_example.full_description)
   end
 end

@@ -5,18 +5,16 @@ load ::File.expand_path("site_prism/install_element_extensions.rb", File.dirname
 if Cucumber::VERSION.split[0].to_i >= 2
   After do |scenario, block|
     if scenario.failed?
-      report_name = "Page Dump for: Unknown"
-      if scenario.respond_to?(:feature)
-        report_name = "Page Dump for: #{scenario.feature.title}:#{scenario.title}"
-      else
-        report_name = "Page Dump for: Line - #{scenario.line}"
-      end
+      report_name = "Page Dump for: #{Cornucopia::Util::TestHelper.instance.cucumber_name(scenario)}"
 
       Cornucopia::Capybara::PageDiagnostics.dump_details(section_label: report_name)
     end
   end
 
   Around do |scenario, block|
+    test_name = Cornucopia::Util::TestHelper.instance.cucumber_name(scenario)
+    Cornucopia::Util::TestHelper.instance.record_test_start(test_name)
+
     seed_value = Cornucopia::Util::Configuration.seed ||
         100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
 
@@ -25,15 +23,7 @@ if Cucumber::VERSION.split[0].to_i >= 2
     Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
     Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
 
-    test_name = ""
-    if scenario.respond_to?(:feature)
-      test_name = "#{scenario.feature.title} : #{scenario.title}"
-    elsif scenario.respond_to?(:line)
-      test_name = "Scenario - Line: #{scenario.line}"
-    else
-      test_name = "Scenario - Unknown"
-    end
-    Cornucopia::Util::ReportBuilder.current_report.within_test(test_name) do
+    Cornucopia::Util::ReportBuilder.current_report.within_test("Scenario - #{test_name}") do
       block.call
     end
 
@@ -41,13 +31,7 @@ if Cucumber::VERSION.split[0].to_i >= 2
       seed_value = scenario.instance_variable_get(:@seed_value)
       puts ("random seed for testing was: #{seed_value}")
 
-      report_name = ""
-      if scenario.respond_to?(:feature)
-        report_name = "Test Error: #{scenario.feature.title}:#{scenario.title}"
-      else
-        report_name = "Line - #{scenario.line}"
-      end
-      Cornucopia::Util::ReportBuilder.current_report.within_section(report_name) do |report|
+      Cornucopia::Util::ReportBuilder.current_report.within_section("Test Error: #{test_name}") do |report|
         configured_report = nil
         if scenario.respond_to?(:feature)
           configured_report = Cornucopia::Util::Configuration.report_configuration :cucumber
@@ -64,9 +48,14 @@ if Cucumber::VERSION.split[0].to_i >= 2
 
     Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
     Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
+
+    Cornucopia::Util::TestHelper.instance.record_test_end(test_name)
   end
 else
   Before do |scenario, block|
+    test_name = Cornucopia::Util::TestHelper.instance.cucumber_name(scenario)
+    Cornucopia::Util::TestHelper.instance.record_test_start(test_name)
+
     seed_value = Cornucopia::Util::Configuration.seed ||
         100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
 
@@ -75,29 +64,17 @@ else
     Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
     Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
 
-    test_name = ""
-    if scenario.respond_to?(:feature)
-      test_name = "#{scenario.feature.title} : #{scenario.title}"
-    elsif scenario.respond_to?(:line)
-      test_name = "Scenario - Line: #{scenario.line}"
-    else
-      test_name = "Scenario - Unknown"
-    end
-    Cornucopia::Util::ReportBuilder.current_report.start_test(scenario, test_name)
+    Cornucopia::Util::ReportBuilder.current_report.start_test(scenario, "Scenario - #{test_name}")
   end
 
   After do |scenario, block|
+    test_name = Cornucopia::Util::TestHelper.instance.cucumber_name(scenario)
+
     if scenario.failed?
       seed_value = scenario.instance_variable_get(:@seed_value)
       puts ("random seed for testing was: #{seed_value}")
 
-      report_name = ""
-      if scenario.respond_to?(:feature)
-        report_name = "Test Error: #{scenario.feature.title}:#{scenario.title}"
-      else
-        report_name = "Line - #{scenario.line}"
-      end
-      Cornucopia::Util::ReportBuilder.current_report.within_section(report_name) do |report|
+      Cornucopia::Util::ReportBuilder.current_report.within_section("Test Error: #{test_name}") do |report|
         configured_report = nil
         if scenario.respond_to?(:feature)
           configured_report = Cornucopia::Util::Configuration.report_configuration :cucumber
@@ -116,6 +93,8 @@ else
     Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
 
     Cornucopia::Util::ReportBuilder.current_report.end_test(scenario)
+
+    Cornucopia::Util::TestHelper.instance.record_test_end(test_name)
   end
 end
 

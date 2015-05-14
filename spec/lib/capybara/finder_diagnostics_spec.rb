@@ -307,6 +307,36 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
       ::Capybara.current_session.visit("/sample_report/sample_file.html")
     end
 
+    it "creates a report even with an invalid finder" do
+      expect { ::Capybara.current_session.find(:css, "a:invalid('finder')") }.
+          to raise_exception(Selenium::WebDriver::Error::InvalidSelectorError)
+
+      report_page = CornucopiaReportApp.cornucopia_report_holder_page
+      report_page.load(report_name: "cornucopia_report", base_folder: "cornucopia_report")
+
+      expect(report_page.tests.length).to be >= 1
+      report_page.tests[0].click
+      report_page.displayed_test do |test_page|
+        test_page.contents do |contents_frame|
+          expect(contents_frame.errors.length).to be == 1
+          contents_frame.errors[0].more_details.show_hide.click
+          expect(contents_frame.errors[0].more_details.details.rows.length).to eq 13
+          expect(contents_frame.errors[0].more_details.details.row(0).labels[0].text).to eq "name"
+          expect(contents_frame.errors[0].more_details.details.row(1).labels[0].text).to eq "args"
+          expect(contents_frame.errors[0].more_details.details.row(2).labels[0].text).to eq "guessed_types"
+          expect(contents_frame.errors[0].more_details.details.row(3).labels[0].text).to eq "support_options"
+          expect(contents_frame.errors[0].more_details.details.row(4).labels[0].text).to eq "page_url"
+          expect(contents_frame.errors[0].more_details.details.row(5).labels[0].text).to eq "title"
+          expect(contents_frame.errors[0].more_details.details.row(6).labels[0].text).to eq "screen_shot"
+          expect(contents_frame.errors[0].more_details.details.row(7).labels[0].text).to eq "html_file"
+          expect(contents_frame.errors[0].more_details.details.row(8).labels[0].text).to eq "html_frame"
+          expect(contents_frame.errors[0].more_details.details.row(9).labels[0].text).to eq "html_source"
+          expect(contents_frame.errors[0].more_details.details.row(10).labels[0].text).to eq "page_height"
+          expect(contents_frame.errors[0].more_details.details.row(11).labels[0].text).to eq "page_width"
+        end
+      end
+    end
+
     it "finds hidden elements during analysis" do
       base_object = ::Capybara.current_session.find(:css, "#hidden-div", visible: false)
       expect { base_object.find("input[type=button]") }.to raise_error(Capybara::ElementNotFound)
@@ -335,13 +365,14 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
           expect(hidden_row_specs[8].labels[0].text).to be == "elem_value"
           expect(hidden_row_specs[9].labels[0].text).to be == "elem_visible"
           expect(hidden_row_specs[9].values[0].text).to be == "false"
-          expect(hidden_row_specs[10].labels[0].text).to be == "native_class"
-          expect(hidden_row_specs[11].labels[0].text).to be == "native_onclick"
-          expect(hidden_row_specs[12].labels[0].text).to be == "native_size"
-          expect(hidden_row_specs[13].labels[0].text).to be == "width"
-          expect(hidden_row_specs[14].labels[0].text).to be == "height"
-          expect(hidden_row_specs[15].labels[0].text).to be == "native_type"
-          expect(hidden_row_specs[15].values[0].text).to be == "button"
+          expect(hidden_row_specs[10].labels[0].text).to be == "native_aria_meta_data"
+          expect(hidden_row_specs[11].labels[0].text).to be == "native_class"
+          expect(hidden_row_specs[12].labels[0].text).to be == "native_onclick"
+          expect(hidden_row_specs[13].labels[0].text).to be == "native_size"
+          expect(hidden_row_specs[14].labels[0].text).to be == "width"
+          expect(hidden_row_specs[15].labels[0].text).to be == "height"
+          expect(hidden_row_specs[16].labels[0].text).to be == "native_type"
+          expect(hidden_row_specs[16].values[0].text).to be == "button"
         end
       end
     end
@@ -551,7 +582,6 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
       end
 
       it "works with assert_no_selector" do
-        # 621023375412314903581404663773388410917
         begin
           Cornucopia::Util::Configuration.retry_match_with_found = true
 
