@@ -2,7 +2,7 @@ require "timeout"
 require ::File.expand_path('file_asset', File.dirname(__FILE__))
 require ::File.expand_path('pretty_formatter', File.dirname(__FILE__))
 require ::File.expand_path('report_table', File.dirname(__FILE__))
-require ::File.expand_path('configuration', File.dirname(__FILE__))
+# require ::File.expand_path('configuration', File.dirname(__FILE__))
 
 module Cornucopia
   module Util
@@ -89,7 +89,9 @@ module Cornucopia
               if Object.const_defined?("Capybara")
                 timeout_length = [timeout_length, ::Capybara.default_wait_time].max
               end
-              timeout_length = [timeout_length, 60 * 60].max if Rails.env.development?
+              if Object.const_defined?("Rails")
+                timeout_length = [timeout_length, 60 * 60].max if Rails.env.development?
+              end
 
               Timeout::timeout(timeout_length) do
                 if value.is_a?(String)
@@ -197,13 +199,17 @@ module Cornucopia
       end
 
       def initialize(folder_name = nil, parent_folder = nil)
-        @parent_folder_name = parent_folder || Cornucopia::Util::Configuration.base_folder
-        @base_folder_name   = folder_name || Cornucopia::Util::Configuration.base_folder
-        @report_title       = folder_name || Cornucopia::Util::Configuration.base_folder
-        @test_name          = "unknown_test"
-        @section_number     = 0
-        @test_number        = 0
-        @report_body        = "".html_safe
+        @parent_folder_name      = parent_folder || Cornucopia::Util::Configuration.base_folder
+        @base_folder_name        = folder_name || Cornucopia::Util::Configuration.base_folder
+        @report_title            = folder_name || Cornucopia::Util::Configuration.base_folder
+        @test_name               = "unknown_test"
+        @section_number          = 0
+        @test_number             = 0
+        @report_body             = "".html_safe
+        @report_folder_name      = nil
+        @index_folder_name       = nil
+        @report_test_folder_name = nil
+        @test_list_item          = nil
       end
 
       # This does nothing in a normal report because reports are built as you go.

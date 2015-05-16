@@ -1,4 +1,4 @@
-require ::File.expand_path('configuration', File.dirname(__FILE__))
+# require ::File.expand_path('configuration', File.dirname(__FILE__))
 require ::File.expand_path('report_builder', File.dirname(__FILE__))
 
 module Cornucopia
@@ -93,7 +93,7 @@ module Cornucopia
 
             File.open(log_file_name) do |log_file|
               seek_len = [file_size, TAIL_BUF_LENGTH].min
-              log_file.seek -seek_len, IO::SEEK_END
+              log_file.seek(-seek_len, IO::SEEK_END)
 
               while (log_buffer.count("\n") <= num_lines)
                 log_buffer = log_file.read(seek_len) + log_buffer
@@ -103,7 +103,7 @@ module Cornucopia
 
                 break if seek_len <= 0
 
-                log_file.seek -seek_len - TAIL_BUF_LENGTH, IO::SEEK_CUR
+                log_file.seek(-seek_len - TAIL_BUF_LENGTH, IO::SEEK_CUR)
               end
             end
 

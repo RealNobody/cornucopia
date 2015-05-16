@@ -1,5 +1,5 @@
 require ::File.expand_path('file_asset', File.dirname(__FILE__))
-require ::File.expand_path('report_builder', File.dirname(__FILE__))
+# require ::File.expand_path('report_builder', File.dirname(__FILE__))
 
 module Cornucopia
   module Util

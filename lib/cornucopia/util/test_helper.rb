@@ -43,7 +43,9 @@ module Cornucopia
 
       def record_test(start_end, test_name)
         if Cornucopia::Util::Configuration.record_test_start_and_end_in_log
-          Rails.logger.error(test_message(start_end, test_name))
+          if Object.const_defined?("Rails")
+            Rails.logger.error(test_message(start_end, test_name))
+          end
         end
       end
     end

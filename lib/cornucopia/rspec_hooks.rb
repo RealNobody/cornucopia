@@ -52,7 +52,7 @@ RSpec.configure do |config|
       example.run
 
       if (test_example.exception)
-        puts ("random seed for testing was: #{@context_seed_value}, #{@seed_value}")
+        puts("random seed for testing was: #{@context_seed_value}, #{@seed_value}")
 
         Cornucopia::Util::ReportBuilder.current_report.
             within_section("Test Error: #{test_example.full_description}") do |report|

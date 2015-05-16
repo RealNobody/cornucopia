@@ -22,6 +22,7 @@ module Cornucopia
 
       def initialize(asset_name)
         @asset_name = asset_name
+        @asset_body = nil
       end
 
       def body=(asset_body)

@@ -1,5 +1,5 @@
 require "digest"
-require ::File.expand_path("../util/configuration", File.dirname(__FILE__))
+# require ::File.expand_path("../util/configuration", File.dirname(__FILE__))
 require ::File.expand_path("../util/report_builder", File.dirname(__FILE__))
 require ::File.expand_path("../util/report_table", File.dirname(__FILE__))
 
@@ -141,7 +141,7 @@ module Cornucopia
           unless @unsupported_list.include?(function_symbol)
             value = @driver.send(function_symbol, *args)
           end
-        rescue ::Capybara::NotSupportedByDriverError => error
+        rescue ::Capybara::NotSupportedByDriverError
           @unsupported_list << function_symbol
         end
 
