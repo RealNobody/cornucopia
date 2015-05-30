@@ -1,23 +1,28 @@
-require "cornucopia/version"
+require "benchmark"
 
-require "active_support"
-require "active_support/core_ext"
+time = Benchmark.measure do
+  require "cornucopia/version"
 
-require "cornucopia/util/configuration"
-require "cornucopia/util/configured_report"
-require "cornucopia/util/generic_settings"
-require "cornucopia/util/file_asset"
-require "cornucopia/util/log_capture"
-require "cornucopia/util/pretty_formatter"
-require "cornucopia/util/report_builder"
-require "cornucopia/util/report_table"
-require "cornucopia/util/test_helper"
-require "cornucopia/capybara/finder_diagnostics"
-require "cornucopia/capybara/page_diagnostics"
-require "cornucopia/capybara/finder_extensions"
-require "cornucopia/capybara/matcher_extensions"
-require "cornucopia/site_prism/element_extensions"
-require "cornucopia/site_prism/page_application"
+  require "active_support"
+  require "active_support/core_ext"
+
+  require "cornucopia/util/configuration"
+  require "cornucopia/util/configured_report"
+  require "cornucopia/util/generic_settings"
+  require "cornucopia/util/file_asset"
+  require "cornucopia/util/log_capture"
+  require "cornucopia/util/pretty_formatter"
+  require "cornucopia/util/report_builder"
+  require "cornucopia/util/report_table"
+  require "cornucopia/util/test_helper"
+  require "cornucopia/capybara/finder_diagnostics"
+  require "cornucopia/capybara/page_diagnostics"
+  require "cornucopia/capybara/finder_extensions"
+  require "cornucopia/capybara/matcher_extensions"
+  require "cornucopia/site_prism/element_extensions"
+  require "cornucopia/site_prism/page_application"
+end
+puts "Cornucopia load time: #{time}"
 
 module Cornucopia
 end

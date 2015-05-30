@@ -32,6 +32,7 @@ module Cornucopia
         configurations.retry_match_with_found           = false
         configurations.open_report_settings             = { default: false }
         configurations.base_folder                      = "cornucopia_report"
+        configurations.benchmark                        = false
 
         # configurations.alternate_retry            = false
 
@@ -709,6 +710,17 @@ module Cornucopia
 
         def record_test_start_and_end_format=(value)
           Cornucopia::Util::Configuration.instance.configurations.record_test_start_and_end_format = value
+        end
+
+        # Turns benchmarking on or off.
+        #
+        # Defaults to false.
+        def benchmark
+          Cornucopia::Util::Configuration.instance.configurations.benchmark
+        end
+
+        def benchmark=(value)
+          Cornucopia::Util::Configuration.instance.configurations.benchmark = value
         end
       end
     end

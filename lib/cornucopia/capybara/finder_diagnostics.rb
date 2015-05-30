@@ -173,17 +173,23 @@ module Cornucopia
         def perform_analysis(attempt_retry)
           retry_successful = false
 
-          if can_dump_details?(attempt_retry)
-            generate_report "An error occurred while processing \"#{@function_name.to_s}\":",
-                            $! do |report, report_table|
-              retry_successful = perform_retry(attempt_retry, report, report_table)
-            end
+          time = Benchmark.measure do
+            puts "  Cornucopia::FinderDiagnostics::perform_analysis" if Cornucopia::Util::Configuration.benchmark
 
-            dump_args                      = dump_detail_args(attempt_retry)
-            @@diagnosed_finders[dump_args] = { tried: true }
-          else
-            retry_successful = perform_retry(attempt_retry, nil, nil)
+            if can_dump_details?(attempt_retry)
+              generate_report "An error occurred while processing \"#{@function_name.to_s}\":",
+                              $! do |report, report_table|
+                retry_successful = perform_retry(attempt_retry, report, report_table)
+              end
+
+              dump_args                      = dump_detail_args(attempt_retry)
+              @@diagnosed_finders[dump_args] = { tried: true }
+            else
+              retry_successful = perform_retry(attempt_retry, nil, nil)
+            end
           end
+
+          puts "  Cornucopia::FinderDiagnostics::perform_analysis time: #{time}" if Cornucopia::Util::Configuration.benchmark
 
           retry_successful
         end

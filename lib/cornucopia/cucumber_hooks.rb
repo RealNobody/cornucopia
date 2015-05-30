@@ -4,102 +4,146 @@ load ::File.expand_path("site_prism/install_element_extensions.rb", File.dirname
 
 if Cucumber::VERSION.split[0].to_i >= 2
   After do |scenario, block|
-    if scenario.failed?
-      report_name = "Page Dump for: #{Cornucopia::Util::TestHelper.instance.cucumber_name(scenario)}"
+    time = Benchmark.measure do
+      puts "Cornucopia::Hook::page dump" if Cornucopia::Util::Configuration.benchmark
 
-      Cornucopia::Capybara::PageDiagnostics.dump_details(section_label: report_name)
+      if scenario.failed?
+        report_name = "Page Dump for: #{Cornucopia::Util::TestHelper.instance.cucumber_name(scenario)}"
+
+        Cornucopia::Capybara::PageDiagnostics.dump_details(section_label: report_name)
+      end
     end
+
+    puts "Cornucopia::Hook::page dump time: #{time}" if Cornucopia::Util::Configuration.benchmark
   end
 
   Around do |scenario, block|
-    test_name = Cornucopia::Util::TestHelper.instance.cucumber_name(scenario)
-    Cornucopia::Util::TestHelper.instance.record_test_start(test_name)
+    test_name = nil
 
-    seed_value = Cornucopia::Util::Configuration.seed ||
-        100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
+    time = Benchmark.measure do
+      puts "Cornucopia::Hook::before test" if Cornucopia::Util::Configuration.benchmark
 
-    scenario.instance_variable_set :@seed_value, seed_value
+      test_name = Cornucopia::Util::TestHelper.instance.cucumber_name(scenario)
+      Cornucopia::Util::TestHelper.instance.record_test_start(test_name)
 
-    Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
-    Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
+      seed_value = Cornucopia::Util::Configuration.seed ||
+          100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
+
+      scenario.instance_variable_set :@seed_value, seed_value
+
+      Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
+      Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
+    end
+
+    puts "Cornucopia::Hook::before test time: #{time}" if Cornucopia::Util::Configuration.benchmark
 
     Cornucopia::Util::ReportBuilder.current_report.within_test("Scenario - #{test_name}") do
       block.call
     end
 
-    if scenario.failed?
-      seed_value = scenario.instance_variable_get(:@seed_value)
-      puts ("random seed for testing was: #{seed_value}")
+    time = Benchmark.measure do
+      puts "Cornucopia::Hook::after test" if Cornucopia::Util::Configuration.benchmark
 
-      Cornucopia::Util::ReportBuilder.current_report.within_section("Test Error: #{test_name}") do |report|
-        configured_report = nil
-        if scenario.respond_to?(:feature)
-          configured_report = Cornucopia::Util::Configuration.report_configuration :cucumber
-        else
-          configured_report = Cornucopia::Util::Configuration.report_configuration :cucumber_outline
+      if scenario.failed?
+        seed_value = scenario.instance_variable_get(:@seed_value)
+        puts ("random seed for testing was: #{seed_value}")
+
+        Cornucopia::Util::ReportBuilder.current_report.within_section("Test Error: #{test_name}") do |report|
+          configured_report = nil
+          if scenario.respond_to?(:feature)
+            configured_report = Cornucopia::Util::Configuration.report_configuration :cucumber
+          else
+            configured_report = Cornucopia::Util::Configuration.report_configuration :cucumber_outline
+          end
+
+          configured_report.add_report_objects scenario: scenario, cucumber: self
+          configured_report.generate_report(report)
         end
-
-        configured_report.add_report_objects scenario: scenario, cucumber: self
-        configured_report.generate_report(report)
+      else
+        Cornucopia::Util::ReportBuilder.current_report.test_succeeded
       end
-    else
-      Cornucopia::Util::ReportBuilder.current_report.test_succeeded
+
+      Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
+      Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
+
+      Cornucopia::Util::TestHelper.instance.record_test_end(test_name)
     end
 
-    Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
-    Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
-
-    Cornucopia::Util::TestHelper.instance.record_test_end(test_name)
+    puts "Cornucopia::Hook::after test time: #{time}" if Cornucopia::Util::Configuration.benchmark
   end
 else
   Before do |scenario, block|
-    test_name = Cornucopia::Util::TestHelper.instance.cucumber_name(scenario)
-    Cornucopia::Util::TestHelper.instance.record_test_start(test_name)
+    time = Benchmark.measure do
+      puts "Cornucopia::Hook::before test" if Cornucopia::Util::Configuration.benchmark
 
-    seed_value = Cornucopia::Util::Configuration.seed ||
-        100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
+      test_name = Cornucopia::Util::TestHelper.instance.cucumber_name(scenario)
+      Cornucopia::Util::TestHelper.instance.record_test_start(test_name)
 
-    scenario.instance_variable_set :@seed_value, seed_value
+      seed_value = Cornucopia::Util::Configuration.seed ||
+          100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
 
-    Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
-    Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
+      scenario.instance_variable_set :@seed_value, seed_value
 
-    Cornucopia::Util::ReportBuilder.current_report.start_test(scenario, "Scenario - #{test_name}")
+      Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
+      Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
+
+      Cornucopia::Util::ReportBuilder.current_report.start_test(scenario, "Scenario - #{test_name}")
+    end
+
+    puts "Cornucopia::Hook::before test time: #{time}" if Cornucopia::Util::Configuration.benchmark
   end
 
   After do |scenario, block|
-    test_name = Cornucopia::Util::TestHelper.instance.cucumber_name(scenario)
+    time = Benchmark.measure do
+      puts "Cornucopia::Hook::after test" if Cornucopia::Util::Configuration.benchmark
 
-    if scenario.failed?
-      seed_value = scenario.instance_variable_get(:@seed_value)
-      puts ("random seed for testing was: #{seed_value}")
+      test_name = Cornucopia::Util::TestHelper.instance.cucumber_name(scenario)
 
-      Cornucopia::Util::ReportBuilder.current_report.within_section("Test Error: #{test_name}") do |report|
-        configured_report = nil
-        if scenario.respond_to?(:feature)
-          configured_report = Cornucopia::Util::Configuration.report_configuration :cucumber
-        else
-          configured_report = Cornucopia::Util::Configuration.report_configuration :cucumber_outline
+      if scenario.failed?
+        seed_value = scenario.instance_variable_get(:@seed_value)
+        puts ("random seed for testing was: #{seed_value}")
+
+        Cornucopia::Util::ReportBuilder.current_report.within_section("Test Error: #{test_name}") do |report|
+          configured_report = nil
+          if scenario.respond_to?(:feature)
+            configured_report = Cornucopia::Util::Configuration.report_configuration :cucumber
+          else
+            configured_report = Cornucopia::Util::Configuration.report_configuration :cucumber_outline
+          end
+
+          configured_report.add_report_objects scenario: scenario, cucumber: self
+          configured_report.generate_report(report)
         end
-
-        configured_report.add_report_objects scenario: scenario, cucumber: self
-        configured_report.generate_report(report)
+      else
+        Cornucopia::Util::ReportBuilder.current_report.test_succeeded
       end
-    else
-      Cornucopia::Util::ReportBuilder.current_report.test_succeeded
+
+      Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
+      Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
+
+      Cornucopia::Util::ReportBuilder.current_report.end_test(scenario)
+
+      Cornucopia::Util::TestHelper.instance.record_test_end(test_name)
     end
 
-    Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
-    Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
-
-    Cornucopia::Util::ReportBuilder.current_report.end_test(scenario)
-
-    Cornucopia::Util::TestHelper.instance.record_test_end(test_name)
+    puts "Cornucopia::Hook::after test time: #{time}" if Cornucopia::Util::Configuration.benchmark
   end
 end
 
 at_exit do
-  Cornucopia::Util::ReportBuilder.current_report.close
+  time = Benchmark.measure do
+    puts "Cornucopia::Hook::suite end" if Cornucopia::Util::Configuration.benchmark
+
+    Cornucopia::Util::ReportBuilder.current_report.close
+  end
+
+  puts "Cornucopia::Hook::suite end time: #{time}" if Cornucopia::Util::Configuration.benchmark
 end
 
-Cornucopia::Util::ReportBuilder.new_report("cucumber_report")
+time = Benchmark.measure do
+  puts "Cornucopia::Hook::suite start" if Cornucopia::Util::Configuration.benchmark
+
+  Cornucopia::Util::ReportBuilder.new_report("cucumber_report")
+end
+
+puts "Cornucopia::Hook::suite start time: #{time}" if Cornucopia::Util::Configuration.benchmark
