@@ -87,16 +87,16 @@ describe "Cornucopia::Util::Configuration" do
     end
 
     it "backs up logs on failure by default" do
-      expect(Cornucopia::Util::Configuration.backup_logs_on_failure).to be_truthy
+      expect(Cornucopia::Util::Configuration.backup_logs_on_failure).to be_falsey
     end
 
     it "can set the backup_logs_on_failure value" do
       begin
-        Cornucopia::Util::Configuration.backup_logs_on_failure = false
-
-        expect(Cornucopia::Util::Configuration.backup_logs_on_failure).to be_falsey
-      ensure
         Cornucopia::Util::Configuration.backup_logs_on_failure = true
+
+        expect(Cornucopia::Util::Configuration.backup_logs_on_failure).to be_truthy
+      ensure
+        Cornucopia::Util::Configuration.backup_logs_on_failure = false
       end
     end
 

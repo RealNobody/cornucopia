@@ -1,7 +1,41 @@
 require ::File.expand_path("../cornucopia", File.dirname(__FILE__))
+require "singleton"
+
 load ::File.expand_path("capybara/install_finder_extensions.rb", File.dirname(__FILE__))
 load ::File.expand_path("capybara/install_matcher_extensions.rb", File.dirname(__FILE__))
 load ::File.expand_path("site_prism/install_element_extensions.rb", File.dirname(__FILE__))
+
+module Cornucopia
+  class RSpecHelper
+    include Singleton
+
+    attr_accessor :last_reported_example
+    attr_accessor :context_seed_value
+    attr_accessor :seed_value
+
+    def initialize
+      @last_reported_example = nil
+    end
+
+    def end_example(example)
+      unless example == last_reported_example
+        if (example.exception)
+          @last_reported_example = example
+
+          puts("random seed for testing was: #{context_seed_value}, #{seed_value}")
+
+          Cornucopia::Util::ReportBuilder.current_report.
+              within_section("Test Error: #{example.full_description}") do |report|
+            configured_report = Cornucopia::Util::Configuration.report_configuration :rspec
+
+            configured_report.add_report_objects example: example, rspec: RSpec
+            configured_report.generate_report(report)
+          end
+        end
+      end
+    end
+  end
+end
 
 RSpec.configure do |config|
   config.seed = Cornucopia::Util::Configuration.order_seed if Cornucopia::Util::Configuration.order_seed
@@ -30,10 +64,10 @@ RSpec.configure do |config|
     time = Benchmark.measure do
       puts "Cornucopia::Hook::before group" if Cornucopia::Util::Configuration.benchmark
 
-      @context_seed_value = Cornucopia::Util::Configuration.context_seed ||
+      Cornucopia::RSpecHelper.instance.context_seed_value = Cornucopia::Util::Configuration.context_seed ||
           100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
 
-      srand(@context_seed_value)
+      srand(Cornucopia::RSpecHelper.instance.context_seed_value)
     end
 
     puts "Cornucopia::Hook::before group time: #{time}" if Cornucopia::Util::Configuration.benchmark
@@ -52,6 +86,8 @@ RSpec.configure do |config|
       if (test_example.exception)
         Cornucopia::Capybara::PageDiagnostics.dump_details(section_label: "Page Dump for: #{test_example.full_description}")
       end
+
+      Cornucopia::RSpecHelper.instance.end_example(test_example)
     end
 
     puts "Cornucopia::Hook::page dump time: #{time}" if Cornucopia::Util::Configuration.benchmark
@@ -69,10 +105,10 @@ RSpec.configure do |config|
 
       Cornucopia::Util::TestHelper.instance.record_test_start(test_example.full_description)
 
-      @seed_value = Cornucopia::Util::Configuration.seed ||
+      Cornucopia::RSpecHelper.instance.seed_value = Cornucopia::Util::Configuration.seed ||
           100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
 
-      srand(@seed_value)
+      srand(Cornucopia::RSpecHelper.instance.seed_value)
 
       Cornucopia::Capybara::FinderDiagnostics::FindAction.clear_diagnosed_finders
       Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
@@ -86,17 +122,9 @@ RSpec.configure do |config|
       time = Benchmark.measure do
         puts "Cornucopia::Hook::after test" if Cornucopia::Util::Configuration.benchmark
 
-        if (test_example.exception)
-          puts("random seed for testing was: #{@context_seed_value}, #{@seed_value}")
+        Cornucopia::RSpecHelper.instance.end_example(test_example)
 
-          Cornucopia::Util::ReportBuilder.current_report.
-              within_section("Test Error: #{test_example.full_description}") do |report|
-            configured_report = Cornucopia::Util::Configuration.report_configuration :rspec
-
-            configured_report.add_report_objects example: test_example, rspec: RSpec
-            configured_report.generate_report(report)
-          end
-        else
+        unless test_example.exception
           Cornucopia::Util::ReportBuilder.current_report.test_succeeded
         end
       end
@@ -105,6 +133,7 @@ RSpec.configure do |config|
       Cornucopia::Capybara::PageDiagnostics.clear_dumped_pages
 
       Cornucopia::Util::TestHelper.instance.record_test_end(test_example.full_description)
+      Cornucopia::RSpecHelper.instance.last_reported_example = nil
     end
 
     puts "Cornucopia::Hook::after test time: #{time}" if Cornucopia::Util::Configuration.benchmark

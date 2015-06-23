@@ -19,7 +19,7 @@ module Cornucopia
         configurations.user_log_files                   = {}
         configurations.default_num_lines                = 500
         configurations.grab_logs                        = true
-        configurations.backup_logs_on_failure           = true
+        configurations.backup_logs_on_failure           = false
         configurations.print_timeout_min                = 10
         configurations.selenium_cache_retry_count       = 5
         configurations.analyze_find_exceptions          = true
