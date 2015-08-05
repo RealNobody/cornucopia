@@ -284,6 +284,21 @@ module Cornucopia
           end
         end
 
+        # For some reason, I've found some instance variables that are set but aren't in instance_variable_names
+        unless found_name
+          begin
+            if parent_object.instance_variable_defined?(variable_name)
+              found_name = variable_name.to_s
+            end
+          rescue
+            # the name might be invalid, so if it raises an exception here, ignore it.
+          end
+
+          if parent_object.instance_variable_defined?("@#{variable_name}".to_sym)
+            found_name = "@#{variable_name}"
+          end
+        end
+
         found_name
       end
 
@@ -297,7 +312,9 @@ module Cornucopia
         else
           if parent_object.respond_to?(export_field[:report_element][level]) &&
               (!parent_object.methods.include?(export_field[:report_element][level]) ||
-                  parent_object.method(export_field[:report_element][level]).parameters.empty?)
+                  parent_object.method(export_field[:report_element][level]).parameters.empty? ||
+                  (parent_object.method(export_field[:report_element][level]).parameters.length == 1 &&
+                      parent_object.method(export_field[:report_element][level]).parameters[0][0] == :rest))
             report_object = parent_object.send(export_field[:report_element][level])
             reported      = true
           elsif parent_object.respond_to?(:[])

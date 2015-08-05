@@ -47,6 +47,8 @@ module Cornucopia
                 more_info_fields:     [
                                           :example__exception__class__name,
                                           :example,
+                                          :seeds__seed_value,
+                                          :seeds__context_seed_value,
                                           :example__example_group_instance,
                                           :example__metadata__caller,
                                           {
@@ -103,12 +105,13 @@ module Cornucopia
                 more_info_fields:     [
                                           :scenario__exception__class__name,
                                           :scenario,
-                                          :scenario__feature__comment,
+                                          :scenario__seed_value,
+                                          # :scenario__feature__comment,
                                           :scenario__feature__keyword,
                                           :scenario__feature__description,
                                           :scenario__feature__gherkin_statement,
                                           :scenario__feature__tags,
-                                          :scenario__current_visitor__configuration,
+                                          # :scenario__current_visitor__configuration,
                                           :cucumber,
                                           :logs,
                                           :capybara_page_diagnostics

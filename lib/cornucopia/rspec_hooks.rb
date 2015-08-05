@@ -28,7 +28,7 @@ module Cornucopia
               within_section("Test Error: #{example.full_description}") do |report|
             configured_report = Cornucopia::Util::Configuration.report_configuration :rspec
 
-            configured_report.add_report_objects example: example, rspec: RSpec
+            configured_report.add_report_objects example: example, rspec: RSpec, seeds: self
             configured_report.generate_report(report)
           end
         end
