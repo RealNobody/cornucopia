@@ -38,7 +38,7 @@ if Cucumber::VERSION.split[0].to_i >= 2
       Cornucopia::Util::TestHelper.instance.record_test_start(test_name)
 
       seed_value = Cornucopia::Util::Configuration.seed ||
-          100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
+          100000000000000000000000000000000000000 + Random.new.rand(899999999999999999999999999999999999999)
 
       scenario.instance_variable_set :@seed_value, seed_value
 
@@ -101,7 +101,7 @@ else
       Cornucopia::Util::TestHelper.instance.record_test_start(test_name)
 
       seed_value = Cornucopia::Util::Configuration.seed ||
-          100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
+          100000000000000000000000000000000000000 + Random.new.rand(899999999999999999999999999999999999999)
 
       scenario.instance_variable_set :@seed_value, seed_value
 

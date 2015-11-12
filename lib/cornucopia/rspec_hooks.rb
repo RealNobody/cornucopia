@@ -65,7 +65,7 @@ RSpec.configure do |config|
       puts "Cornucopia::Hook::before group" if Cornucopia::Util::Configuration.benchmark
 
       Cornucopia::RSpecHelper.instance.context_seed_value = Cornucopia::Util::Configuration.context_seed ||
-          100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
+          100000000000000000000000000000000000000 + Random.new.rand(899999999999999999999999999999999999999)
 
       srand(Cornucopia::RSpecHelper.instance.context_seed_value)
     end
@@ -106,7 +106,7 @@ RSpec.configure do |config|
       Cornucopia::Util::TestHelper.instance.record_test_start(test_example.full_description)
 
       Cornucopia::RSpecHelper.instance.seed_value = Cornucopia::Util::Configuration.seed ||
-          100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
+          100000000000000000000000000000000000000 + Random.new.rand(899999999999999999999999999999999999999)
 
       srand(Cornucopia::RSpecHelper.instance.seed_value)
 

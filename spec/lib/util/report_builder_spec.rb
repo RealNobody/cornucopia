@@ -213,10 +213,10 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
     it "calls #pretty_format on a sub-array after it is converted to a string" do
       expect(Cornucopia::Util::ReportBuilder).
           to receive(:pretty_format).
-                 with(anything, in_pretty_print: true).
-                 exactly(4).
-                 times.
-                 and_call_original
+              with(anything, in_pretty_print: true).
+              exactly(4).
+              times.
+              and_call_original
 
       array_values << [1, 2, 3]
 
@@ -1102,25 +1102,31 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
 
       describe "#within_test" do
         it "starts a test with a specific name" do
-          current_report = send(report_settings[:report])
+          backup = Cornucopia::Util::Configuration.backup_logs_on_failure
+          begin
+            Cornucopia::Util::Configuration.backup_logs_on_failure = true
+            current_report = send(report_settings[:report])
 
-          current_report.within_test(test_names[0]) do
-            current_report.within_section(section_names[0]) do |report_section|
-              report_section.within_table do |report_table|
-                report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+            current_report.within_test(test_names[0]) do
+              current_report.within_section(section_names[0]) do |report_section|
+                report_section.within_table do |report_table|
+                  report_table.write_stats(Faker::Lorem.word, Faker::Lorem.sentence)
+                end
               end
             end
+
+            current_report.close
+
+            report_page = Capybara::Node::Simple.new(File.read(current_report.report_base_page_name))
+
+            expect(report_page.all(".coruncopia-report-link").length).to eq 2
+            expect(report_page.all(".coruncopia-report-link")[0].text).to eq test_names[0]
+            expect(report_page.all(".coruncopia-report-link")[0]["href"]).to eq "test_1/index.html"
+            expect(report_page.all(".coruncopia-report-link")[1].text).to eq "test.log"
+            expect(report_page.all(".coruncopia-report-link")[1]["href"]).to eq "log_files/test.log"
+          ensure
+            Cornucopia::Util::Configuration.backup_logs_on_failure = backup
           end
-
-          current_report.close
-
-          report_page = Capybara::Node::Simple.new(File.read(current_report.report_base_page_name))
-
-          expect(report_page.all(".coruncopia-report-link").length).to eq 2
-          expect(report_page.all(".coruncopia-report-link")[0].text).to eq test_names[0]
-          expect(report_page.all(".coruncopia-report-link")[0]["href"]).to eq "test_1/index.html"
-          expect(report_page.all(".coruncopia-report-link")[1].text).to eq "test.log"
-          expect(report_page.all(".coruncopia-report-link")[1]["href"]).to eq "log_files/test.log"
         end
 
         it "doesn't output anything if nothing is written to a section or table" do
@@ -1154,14 +1160,14 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
 
           report_page = Capybara::Node::Simple.new(File.read(current_report.report_base_page_name))
 
-          expect(report_page.all(".coruncopia-report-link").length).to eq (test_names.length + 1)
+          expect(report_page.all(".coruncopia-report-link").length).to eq test_names.length
 
           test_names.each_with_index do |test_name, test_index|
             expect(report_page.all(".coruncopia-report-link")[test_index].text).to eq test_name
             expect(report_page.all(".coruncopia-report-link")[test_index]["href"]).to eq "test_#{test_index + 1}/index.html"
           end
-          expect(report_page.all(".coruncopia-report-link")[-1].text).to eq "test.log"
-          expect(report_page.all(".coruncopia-report-link")[-1]["href"]).to eq "log_files/test.log"
+          # expect(report_page.all(".coruncopia-report-link")[-1].text).to eq "test.log"
+          # expect(report_page.all(".coruncopia-report-link")[-1]["href"]).to eq "log_files/test.log"
         end
 
         it "handles a test within a test as an independent test" do
@@ -1186,13 +1192,13 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
 
           report_page = Capybara::Node::Simple.new(File.read(current_report.report_base_page_name))
 
-          expect(report_page.all(".coruncopia-report-link").length).to eq 3
+          expect(report_page.all(".coruncopia-report-link").length).to eq 2
           expect(report_page.all(".coruncopia-report-link")[0].text).to eq test_names[0]
           expect(report_page.all(".coruncopia-report-link")[0]["href"]).to eq "test_1/index.html"
           expect(report_page.all(".coruncopia-report-link")[1].text).to eq test_names[1]
           expect(report_page.all(".coruncopia-report-link")[1]["href"]).to eq "test_2/index.html"
-          expect(report_page.all(".coruncopia-report-link")[2].text).to eq "test.log"
-          expect(report_page.all(".coruncopia-report-link")[2]["href"]).to eq "log_files/test.log"
+          # expect(report_page.all(".coruncopia-report-link")[2].text).to eq "test.log"
+          # expect(report_page.all(".coruncopia-report-link")[2]["href"]).to eq "log_files/test.log"
 
           report_page = Capybara::Node::Simple.new(File.read(File.join(current_report.report_folder_name, "test_1/report_contents.html")))
           expect(report_page.all(".cornucopia-section-label").length).to eq 1
@@ -1231,13 +1237,13 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
 
           report_page = Capybara::Node::Simple.new(File.read(current_report.report_base_page_name))
 
-          expect(report_page.all(".coruncopia-report-link").length).to eq 3
+          expect(report_page.all(".coruncopia-report-link").length).to eq 2
           expect(report_page.all(".coruncopia-report-link")[0].text).to eq test_names[0]
           expect(report_page.all(".coruncopia-report-link")[0]["href"]).to eq "test_1/index.html"
           expect(report_page.all(".coruncopia-report-link")[1].text).to eq test_names[1]
           expect(report_page.all(".coruncopia-report-link")[1]["href"]).to eq "test_2/index.html"
-          expect(report_page.all(".coruncopia-report-link")[2].text).to eq "test.log"
-          expect(report_page.all(".coruncopia-report-link")[2]["href"]).to eq "log_files/test.log"
+          # expect(report_page.all(".coruncopia-report-link")[2].text).to eq "test.log"
+          # expect(report_page.all(".coruncopia-report-link")[2]["href"]).to eq "log_files/test.log"
 
           report_page = Capybara::Node::Simple.new(File.read(File.join(current_report.report_folder_name, "test_1/report_contents.html")))
           expect(report_page.all(".cornucopia-section-label").length).to eq 2
@@ -1264,14 +1270,14 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
 
           report_page = Capybara::Node::Simple.new(File.read(current_report.report_base_page_name))
 
-          expect(report_page.all(".coruncopia-report-link").length).to eq 3
+          expect(report_page.all(".coruncopia-report-link").length).to eq 2
 
           expect(report_page.all(".coruncopia-report-link")[0].text).to eq test_names[0]
           expect(report_page.all(".coruncopia-report-link")[0]["href"]).to eq "test_1/index.html"
           expect(report_page.all(".coruncopia-report-link")[1].text).to eq test_names[-1]
           expect(report_page.all(".coruncopia-report-link")[1]["href"]).to eq "test_2/index.html"
-          expect(report_page.all(".coruncopia-report-link")[2].text).to eq "test.log"
-          expect(report_page.all(".coruncopia-report-link")[2]["href"]).to eq "log_files/test.log"
+          # expect(report_page.all(".coruncopia-report-link")[2].text).to eq "test.log"
+          # expect(report_page.all(".coruncopia-report-link")[2]["href"]).to eq "log_files/test.log"
         end
       end
 

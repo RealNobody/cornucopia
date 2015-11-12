@@ -495,6 +495,26 @@ describe "Cornucopia::Util::Configuration" do
     end
   end
 
+  describe "#benchmark" do
+    it "has a default value" do
+      expect(Cornucopia::Util::Configuration.benchmark).to eq false
+    end
+
+    it "can set the value" do
+      orig_value = Cornucopia::Util::Configuration.benchmark
+
+      begin
+        new_value = [true, false].sample
+
+        Cornucopia::Util::Configuration.benchmark = new_value
+
+        expect(Cornucopia::Util::Configuration.benchmark).to eq new_value
+      ensure
+        Cornucopia::Util::Configuration.benchmark= orig_value
+      end
+    end
+  end
+
   # describe "#alternate_retry" do
   #   it "#can read the default" do
   #     expect(Cornucopia::Util::Configuration.alternate_retry).to be_falsy

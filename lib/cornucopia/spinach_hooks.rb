@@ -10,7 +10,7 @@ Spinach.hooks.around_scenario do |scenario_data, step_definitions, &block|
     Cornucopia::Util::TestHelper.instance.spinach_reported_error   = false
     Cornucopia::Util::TestHelper.instance.spinach_running_scenario = scenario_data
     seed_value                                                     = Cornucopia::Util::Configuration.seed ||
-        100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
+        100000000000000000000000000000000000000 + Random.new.rand(899999999999999999999999999999999999999)
 
     scenario_data.instance_variable_set :@seed_value, seed_value
 

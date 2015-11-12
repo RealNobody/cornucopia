@@ -21,9 +21,9 @@ require 'rspec/rails'
 # in spec/support/ and its subdirectories.
 Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 
-# Checks for pending migrations before tests are run.
-# If you are not using ActiveRecord, you can remove this line.
-ActiveRecord::Migration.check_pending! if defined?(ActiveRecord::Migration)
+# # Checks for pending migrations before tests are run.
+# # If you are not using ActiveRecord, you can remove this line.
+# ActiveRecord::Migration.check_pending! if defined?(ActiveRecord::Migration)
 
 RSpec.configure do |config|
   # ## Mock Framework
@@ -64,7 +64,7 @@ Capybara.default_driver = :selenium
 RSpec.configure do |config|
   config.around(:each) do |example|
     @test_seed_value = Cornucopia::Util::Configuration.seed ||
-        100000000000000000000000000000000000000 + rand(899999999999999999999999999999999999999)
+        100000000000000000000000000000000000000 + Random.new.rand(899999999999999999999999999999999999999)
 
     srand(@test_seed_value)
 
