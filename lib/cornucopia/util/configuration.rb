@@ -67,6 +67,7 @@ module Cornucopia
                                           :example__example_group_instance__response,
                                           :example__example_group_instance__controller,
                                           :example__example_group_instance__request,
+                                          :example__example_group_instance__request__env,
                                           :example__example_group_instance
                                       ],
                 expand_inline_fields: [
@@ -75,7 +76,15 @@ module Cornucopia
                 exclude_fields:       [
                                           :example__fixture_connections,
                                           :example,
+                                          :example__reporter,
                                           :example__example_group_instance,
+                                          :example__example_group_instance____memoized,
+                                          :example__example_group_instance__controller___request,
+                                          :example__example_group_instance__controller___response,
+                                          :example__example_group_instance__controller___routes,
+                                          :example__example_group_instance__routes,
+                                          "example__example_group_instance__request__env__action_dispatch.routes",
+                                          "example__example_group_instance__request__env__action_controller.instance",
                                       ],
             },
             cucumber:                    {
