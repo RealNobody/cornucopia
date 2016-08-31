@@ -64,6 +64,8 @@ module Cornucopia
                                       ],
                 expand_fields:        [
                                           :example,
+                                          :example__example_group_instance____memoized,
+                                          :example__example_group_instance____memoized__memoized,
                                           :example__example_group_instance__response,
                                           :example__example_group_instance__controller,
                                           :example__example_group_instance__request,
@@ -71,14 +73,15 @@ module Cornucopia
                                           :example__example_group_instance
                                       ],
                 expand_inline_fields: [
-                                          :example__example_group_instance____memoized
+                                          :example__example_group_instance____memoized,
+                                          :example__example_group_instance____memoized__memoized
                                       ],
                 exclude_fields:       [
                                           :example__fixture_connections,
                                           :example,
                                           :example__reporter,
                                           :example__example_group_instance,
-                                          :example__example_group_instance____memoized,
+                                          :example__example_group_instance____memoized__mutex,
                                           :example__example_group_instance__controller___request,
                                           :example__example_group_instance__controller___response,
                                           :example__example_group_instance__controller___routes,
