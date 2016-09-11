@@ -11,7 +11,7 @@ describe Cornucopia::Util::LogCapture do
     expect(File.directory?(Rails.root.join("cornucopia_report/"))).to be_falsey
     expect(File.directory?(Rails.root.join("spec/cornucopia_report/"))).to be_falsey
     expect(File.directory?(Rails.root.join("features/cornucopia_report/"))).to be_falsey
-    expect(File.exists?(file_name)).to be_falsey
+    expect(File.exist?(file_name)).to be_falsey
     expect(File.directory?(dest_folder)).to be_falsey
 
     begin
@@ -112,53 +112,53 @@ describe Cornucopia::Util::LogCapture do
     it "goes up one level if you are in spec or features" do
       Cornucopia::Util::Configuration.add_log_file("sample_log.log")
 
-      expect(File.exists?(file_name)).to be_truthy
-      expect(File.exists?(File.join(dest_folder, "sample_log.log"))).to be_falsey
+      expect(File.exist?(file_name)).to be_truthy
+      expect(File.exist?(File.join(dest_folder, "sample_log.log"))).to be_falsey
 
       new_root = Rails.root.join(%w(features spec).sample).to_s
       expect(Rails).to receive(:root).at_least(1).and_return(new_root)
 
       Cornucopia::Util::LogCapture.backup_log_files(dest_folder)
 
-      expect(File.exists?(File.join(dest_folder, "sample_log.log"))).to be_truthy
+      expect(File.exist?(File.join(dest_folder, "sample_log.log"))).to be_truthy
     end
 
     it "resolves file conflicts" do
       file_num = rand(1..5)
       Cornucopia::Util::Configuration.add_log_file("sample_log.log")
 
-      expect(File.exists?(file_name)).to be_truthy
+      expect(File.exist?(file_name)).to be_truthy
       FileUtils.cp file_name, File.join(dest_folder, "sample_log.log")
-      expect(File.exists?(File.join(dest_folder, "sample_log.log"))).to be_truthy
+      expect(File.exist?(File.join(dest_folder, "sample_log.log"))).to be_truthy
 
       index = 1
       while index < file_num
         FileUtils.cp file_name, File.join(dest_folder, "sample_log_#{index}.log")
-        expect(File.exists?(File.join(dest_folder, "sample_log_#{index}.log"))).to be_truthy
+        expect(File.exist?(File.join(dest_folder, "sample_log_#{index}.log"))).to be_truthy
         index += 1
       end
-      expect(File.exists?(File.join(dest_folder, "sample_log_#{file_num}.log"))).to be_falsey
+      expect(File.exist?(File.join(dest_folder, "sample_log_#{file_num}.log"))).to be_falsey
 
       new_root = Rails.root.join(%w(features spec).sample).to_s
       expect(Rails).to receive(:root).at_least(1).and_return(new_root)
 
       Cornucopia::Util::LogCapture.backup_log_files(dest_folder)
 
-      expect(File.exists?(File.join(dest_folder, "sample_log_#{file_num}.log"))).to be_truthy
+      expect(File.exist?(File.join(dest_folder, "sample_log_#{file_num}.log"))).to be_truthy
     end
 
     it "does not require Rails" do
       Cornucopia::Util::Configuration.add_log_file("sample_log.log")
 
-      expect(File.exists?(file_name)).to be_truthy
-      expect(File.exists?(File.join(dest_folder, "sample_log.log"))).to be_falsey
+      expect(File.exist?(file_name)).to be_truthy
+      expect(File.exist?(File.join(dest_folder, "sample_log.log"))).to be_falsey
 
       FileUtils.cd Rails.root.to_s
       expect(Object).to receive(:const_defined?).at_least(1).with("Rails").and_return(false)
 
       Cornucopia::Util::LogCapture.backup_log_files(dest_folder)
 
-      expect(File.exists?(File.join(dest_folder, "sample_log.log"))).to be_truthy
+      expect(File.exist?(File.join(dest_folder, "sample_log.log"))).to be_truthy
     end
   end
 

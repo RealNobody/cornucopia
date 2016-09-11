@@ -43,7 +43,7 @@ module Cornucopia
       end
 
       def add_file(output_location)
-        unless (File.exists?(output_location))
+        unless (File.exist?(output_location))
           create_file(output_location)
         end
       end

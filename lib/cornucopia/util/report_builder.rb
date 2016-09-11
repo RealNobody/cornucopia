@@ -228,7 +228,7 @@ module Cornucopia
           end
         end
 
-        if File.exists?(report_base_page_name)
+        if File.exist?(report_base_page_name)
           if Cornucopia::Util::Configuration.backup_logs_on_failure
             backup_log_files
           end
@@ -284,8 +284,8 @@ module Cornucopia
       end
 
       def backup_report_folder
-        if Dir.exists?(@report_folder_name)
-          if File.exists?(File.join(@report_folder_name, "index.html"))
+        if Dir.exist?(@report_folder_name)
+          if File.exist?(File.join(@report_folder_name, "index.html"))
             update_time = File.ctime(File.join(@report_folder_name, "index.html"))
           else
             update_time = File.ctime(@report_folder_name)
@@ -294,7 +294,7 @@ module Cornucopia
           # ensure the name is unique...
           new_sub_dir = File.join(index_folder_name, "#{@base_folder_name}_#{update_time.strftime("%Y_%m_%d_%H_%M_%S")}").to_s
           index       = 0
-          while Dir.exists?(new_sub_dir)
+          while Dir.exist?(new_sub_dir)
             if new_sub_dir[-1 * "_alt_#{index}".length..-1] == "_alt_#{index}"
               new_sub_dir = new_sub_dir[0..-1 * "_alt_#{index}".length - 1]
             end
@@ -332,14 +332,14 @@ module Cornucopia
         FileAsset.asset("cornucopia.css").add_file(File.join(index_folder, "cornucopia.css"))
 
         index_file = "".html_safe
-        if File.exists?(File.join(Cornucopia::Util::ReportBuilder.root_folder, "coverage/index.html"))
+        if File.exist?(File.join(Cornucopia::Util::ReportBuilder.root_folder, "coverage/index.html"))
           index_file << Cornucopia::Util::ReportBuilder.build_index_section("Coverage", ["../coverage/index.html"])
         end
 
         last_folder = nil
         group_items = []
         Dir[File.join(@index_folder_name, "*")].sort.each do |directory_item|
-          if File.directory?(directory_item) && File.exists?(File.join(directory_item, "index.html"))
+          if File.directory?(directory_item) && File.exist?(File.join(directory_item, "index.html"))
             directory_item = directory_item[@index_folder_name.to_s.length..-1]
 
             if last_folder
@@ -417,7 +417,7 @@ module Cornucopia
 
         FileUtils.mkdir_p @report_folder_name
 
-        unless File.exists?(report_base_page_name)
+        unless File.exist?(report_base_page_name)
           # use a different base index file.
           FileAsset.asset("report_holder.html").add_file(File.join(support_folder_name, "index.html"))
           rebuild_index_page
@@ -432,7 +432,7 @@ module Cornucopia
 
         FileUtils.mkdir_p @report_folder_name
 
-        unless File.exists?(report_base_page_name)
+        unless File.exist?(report_base_page_name)
           # use a different base index file.
           FileAsset.asset("report_base.html").add_file(File.join(support_folder_name, "index.html"))
           rebuild_index_page
@@ -474,7 +474,7 @@ module Cornucopia
 
         FileUtils.mkdir_p @report_test_folder_name
 
-        unless File.exists?(report_test_base_page_name)
+        unless File.exist?(report_test_base_page_name)
           FileAsset.asset("report_base.html").add_file(File.join(support_folder_name, "index.html"))
           rebuild_report_holder_page
         end
@@ -654,7 +654,7 @@ module Cornucopia
 
         unique_num = 1
         num_string = ""
-        while File.exists?(File.join(base_folder, "#{base_name}#{num_string}.#{extension}"))
+        while File.exist?(File.join(base_folder, "#{base_name}#{num_string}.#{extension}"))
           num_string = "_#{unique_num}"
           unique_num += 1
         end
@@ -668,7 +668,7 @@ module Cornucopia
 
         base_folder ||= report_test_folder_name
 
-        while File.exists?(File.join(base_folder, "#{folder_base_name}#{num_string}"))
+        while File.exist?(File.join(base_folder, "#{folder_base_name}#{num_string}"))
           num_string = "_#{unique_num}"
           unique_num += 1
         end

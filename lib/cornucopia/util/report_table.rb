@@ -175,7 +175,7 @@ module Cornucopia
             @full_table << "      <div class=\"hide-contents\">\n"
           end
 
-          @full_table << "<pre><code>" unless options[:exclude_code_block]
+          @full_table << "v<pre><code>" unless options[:exclude_code_block]
         end
 
         @full_table << print_value

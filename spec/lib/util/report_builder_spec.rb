@@ -596,8 +596,8 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
           current_report.rebuild_index_page
 
           expect(File.directory?(current_report.index_folder_name)).to be_truthy
-          expect(File.exists?(current_report.index_base_page_name)).to be_truthy
-          expect(File.exists?(File.join(current_report.index_folder_name, "cornucopia.css"))).to be_truthy
+          expect(File.exist?(current_report.index_base_page_name)).to be_truthy
+          expect(File.exist?(File.join(current_report.index_folder_name, "cornucopia.css"))).to be_truthy
         end
 
         it "deletes the existing report_contents page" do
@@ -745,9 +745,9 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
 
           current_report.rebuild_report_holder_page
 
-          expect(File.exists?(File.join(report_folder, "index.html"))).to be_truthy
-          expect(File.exists?(File.join(report_folder, "report.js"))).to be_truthy
-          expect(File.exists?(File.join(report_folder, "cornucopia.css"))).to be_truthy
+          expect(File.exist?(File.join(report_folder, "index.html"))).to be_truthy
+          expect(File.exist?(File.join(report_folder, "report.js"))).to be_truthy
+          expect(File.exist?(File.join(report_folder, "cornucopia.css"))).to be_truthy
         end
 
         it "creates the report folder" do
@@ -819,17 +819,17 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
           current_report.initialize_report_test_files
 
           test_report_folder = current_report.report_test_folder_name
-          expect(File.exists?(test_report_folder)).to be_truthy
+          expect(File.exist?(test_report_folder)).to be_truthy
 
           post_file = File.read(File.join(current_report.index_folder_name, "report_contents.html"))
           expect(post_file).to match /\>#{report_settings[:sub_folder]}\</
 
-          expect(File.exists?(File.join(test_report_folder, "index.html"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "report_contents.html"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "collapse.gif"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "expand.gif"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "more_info.js"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "cornucopia.css"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "index.html"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "report_contents.html"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "collapse.gif"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "expand.gif"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "more_info.js"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "cornucopia.css"))).to be_truthy
         end
       end
 
@@ -846,14 +846,14 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
           current_report.initialize_report_files
 
           test_report_folder = current_report.report_folder_name
-          expect(File.exists?(test_report_folder)).to be_truthy
+          expect(File.exist?(test_report_folder)).to be_truthy
 
           post_file = File.read(File.join(current_report.index_folder_name, "report_contents.html"))
           expect(post_file).to match /\>#{report_settings[:sub_folder]}\</
 
-          expect(File.exists?(File.join(test_report_folder, "index.html"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "report.js"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "cornucopia.css"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "index.html"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "report.js"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "cornucopia.css"))).to be_truthy
         end
       end
 
@@ -870,17 +870,17 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
           current_report.initialize_basic_report_files
 
           test_report_folder = current_report.report_folder_name
-          expect(File.exists?(test_report_folder)).to be_truthy
+          expect(File.exist?(test_report_folder)).to be_truthy
 
           post_file = File.read(File.join(current_report.index_folder_name, "report_contents.html"))
           expect(post_file).to match /\>#{report_settings[:sub_folder]}\</
 
-          expect(File.exists?(File.join(test_report_folder, "index.html"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "report_contents.html"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "collapse.gif"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "expand.gif"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "more_info.js"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "cornucopia.css"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "index.html"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "report_contents.html"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "collapse.gif"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "expand.gif"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "more_info.js"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "cornucopia.css"))).to be_truthy
         end
       end
 
@@ -894,7 +894,7 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
 
           expect(current_report.report_folder_name.to_s).to be == Rails.root.join(report_settings[:index_folder],
                                                                                   report_settings[:sub_folder]).to_s + "/"
-          expect(File.exists?(current_report.report_contents_page_name)).to be_falsey
+          expect(File.exist?(current_report.report_contents_page_name)).to be_falsey
         end
       end
 
@@ -907,7 +907,7 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
           expect(current_report.report_test_folder_name.to_s).to be == Rails.root.join(report_settings[:index_folder],
                                                                                        report_settings[:sub_folder]).to_s + "/test_1"
 
-          expect(File.exists?(current_report.report_test_contents_page_name)).to be_falsey
+          expect(File.exist?(current_report.report_test_contents_page_name)).to be_falsey
         end
 
         it "gets a different folder inside within_table" do
@@ -1034,19 +1034,19 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
               test_folder = current_report.report_test_folder_name
               test_file   = current_report.report_base_page_name
 
-              expect(File.exists?(test_file)).to be_truthy
+              expect(File.exist?(test_file)).to be_truthy
               expect(File.directory?(test_folder)).to be_truthy
 
               current_report.test_succeeded
 
-              expect(File.exists?(test_file)).to be_falsey
+              expect(File.exist?(test_file)).to be_falsey
               expect(File.directory?(test_folder)).to be_falsey
             end
           end
 
           current_report.close
 
-          expect(File.exists?(test_file)).to be_truthy
+          expect(File.exist?(test_file)).to be_truthy
           expect(File.directory?(test_folder)).to be_falsey
 
           read_file = File.read(current_report.report_contents_page_name)
@@ -1079,19 +1079,19 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
               test_folder = current_report.report_test_folder_name
               test_file   = current_report.report_base_page_name
 
-              expect(File.exists?(test_file)).to be_truthy
+              expect(File.exist?(test_file)).to be_truthy
               expect(File.directory?(test_folder)).to be_truthy
 
               current_report.test_succeeded
 
-              expect(File.exists?(test_file)).to be_truthy
+              expect(File.exist?(test_file)).to be_truthy
               expect(File.directory?(test_folder)).to be_falsey
             end
           end
 
           current_report.close
 
-          expect(File.exists?(test_file)).to be_truthy
+          expect(File.exist?(test_file)).to be_truthy
           expect(File.directory?(test_folder)).to be_falsey
 
           read_file = File.read(current_report.report_base_page_name)
@@ -1451,13 +1451,13 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
           Cornucopia::Util::FileAsset.asset("cornucopia.css").
               add_file(File.join(test_report_folder, "#{prefix}.#{postfix}"))
 
-          expect(File.exists?(File.join(test_report_folder, "#{prefix}.#{postfix}"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "#{prefix}_1.#{postfix}"))).to be_falsey
+          expect(File.exist?(File.join(test_report_folder, "#{prefix}.#{postfix}"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "#{prefix}_1.#{postfix}"))).to be_falsey
 
           image_link = current_report.image_link(File.join(test_report_folder, "#{prefix}.#{postfix}"))
 
-          expect(File.exists?(File.join(test_report_folder, "#{prefix}.#{postfix}"))).to be_falsey
-          expect(File.exists?(File.join(test_report_folder, "#{prefix}_1.#{postfix}"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "#{prefix}.#{postfix}"))).to be_falsey
+          expect(File.exist?(File.join(test_report_folder, "#{prefix}_1.#{postfix}"))).to be_truthy
 
           expect(image_link).to be_html_safe
           expect(image_link).to match /^\<img/i
@@ -1474,13 +1474,13 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
           FileUtils.mkdir_p test_report_folder
           Cornucopia::Util::FileAsset.asset("cornucopia.css").add_file(File.join(test_report_folder, "page_dump.html"))
 
-          expect(File.exists?(File.join(test_report_folder, "page_dump.html"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "page_dump_1.html"))).to be_falsey
+          expect(File.exist?(File.join(test_report_folder, "page_dump.html"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "page_dump_1.html"))).to be_falsey
 
           page_link = current_report.page_frame(source_html)
 
-          expect(File.exists?(File.join(test_report_folder, "page_dump.html"))).to be_truthy
-          expect(File.exists?(File.join(test_report_folder, "page_dump_1.html"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "page_dump.html"))).to be_truthy
+          expect(File.exist?(File.join(test_report_folder, "page_dump_1.html"))).to be_truthy
 
           expect(page_link).to be_html_safe
           expect(page_link).to match /\<iframe/i

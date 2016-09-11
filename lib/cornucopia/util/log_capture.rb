@@ -32,12 +32,12 @@ module Cornucopia
           dest_name = File.join(dest_folder, "#{file_name}#{extension}")
           index     = 0
 
-          while File.exists?(dest_name)
+          while File.exist?(dest_name)
             index     += 1
             dest_name = File.join(dest_folder, "#{file_name}_#{index}#{extension}")
           end
 
-          if File.exists?(source_file)
+          if File.exist?(source_file)
             FileUtils.mkdir_p File.dirname(dest_name)
             FileUtils.cp source_file, dest_name
           end
@@ -81,7 +81,7 @@ module Cornucopia
 
         # A cheap and sleazy tail function, but it should work...
         def output_log_file(report_table, log_file_name, options = {})
-          if File.exists?(log_file_name)
+          if File.exist?(log_file_name)
             output_file = false
 
             options.reverse_merge!({ num_lines: Cornucopia::Util::Configuration.num_lines })

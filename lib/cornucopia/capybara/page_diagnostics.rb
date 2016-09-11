@@ -205,7 +205,7 @@ module Cornucopia
 
           execute_driver_function(:save_screenshot, nil, page_name)
 
-          if File.exists?(page_name)
+          if File.exist?(page_name)
             @report.image_link(page_name)
           else
             "Could not save screen_shot."
