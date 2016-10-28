@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require ::File.expand_path("../../../lib/cornucopia/util/report_table", File.dirname(__FILE__))
 
@@ -263,7 +265,7 @@ describe Cornucopia::Util::ReportTable do
             raise Exception.new("This is an exception")
           end
         end
-      end.to raise_error(Exception)
+      end.to raise_error(Exception, "This is an exception")
 
       expect(report_table).to be
       expect(report_table.full_table).to match /#{second_label}/
@@ -301,7 +303,7 @@ describe Cornucopia::Util::ReportTable do
             end
           end
         end
-      end.to raise_error(Exception)
+      end.to raise_error(Exception, "This is an exception")
 
       expect(report_table).to be
       expect(report_table.full_table).to match /#{second_label}/

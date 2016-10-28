@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module GooglePages
   class EmailSection < SitePrism::Section
     # include GalaxyPages::SimpleElements

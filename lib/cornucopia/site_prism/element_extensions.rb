@@ -1,9 +1,25 @@
+# frozen_string_literal: true
+
 require 'active_support/concern'
 
 module Cornucopia
   module SitePrism
     module ElementExtensions
       extend ActiveSupport::Concern
+
+      included do
+        ::Capybara::Session::DSL_METHODS.each do |method|
+          alias_method "__cornucopia_orig_#{method}".to_sym, method
+
+          define_method method do |*args, &block|
+            if @__corunucopia_base_node
+              @__corunucopia_base_node.send method, *args, &block
+            else
+              send "__cornucopia_orig_#{method}", *args, &block
+            end
+          end
+        end
+      end
 
       module ClassMethods
         # patterned_elements defines a set of elements where the find pattern is based on the
@@ -277,5 +293,3 @@ module Cornucopia
     end
   end
 end
-
-load ::File.expand_path("install_element_extensions.rb", File.dirname(__FILE__))

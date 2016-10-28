@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require File.expand_path("cornucopia_report_test_contents_page", File.dirname(__FILE__))
 
 module CornucopiaReportPages

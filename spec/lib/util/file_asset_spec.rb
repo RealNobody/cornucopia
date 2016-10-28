@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require "tempfile"
 require ::File.expand_path("../../../lib/cornucopia/util/file_asset", File.dirname(__FILE__))

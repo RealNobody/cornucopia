@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require 'rack/file'
 require ::File.expand_path("../../../lib/cornucopia/util/report_builder", File.dirname(__FILE__))

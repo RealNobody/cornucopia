@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Cornucopia
   module Util
     # This is a stupid little settings class

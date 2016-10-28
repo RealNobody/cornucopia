@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require ::File.expand_path("../util/configuration", File.dirname(__FILE__))
 require ::File.expand_path("../util/report_builder", File.dirname(__FILE__))
 
@@ -26,8 +28,8 @@ module Cornucopia
       #  Usage:
       #   Instead of calling: <test_object>.<function> <args>
       #   you would call:     test_finder <test_object>, :<function>, <args>
-      def self.test_finder(test_object, function_name, *args)
-        Cornucopia::Capybara::FinderDiagnostics::FindAction.new(test_object, {}, {}, function_name, *args).run
+      def self.test_finder(test_object, function_name, *args, &block)
+        Cornucopia::Capybara::FinderDiagnostics::FindAction.new(test_object, {}, {}, function_name, *args, &block).run
       end
 
       # This takes the same arguments as the #test_finder function, but
@@ -36,10 +38,11 @@ module Cornucopia
       # This is for the times when the finder finds something, but you
       # think that it may be wrong, or for whatever reason, you want
       # more information about it to be output.
-      def self.diagnose_finder(test_object, function_name, *args)
-        find_action = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(test_object, {}, {}, function_name, *args)
+      def self.diagnose_finder(test_object, function_name, *args, &block)
+        find_action = Cornucopia::Capybara::FinderDiagnostics::FindAction.new(test_object, {}, {}, function_name, *args, &block)
 
         results = find_action.run
+        results = results.to_a if function_name == :all
         find_action.generate_report "Diagnostic report on \"#{function_name.to_s}\":", nil
 
         results
@@ -92,10 +95,11 @@ module Cornucopia
         attr_accessor :return_value
         attr_accessor :support_options
 
-        def initialize(test_object, report_options, support_options, function_name, *args)
+        def initialize(test_object, report_options, support_options, function_name, *args, &block)
           @test_object     = test_object
           @function_name   = function_name
           @args            = args
+          @block           = block
           @support_options = support_options
           @report_options  = report_options || {}
 

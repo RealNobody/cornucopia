@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "timeout"
 require ::File.expand_path('file_asset', File.dirname(__FILE__))
 require ::File.expand_path('pretty_formatter', File.dirname(__FILE__))
@@ -87,10 +89,11 @@ module Cornucopia
             begin
               timeout_length = Cornucopia::Util::Configuration.print_timeout_min
               if Object.const_defined?("Capybara")
-                timeout_length = [timeout_length, ::Capybara.default_wait_time].max
+                default_time = ::Capybara.respond_to?(:default_max_wait_time) ? ::Capybara.default_max_wait_time : ::Capybara.default_wait_time
+                timeout_length = [timeout_length, default_time].max
               end
               if Object.const_defined?("Rails")
-                timeout_length = [timeout_length, 60 * 60].max if Rails.env.development?
+                timeout_length = [timeout_length, 30].max if Rails.env.development?
               end
 
               Timeout::timeout(timeout_length) do
@@ -559,7 +562,7 @@ module Cornucopia
           open_report_test_contents_file do |write_file|
             write_file.write "<div class=\"cornucopia-section #{((@section_number += 1) % 2) == 1 ? "cornucopia-even" : "cornucopia-odd"}\">\n"
             write_file.write "<p class=\"cornucopia-section-label\">#{Cornucopia::Util::ReportBuilder.escape_string(section_text)}</p>\n".
-                                 force_encoding("UTF-8")
+                                 dup.force_encoding("UTF-8")
           end
           block.yield self
         ensure
@@ -571,7 +574,7 @@ module Cornucopia
       end
 
       def within_hidden_table(options={}, &block)
-        table_pre = "<div class=\"cornucopia-show-hide-section\">\n"
+        table_pre = "<div class=\"cornucopia-show-hide-section\">\n".dup
         table_pre << "  <div class=\"cornucopia-table\">\n"
         table_pre << "    <div class=\"cornucopia-row\">\n"
         table_pre << "      <div class=\"cornucopia-cell-data\">\n"
@@ -582,7 +585,7 @@ module Cornucopia
         table_pre << "  <div class=\"cornucopia-additional-details hidden\">\n"
         table_pre = table_pre.html_safe
 
-        table_post = "  </div>\n"
+        table_post = "  </div>\n".dup
         table_post << "</div>\n"
         table_post = table_post.html_safe
 

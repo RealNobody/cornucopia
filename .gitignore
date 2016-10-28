@@ -50,3 +50,4 @@ spec/dummy/.rspec
 test_reports/*
 .idea/
 **/.DS_Store
+/.ruby-version

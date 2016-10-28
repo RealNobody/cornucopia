@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require ::File.expand_path("../../../lib/cornucopia/site_prism/page_application", File.dirname(__FILE__))
 

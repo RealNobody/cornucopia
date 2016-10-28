@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require ::File.expand_path("../cornucopia", File.dirname(__FILE__))
-load ::File.expand_path("capybara/install_finder_extensions.rb", File.dirname(__FILE__))
-load ::File.expand_path("site_prism/install_element_extensions.rb", File.dirname(__FILE__))
+
+load ::File.expand_path("capybara/install_extensions.rb", File.dirname(__FILE__))
+load ::File.expand_path("site_prism/install_extensions.rb", File.dirname(__FILE__))
 
 require "singleton"
 
@@ -31,7 +34,7 @@ if Cucumber::VERSION.split[0].to_i >= 2
     test_name = nil
 
     scenario = scenario_proxy
-    time = Benchmark.measure do
+    time     = Benchmark.measure do
       puts "Cornucopia::Hook::before test" if Cornucopia::Util::Configuration.benchmark
 
       test_name = Cornucopia::Util::TestHelper.instance.cucumber_name(scenario)

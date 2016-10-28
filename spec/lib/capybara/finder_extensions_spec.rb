@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require ::File.expand_path("../../../lib/cornucopia/capybara/finder_extensions", File.dirname(__FILE__))
 
@@ -61,7 +63,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
 
         allow(contents_frame.page.document).
             to receive(:__cornucopia_orig_all).
-                   and_call_original
+                and_call_original
 
         # I realize that this is almost like testing that the stub worked, which we don't need to test.
         # However, we are really testing that the results returned by the stub are passed back all the way
@@ -84,7 +86,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
         # because it cannot work properly.
         expect(contents_frame.page.document).
             to receive(:__cornucopia__analyze_finder).
-                   and_return(found_elements)
+                and_return(found_elements)
 
         allow(contents_frame.page.document).
             to receive(:__cornucopia_orig_all) do |*args|
@@ -95,7 +97,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
 
         allow(contents_frame.page.document).
             to receive(:__cornucopia_orig_all).
-                   and_call_original
+                and_call_original
 
         # I realize that this is almost like testing that the stub worked, which we don't need to test.
         # However, we are really testing that the results returned by the stub are passed back all the way
@@ -116,7 +118,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
         # because it cannot work properly.
         expect(contents_frame.page.document).
             to receive(:__cornucopia__analyze_finder).
-                   and_return(found_elements)
+                and_return(found_elements)
 
         allow(contents_frame.page.document).
             to receive(:__cornucopia_orig_find) do |*args|
@@ -127,7 +129,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
 
         allow(contents_frame.page.document).
             to receive(:__cornucopia_orig_find).
-                   and_call_original
+                and_call_original
 
         # I realize that this is almost like testing that the stub worked, which we don't need to test.
         # However, we are really testing that the results returned by the stub are passed back all the way
@@ -145,7 +147,12 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
 
       expect do
         ::Capybara.current_session.synchronize_test do
-          sleep(::Capybara.default_wait_time - 0.5)
+          if ::Capybara.respond_to?(:default_max_wait_time)
+            sleep(::Capybara.default_max_wait_time - 0.5)
+          else
+            sleep(::Capybara.default_wait_time - 0.5)
+          end
+
           true
         end
       end.not_to raise_exception

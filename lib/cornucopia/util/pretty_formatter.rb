@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Cornucopia
   module Util
     class PrettyFormatter
@@ -38,7 +40,7 @@ module Cornucopia
           @current_pos        = 0
           @start_pos          = 0
           @unknown_string_len = @unknown_string.length
-          @formatted_string   = ""
+          @formatted_string   = "".dup
 
           while @current_pos < @unknown_string_len
             case @current_state

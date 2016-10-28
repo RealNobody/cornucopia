@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "singleton"
 
 module Cornucopia
@@ -10,7 +12,11 @@ module Cornucopia
       def cucumber_name(scenario)
         report_name = "Unknown"
         if scenario.respond_to?(:feature)
-          report_name = "#{scenario.feature.title}:#{scenario.title}"
+          if scenario.feature.respond_to?(:name)
+            report_name = "#{scenario.feature.name}:#{scenario.name}"
+          else
+            report_name = "#{scenario.feature.title}:#{scenario.title}"
+          end
         elsif scenario.respond_to?(:line)
           report_name = "Line - #{scenario.line}"
         end

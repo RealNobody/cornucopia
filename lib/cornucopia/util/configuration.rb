@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "singleton"
 require ::File.expand_path('configured_report', File.dirname(__FILE__))
 require ::File.expand_path('generic_settings', File.dirname(__FILE__))
@@ -85,7 +87,9 @@ module Cornucopia
                                           :example__example_group_instance__controller___request,
                                           :example__example_group_instance__controller___response,
                                           :example__example_group_instance__controller___routes,
+                                          :example__example_group_instance__request__filtered_env,
                                           :example__example_group_instance__routes,
+                                          :example__example_group_instance___routes,
                                           "example__example_group_instance__request__env__action_dispatch.routes",
                                           "example__example_group_instance__request__env__action_controller.instance",
                                       ],
@@ -94,7 +98,11 @@ module Cornucopia
                 min_fields:           [
                                           {
                                               report_element: :scenario__feature__title,
-                                              report_options: { label: "feature" }
+                                              report_options: { label: "feature", ignore_missing: true }
+                                          },
+                                          {
+                                              report_element: :scenario__feature__name,
+                                              report_options: { label: "feature", ignore_missing: true }
                                           },
                                           {
                                               report_element: :scenario__feature__location,
@@ -121,7 +129,10 @@ module Cornucopia
                                           # :scenario__feature__comment,
                                           :scenario__feature__keyword,
                                           :scenario__feature__description,
-                                          :scenario__feature__gherkin_statement,
+                                          {
+                                              report_element: :scenario__feature__gherkin_statement,
+                                              report_options: { ignore_missing: true }
+                                          },
                                           :scenario__feature__tags,
                                           # :scenario__current_visitor__configuration,
                                           :cucumber,
@@ -259,11 +270,8 @@ module Cornucopia
                                       ],
                 exclude_fields:       [
                                           :capybara__page_url,
-                                          :capybara__title,
                                           :capybara__screen_shot,
-                                          :capybara__page_url,
                                           :capybara__title,
-                                          :capybara__screen_shot,
                                           :capybara__options,
                                           :capybara__report,
                                           :capybara__table,

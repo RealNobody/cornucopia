@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require ::File.expand_path("../../lib/cornucopia/site_prism/page_application", File.dirname(__FILE__))
 require ::File.expand_path("../../lib/cornucopia/site_prism/element_extensions", File.dirname(__FILE__))
 

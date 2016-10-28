@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require ::File.expand_path('file_asset', File.dirname(__FILE__))
 # require ::File.expand_path('report_builder', File.dirname(__FILE__))
 
@@ -60,7 +62,7 @@ module Cornucopia
       #   suppress_blank_table  - If set, then when a nested table is to be written to the parent table, the
       #                           nested table will not be output if it is empty.
       def initialize(options = {}, &block)
-        @full_table   = ""
+        @full_table   = "".dup
         @table_closed = false
         @options      = options
 

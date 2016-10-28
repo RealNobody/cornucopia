@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module CornucopiaReportPages
   class IndexPage < SitePrism::Page
     class IndexContentsPage < SitePrism::Page

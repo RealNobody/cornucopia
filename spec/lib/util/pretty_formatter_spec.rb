@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require ::File.expand_path("../../../lib/cornucopia/util/pretty_formatter", File.dirname(__FILE__))
 
@@ -362,8 +364,8 @@ def create_value(level, type, options = {})
     when :parameters
       sub_options = options.merge({ spaces_only: true })
 
-      pre_value  = rand(0..1) == 0 ? Faker::Lorem.sentence : ""
-      post_value = rand(0..1) == 0 ? Faker::Lorem.sentence : ""
+      pre_value  = rand(0..1) == 0 ? Faker::Lorem.sentence : "".dup
+      post_value = rand(0..1) == 0 ? Faker::Lorem.sentence : "".dup
 
       unless pre_value.blank?
         if rand(0..1) == 0
@@ -386,12 +388,12 @@ def create_value(level, type, options = {})
         post_value = "\n#{post_value}"
       end
 
-      value_val    = "#{pre_value}Parameters:#{create_simple_value(:whitespace, sub_options)}#{val}#{post_value}"
-      value_expect = "#{pre_value.rstrip}#{pre_value.rstrip.blank? ? "" : "\n  "}Parameters:\n#{expected}\n#{post_value.rstrip}"
+      value_val    = "#{pre_value}Parameters:#{create_simple_value(:whitespace, sub_options)}#{val}#{post_value}".dup
+      value_expect = "#{pre_value.rstrip}#{pre_value.rstrip.blank? ? "" : "\n  "}Parameters:\n#{expected}\n#{post_value.rstrip}".dup
 
       rand(0..5).times do
-        pre_value  = rand(0..1) == 0 ? Faker::Lorem.sentence : ""
-        post_value = rand(0..1) == 0 ? Faker::Lorem.sentence : ""
+        pre_value  = rand(0..1) == 0 ? Faker::Lorem.sentence : "".dup
+        post_value = rand(0..1) == 0 ? Faker::Lorem.sentence : "".dup
 
         if rand(0..1) == 0
           val = create_simple_value(:whitespace, options)
@@ -438,8 +440,8 @@ def create_value(level, type, options = {})
       value_expect.rstrip!
 
     when :embedded_class
-      pre_value  = rand(0..1) == 0 ? Faker::Lorem.sentence : ""
-      post_value = rand(0..1) == 0 ? Faker::Lorem.sentence : ""
+      pre_value  = rand(0..1) == 0 ? Faker::Lorem.sentence : "".dup
+      post_value = rand(0..1) == 0 ? Faker::Lorem.sentence : "".dup
 
       unless pre_value.blank?
         if rand(0..1) == 0
@@ -462,12 +464,12 @@ def create_value(level, type, options = {})
         post_value = "\n#{post_value}"
       end
 
-      value_val    = "#{pre_value}#{val}#{post_value}"
-      value_expect = "#{pre_value.rstrip}#{pre_value.rstrip.blank? ? "" : "\n"}#{expected}\n#{post_value.rstrip}"
+      value_val    = "#{pre_value}#{val}#{post_value}".dup
+      value_expect = "#{pre_value.rstrip}#{pre_value.rstrip.blank? ? "" : "\n"}#{expected}\n#{post_value.rstrip}".dup
 
       rand(0..5).times do
-        pre_value  = rand(0..1) == 0 ? Faker::Lorem.sentence : ""
-        post_value = rand(0..1) == 0 ? Faker::Lorem.sentence : ""
+        pre_value  = rand(0..1) == 0 ? Faker::Lorem.sentence : "".dup
+        post_value = rand(0..1) == 0 ? Faker::Lorem.sentence : "".dup
 
         if rand(0..1) == 0
           val = create_simple_value(:whitespace, options)
@@ -515,9 +517,9 @@ def create_value(level, type, options = {})
 
     when :class, :class_with_value
       name          = create_simple_value(:value_name_simple, options)
-      value_val     = "\#<#{name}#{" " * rand(1..10)}"
-      value_expect  = "#{"  " * level}\#<#{name}"
-      append_value  = ""
+      value_val     = "\#<#{name}#{" " * rand(1..10)}".dup
+      value_expect  = "#{"  " * level}\#<#{name}".dup
+      append_value  = "".dup
       append_expect = "\n"
 
       range_start = type == :class ? 0 : 1
@@ -561,9 +563,9 @@ def create_value(level, type, options = {})
       options.merge!({ spaces_only: true })
 
       name          = create_simple_value(:value_name_simple, options)
-      value_val     = "\#<#{name}#{" " * rand(1..10)}"
-      value_expect  = "#{"  " * level}\#<#{name}"
-      append_value  = ""
+      value_val     = "\#<#{name}#{" " * rand(1..10)}".dup
+      value_expect  = "#{"  " * level}\#<#{name}".dup
+      append_value  = "".dup
       append_expect = "\n"
 
       rand(1..5).times do
@@ -583,7 +585,7 @@ def create_value(level, type, options = {})
 
         case hash_type
           when :hash_key_reversed_symbol
-            value_val << "#{append_value}#{name}#{" " * rand(0..10)}#{val}"
+            value_val << "#{append_value}#{name}#{" " * rand(0..10)}#{val}".dup
             if val_type == :value
               value_expect << "#{append_expect}#{"  " * (level + 1)}#{name} #{expected}"
             else
@@ -607,10 +609,10 @@ def create_value(level, type, options = {})
       value_expect << "\n#{"  " * level}>"
 
     when :hash
-      value_val     = "{#{create_simple_value(:whitespace, options)}"
-      value_expect  = "#{"  " * level}{\n"
-      append_value  = ""
-      append_expect = ""
+      value_val     = "{#{create_simple_value(:whitespace, options)}".dup
+      value_expect  = "#{"  " * level}{\n".dup
+      append_value  = "".dup
+      append_expect = "".dup
 
       rand(1..5).times do
         hash_type = [:hash_key_string, :hash_key_complex_string, :hash_key_symbol, :hash_key_reversed_symbol].sample
@@ -653,10 +655,10 @@ def create_value(level, type, options = {})
       value_expect << "\n#{"  " * level}}"
 
     when :array
-      value_val     = "[#{create_simple_value(:whitespace, options)}"
-      value_expect  = "#{"  " * level}[\n"
-      append_value  = ""
-      append_expect = ""
+      value_val     = "[#{create_simple_value(:whitespace, options)}".dup
+      value_expect  = "#{"  " * level}[\n".dup
+      append_value  = "".dup
+      append_expect = "".dup
 
       rand(1..5).times do
         val_type = [:class, :value, :hash, :array].sample

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require ::File.expand_path("../lib/cornucopia/util/report_builder", File.dirname(__FILE__))
 
 def generate_report_file(folder_name)

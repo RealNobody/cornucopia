@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require ::File.expand_path("../../../lib/cornucopia/util/report_builder", File.dirname(__FILE__))
 
@@ -251,7 +253,7 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
     end
 
     it "returns a string as-is" do
-      test_object = "a string"
+      test_object = "a string".dup
 
       expect(test_object).not_to receive(:pretty_inspect)
       expect(test_object).not_to receive(:to_s)
@@ -1524,7 +1526,7 @@ This is a sample string c:/bizarro/ <span class=\"cornucopia-app-file\">features
 
     expect(report_table.errors.count).to eq 1
     section = report_table.errors[0]
-    # this line is the same as the next one.  I added this line to test a line in the site-prims extentions.
+
     expect(section.find("p").text).to eq section_names[0]
     expect(section.name.text).to eq section_names[0]
   end

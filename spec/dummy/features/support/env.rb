@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ENV["RAILS_ENV"] ||= "test"
 require File.absolute_path(File.join(File.dirname(__FILE__), "../../config/environment.rb"))
 ENV["RAILS_ROOT"] ||= File.absolute_path(File.join(File.dirname(__FILE__), "../../"))

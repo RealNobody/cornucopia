@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require ::File.expand_path("../../../lib/cornucopia/util/report_builder", File.dirname(__FILE__))
 require ::File.expand_path("../../../lib/cornucopia/capybara/page_diagnostics", File.dirname(__FILE__))
@@ -87,29 +89,31 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
         expect(contents_frame.errors[0].tables[0].rows[4].values[0].text.length).to be > 0
 
         contents_frame.errors[0].more_details.show_hide.click
-        expect(contents_frame.errors[0].more_details.details.rows.length).to be == 10
+        expect(contents_frame.errors[0].more_details.details.rows.length).to be == 12
         expect(contents_frame.errors[0].more_details.details.rows[0].labels[0].text).to be == "name"
         expect(contents_frame.errors[0].more_details.details.rows[0].values[0].text).to be == "Capybara::ElementNotFound"
         expect(contents_frame.errors[0].more_details.details.rows[1].labels[0].text).to be == "support_options"
         expect(contents_frame.errors[0].more_details.details.rows[1].values[0].text).to be == "{:__cornucopia_no_analysis=>true, :__cornucopia_retry_with_found=>nil}"
         expect(contents_frame.errors[0].more_details.details.rows[2].labels[0].text).to be == "page_url"
-        expect(contents_frame.errors[0].more_details.details.rows[2].values[0].text).to match /report_contents\.html/
+        expect(contents_frame.errors[0].more_details.details.rows[2].values[0].text).to match %r{sample_report/index\.html}
         expect(contents_frame.errors[0].more_details.details.rows[3].labels[0].text).to be == "title"
         expect(contents_frame.errors[0].more_details.details.rows[3].values[0].text).to be == "Diagnostics report list"
         expect(contents_frame.errors[0].more_details.details.rows[4].labels[0].text).to be == "screen_shot"
         expect(contents_frame.errors[0].more_details.details.rows[4].value_images[0][:src]).to match /\/screen_shot\.png/
-        expect(contents_frame.errors[0].more_details.details.rows[5].labels[0].text).to be == "html_file"
-        expect(contents_frame.errors[0].more_details.details.rows[5].value_links[0][:href]).
+        expect(contents_frame.errors[0].more_details.details.rows[5].labels[0].text).to be == "browser_info"
+        expect(contents_frame.errors[0].more_details.details.rows[6].labels[0].text).to be == "browser_logs"
+        expect(contents_frame.errors[0].more_details.details.rows[7].labels[0].text).to be == "html_file"
+        expect(contents_frame.errors[0].more_details.details.rows[7].value_links[0][:href]).
             to match /html_save_file\/__cornucopia_save_page\.html/
-        expect(contents_frame.errors[0].more_details.details.rows[6].labels[0].text).to be == "html_frame"
-        expect(contents_frame.errors[0].more_details.details.rows[6].value_frames[0][:src]).
+        expect(contents_frame.errors[0].more_details.details.rows[8].labels[0].text).to be == "html_frame"
+        expect(contents_frame.errors[0].more_details.details.rows[8].value_frames[0][:src]).
             to match /page_dump\.html/
-        expect(contents_frame.errors[0].more_details.details.rows[7].labels[0].text).to be == "html_source"
-        expect(contents_frame.errors[0].more_details.details.rows[7].value_textareas[0].text).to be
-        expect(contents_frame.errors[0].more_details.details.rows[8].labels[0].text).to be == "page_height"
-        expect(contents_frame.errors[0].more_details.details.rows[8].values[0].text).to be
-        expect(contents_frame.errors[0].more_details.details.rows[9].labels[0].text).to be == "page_width"
-        expect(contents_frame.errors[0].more_details.details.rows[9].values[0].text).to be
+        expect(contents_frame.errors[0].more_details.details.rows[9].labels[0].text).to be == "html_source"
+        expect(contents_frame.errors[0].more_details.details.rows[9].value_textareas[0].text).to be
+        expect(contents_frame.errors[0].more_details.details.rows[10].labels[0].text).to be == "page_height"
+        expect(contents_frame.errors[0].more_details.details.rows[10].values[0].text).to be
+        expect(contents_frame.errors[0].more_details.details.rows[11].labels[0].text).to be == "page_width"
+        expect(contents_frame.errors[0].more_details.details.rows[11].values[0].text).to be
       end
     end
   end
@@ -160,7 +164,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
         expect(contents_frame.errors[0].tables[0].rows[4].values[0].text.length).to be > 0
 
         contents_frame.errors[0].more_details.show_hide.click
-        expect(contents_frame.errors[0].more_details.details.rows.length).to be == 12
+        expect(contents_frame.errors[0].more_details.details.rows.length).to be == 14
         expect(contents_frame.errors[0].more_details.details.rows[0].labels[0].text).to be == "name"
         expect(contents_frame.errors[0].more_details.details.rows[0].values[0].text).to be == "Capybara::Ambiguous"
         expect(contents_frame.errors[0].more_details.details.rows[1].labels[0].text).to be == "all_elements"
@@ -171,23 +175,25 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
         expect(contents_frame.errors[0].more_details.details.rows[3].labels[0].text).to be == "support_options"
         expect(contents_frame.errors[0].more_details.details.rows[3].values[0].text).to be == "{:__cornucopia_no_analysis=>true, :__cornucopia_retry_with_found=>nil}"
         expect(contents_frame.errors[0].more_details.details.rows[4].labels[0].text).to be == "page_url"
-        expect(contents_frame.errors[0].more_details.details.rows[4].values[0].text).to match /report_contents\.html/
+        expect(contents_frame.errors[0].more_details.details.rows[4].values[0].text).to match %r{sample_report/index\.html}
         expect(contents_frame.errors[0].more_details.details.rows[5].labels[0].text).to be == "title"
         expect(contents_frame.errors[0].more_details.details.rows[5].values[0].text).to be == "Diagnostics report list"
         expect(contents_frame.errors[0].more_details.details.rows[6].labels[0].text).to be == "screen_shot"
         expect(contents_frame.errors[0].more_details.details.rows[6].value_images[0][:src]).to match /\/screen_shot\.png/
-        expect(contents_frame.errors[0].more_details.details.rows[7].labels[0].text).to be == "html_file"
-        expect(contents_frame.errors[0].more_details.details.rows[7].value_links[0][:href]).
+        expect(contents_frame.errors[0].more_details.details.rows[7].labels[0].text).to be == "browser_info"
+        expect(contents_frame.errors[0].more_details.details.rows[8].labels[0].text).to be == "browser_logs"
+        expect(contents_frame.errors[0].more_details.details.rows[9].labels[0].text).to be == "html_file"
+        expect(contents_frame.errors[0].more_details.details.rows[9].value_links[0][:href]).
             to match /html_save_file\/__cornucopia_save_page\.html/
-        expect(contents_frame.errors[0].more_details.details.rows[8].labels[0].text).to be == "html_frame"
-        expect(contents_frame.errors[0].more_details.details.rows[8].value_frames[0][:src]).
+        expect(contents_frame.errors[0].more_details.details.rows[10].labels[0].text).to be == "html_frame"
+        expect(contents_frame.errors[0].more_details.details.rows[10].value_frames[0][:src]).
             to match /page_dump\.html/
-        expect(contents_frame.errors[0].more_details.details.rows[9].labels[0].text).to be == "html_source"
-        expect(contents_frame.errors[0].more_details.details.rows[9].value_textareas[0].text).to be
-        expect(contents_frame.errors[0].more_details.details.rows[10].labels[0].text).to be == "page_height"
-        expect(contents_frame.errors[0].more_details.details.rows[10].values[0].text).to be
-        expect(contents_frame.errors[0].more_details.details.rows[11].labels[0].text).to be == "page_width"
-        expect(contents_frame.errors[0].more_details.details.rows[11].values[0].text).to be
+        expect(contents_frame.errors[0].more_details.details.rows[11].labels[0].text).to be == "html_source"
+        expect(contents_frame.errors[0].more_details.details.rows[11].value_textareas[0].text).to be
+        expect(contents_frame.errors[0].more_details.details.rows[12].labels[0].text).to be == "page_height"
+        expect(contents_frame.errors[0].more_details.details.rows[12].values[0].text).to be
+        expect(contents_frame.errors[0].more_details.details.rows[13].labels[0].text).to be == "page_width"
+        expect(contents_frame.errors[0].more_details.details.rows[13].values[0].text).to be
       end
     end
   end
@@ -229,11 +235,10 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
       expect(diag).to receive(:run).and_call_original
       expect(diag).to receive(:generate_report).and_call_original
 
-      find_all = contents_frame.all("a")
       test_all = Cornucopia::Capybara::FinderDiagnostics.
           diagnose_finder(contents_frame, :all, :css, "a", visible: true)
 
-      expect(find_all.length).to be == test_all.length
+      expect(total_tests).to be == test_all.length
     end
 
     report_page = CornucopiaReportApp.cornucopia_report_holder_page
@@ -267,7 +272,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
         expect(contents_frame.errors[0].tables[0].rows[3].sub_tables[0].rows[0].values[0].text).to be == "true"
 
         contents_frame.errors[0].more_details.show_hide.click
-        expect(contents_frame.errors[0].more_details.details.rows.length).to be == 11
+        expect(contents_frame.errors[0].more_details.details.rows.length).to be == 13
         expect(contents_frame.errors[0].more_details.details.rows[0].labels[0].text).to be == "all_elements"
         expect(contents_frame.errors[0].more_details.details.rows[0].sub_tables.length).to eq 1
         expect(contents_frame.errors[0].more_details.details.rows[0].sub_tables[0].rows.length).to eq total_tests
@@ -280,25 +285,27 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
         expect(contents_frame.errors[0].more_details.details.rows[2].values[0].text).to be
         expect(contents_frame.errors[0].more_details.details.rows[3].labels[0].text).to be == "page_url"
         expect(contents_frame.errors[0].more_details.details.rows[3].values[0].text).
-            to match /report_contents\.html/
+            to match %r{sample_report/index\.html}
         expect(contents_frame.errors[0].more_details.details.rows[4].labels[0].text).to be == "title"
         expect(contents_frame.errors[0].more_details.details.rows[4].values[0].text).
             to be == "Diagnostics report list"
         expect(contents_frame.errors[0].more_details.details.rows[5].labels[0].text).to be == "screen_shot"
         expect(contents_frame.errors[0].more_details.details.rows[5].value_images[0][:src]).
             to match /\/screen_shot\.png/
-        expect(contents_frame.errors[0].more_details.details.rows[6].labels[0].text).to be == "html_file"
-        expect(contents_frame.errors[0].more_details.details.rows[6].value_links[0][:href]).
+        expect(contents_frame.errors[0].more_details.details.rows[6].labels[0].text).to be == "browser_info"
+        expect(contents_frame.errors[0].more_details.details.rows[7].labels[0].text).to be == "browser_logs"
+        expect(contents_frame.errors[0].more_details.details.rows[8].labels[0].text).to be == "html_file"
+        expect(contents_frame.errors[0].more_details.details.rows[8].value_links[0][:href]).
             to match /html_save_file\/__cornucopia_save_page\.html/
-        expect(contents_frame.errors[0].more_details.details.rows[7].labels[0].text).to be == "html_frame"
-        expect(contents_frame.errors[0].more_details.details.rows[7].value_frames[0][:src]).
+        expect(contents_frame.errors[0].more_details.details.rows[9].labels[0].text).to be == "html_frame"
+        expect(contents_frame.errors[0].more_details.details.rows[9].value_frames[0][:src]).
             to match /page_dump\.html/
-        expect(contents_frame.errors[0].more_details.details.rows[8].labels[0].text).to be == "html_source"
-        expect(contents_frame.errors[0].more_details.details.rows[8].value_textareas[0].text).to be
-        expect(contents_frame.errors[0].more_details.details.rows[9].labels[0].text).to be == "page_height"
-        expect(contents_frame.errors[0].more_details.details.rows[9].values[0].text).to be
-        expect(contents_frame.errors[0].more_details.details.rows[10].labels[0].text).to be == "page_width"
-        expect(contents_frame.errors[0].more_details.details.rows[10].values[0].text).to be
+        expect(contents_frame.errors[0].more_details.details.rows[10].labels[0].text).to be == "html_source"
+        expect(contents_frame.errors[0].more_details.details.rows[10].value_textareas[0].text).to be
+        expect(contents_frame.errors[0].more_details.details.rows[11].labels[0].text).to be == "page_height"
+        expect(contents_frame.errors[0].more_details.details.rows[11].values[0].text).to be
+        expect(contents_frame.errors[0].more_details.details.rows[12].labels[0].text).to be == "page_width"
+        expect(contents_frame.errors[0].more_details.details.rows[12].values[0].text).to be
       end
     end
   end
@@ -326,7 +333,7 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
         test_page.contents do |contents_frame|
           expect(contents_frame.errors.length).to be == 1
           contents_frame.errors[0].more_details.show_hide.click
-          expect(contents_frame.errors[0].more_details.details.rows.length).to eq 12
+          expect(contents_frame.errors[0].more_details.details.rows.length).to eq 14
           expect(contents_frame.errors[0].more_details.details.rows[0].labels[0].text).to eq "name"
           expect(contents_frame.errors[0].more_details.details.rows[1].labels[0].text).to eq "args"
           expect(contents_frame.errors[0].more_details.details.rows[2].labels[0].text).to eq "guessed_types"
@@ -334,11 +341,13 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
           expect(contents_frame.errors[0].more_details.details.rows[4].labels[0].text).to eq "page_url"
           expect(contents_frame.errors[0].more_details.details.rows[5].labels[0].text).to eq "title"
           expect(contents_frame.errors[0].more_details.details.rows[6].labels[0].text).to eq "screen_shot"
-          expect(contents_frame.errors[0].more_details.details.rows[7].labels[0].text).to eq "html_file"
-          expect(contents_frame.errors[0].more_details.details.rows[8].labels[0].text).to eq "html_frame"
-          expect(contents_frame.errors[0].more_details.details.rows[9].labels[0].text).to eq "html_source"
-          expect(contents_frame.errors[0].more_details.details.rows[10].labels[0].text).to eq "page_height"
-          expect(contents_frame.errors[0].more_details.details.rows[11].labels[0].text).to eq "page_width"
+          expect(contents_frame.errors[0].more_details.details.rows[7].labels[0].text).to be == "browser_info"
+          expect(contents_frame.errors[0].more_details.details.rows[8].labels[0].text).to be == "browser_logs"
+          expect(contents_frame.errors[0].more_details.details.rows[9].labels[0].text).to eq "html_file"
+          expect(contents_frame.errors[0].more_details.details.rows[10].labels[0].text).to eq "html_frame"
+          expect(contents_frame.errors[0].more_details.details.rows[11].labels[0].text).to eq "html_source"
+          expect(contents_frame.errors[0].more_details.details.rows[12].labels[0].text).to eq "page_height"
+          expect(contents_frame.errors[0].more_details.details.rows[13].labels[0].text).to eq "page_width"
         end
       end
     end
@@ -366,19 +375,20 @@ describe Cornucopia::Capybara::FinderDiagnostics, type: :feature do
           expect(hidden_row_specs[2].sub_tables[0].rows[0].labels[0].text).to be == "x"
           expect(hidden_row_specs[2].sub_tables[0].rows[1].labels[0].text).to be == "y"
           expect(hidden_row_specs[3].labels[0].text).to be == "elem_outerHTML"
-          expect(hidden_row_specs[4].labels[0].text).to be == "elem_selected"
-          expect(hidden_row_specs[5].labels[0].text).to be == "elem_tag_name"
-          expect(hidden_row_specs[6].labels[0].text).to be == "elem_value"
-          expect(hidden_row_specs[7].labels[0].text).to be == "elem_visible"
-          expect(hidden_row_specs[7].values[0].text).to be == "false"
-          expect(hidden_row_specs[8].labels[0].text).to be == "native_aria_meta_data"
-          expect(hidden_row_specs[9].labels[0].text).to be == "native_class"
-          expect(hidden_row_specs[10].labels[0].text).to be == "native_onclick"
-          expect(hidden_row_specs[11].labels[0].text).to be == "native_size"
-          expect(hidden_row_specs[11].sub_tables[0].rows[0].labels[0].text).to be == "width"
-          expect(hidden_row_specs[11].sub_tables[0].rows[1].labels[0].text).to be == "height"
-          expect(hidden_row_specs[12].labels[0].text).to be == "native_type"
-          expect(hidden_row_specs[12].values[0].text).to be == "button"
+          expect(hidden_row_specs[4].labels[0].text).to be == "elem_path"
+          expect(hidden_row_specs[5].labels[0].text).to be == "elem_selected"
+          expect(hidden_row_specs[6].labels[0].text).to be == "elem_tag_name"
+          expect(hidden_row_specs[7].labels[0].text).to be == "elem_value"
+          expect(hidden_row_specs[8].labels[0].text).to be == "elem_visible"
+          expect(hidden_row_specs[8].values[0].text).to be == "false"
+          expect(hidden_row_specs[9].labels[0].text).to be == "native_aria_meta_data"
+          expect(hidden_row_specs[10].labels[0].text).to be == "native_class"
+          expect(hidden_row_specs[11].labels[0].text).to be == "native_onclick"
+          expect(hidden_row_specs[12].labels[0].text).to be == "native_size"
+          expect(hidden_row_specs[12].sub_tables[0].rows[0].labels[0].text).to be == "width"
+          expect(hidden_row_specs[12].sub_tables[0].rows[1].labels[0].text).to be == "height"
+          expect(hidden_row_specs[13].labels[0].text).to be == "native_type"
+          expect(hidden_row_specs[13].values[0].text).to be == "button"
         end
       end
     end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Cornucopia
   module SitePrism
     # PageApplication is a class used to fetch page objects and memoize them

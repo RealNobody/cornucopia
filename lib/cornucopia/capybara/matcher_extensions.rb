@@ -1,37 +1,51 @@
+# frozen_string_literal: true
+
 require ::File.expand_path("../util/configuration", File.dirname(__FILE__))
 require ::File.expand_path("finder_diagnostics", File.dirname(__FILE__))
+
+require "active_support/concern"
 
 module Cornucopia
   module Capybara
     module MatcherExtensions
-      def assert_selector(*args)
-        __cornucopia_assert_selector_function(:assert_selector, *args)
-      end
+      extend ActiveSupport::Concern
 
-      def assert_no_selector(*args)
-        __cornucopia_assert_selector_function(:assert_no_selector, *args)
-      end
+      included do
+        alias_method :__cornucopia_orig_assert_selector, :assert_selector
+        alias_method :__cornucopia_orig_assert_no_selector, :assert_no_selector
+        alias_method :__cornucopia_orig_has_selector?, :has_selector?
+        alias_method :__cornucopia_orig_has_no_selector?, :has_no_selector?
 
-      def has_selector?(*args)
-        new_args = args.dup
-        options  = (new_args.pop if new_args.length > 1 && new_args[-1].is_a?(Hash)) || {}
-
-        if Cornucopia::Util::Configuration.ignore_has_selector_errors
-          options = { __cornucopia_no_analysis: true }.merge options
+        define_method :assert_selector do |*args|
+          __cornucopia_assert_selector_function(:assert_selector, *args)
         end
 
-        __cornucopia_assert_selector_function(:has_selector?, *new_args, options)
-      end
-
-      def has_no_selector?(*args)
-        new_args = args.dup
-        options  = (new_args.pop if new_args.length > 1 && new_args[-1].is_a?(Hash)) || {}
-
-        if Cornucopia::Util::Configuration.ignore_has_selector_errors
-          options = { __cornucopia_no_analysis: true }.merge options
+        define_method :assert_no_selector do |*args|
+          __cornucopia_assert_selector_function(:assert_no_selector, *args)
         end
-        __cornucopia_assert_selector_function(:has_no_selector?, *new_args, options)
+
+        define_method :has_selector? do |*args|
+          new_args = args.dup
+          options  = (new_args.pop if new_args.length > 1 && new_args[-1].is_a?(Hash)) || {}
+
+          if Cornucopia::Util::Configuration.ignore_has_selector_errors
+            options = { __cornucopia_no_analysis: true }.merge options
+          end
+
+          __cornucopia_assert_selector_function(:has_selector?, *new_args, options)
+        end
+
+        define_method :has_no_selector? do |*args|
+          new_args = args.dup
+          options  = (new_args.pop if new_args.length > 1 && new_args[-1].is_a?(Hash)) || {}
+
+          if Cornucopia::Util::Configuration.ignore_has_selector_errors
+            options = { __cornucopia_no_analysis: true }.merge options
+          end
+          __cornucopia_assert_selector_function(:has_no_selector?, *new_args, options)
+        end
       end
+
 
       def __cornucopia_assert_selector_function(assert_selector_function, *args)
         retry_count = 0
@@ -104,5 +118,3 @@ module Cornucopia
     end
   end
 end
-
-load ::File.expand_path("install_matcher_extensions.rb", File.dirname(__FILE__))

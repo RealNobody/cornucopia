@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module CornucopiaReportPages
   class CornucopiaReportTestContentsPage < SitePrism::Page
     class RowSection < SitePrism::Section

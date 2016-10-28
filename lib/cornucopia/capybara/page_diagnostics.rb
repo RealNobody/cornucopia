@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "digest"
 # require ::File.expand_path("../util/configuration", File.dirname(__FILE__))
 require ::File.expand_path("../util/report_builder", File.dirname(__FILE__))
@@ -47,6 +49,9 @@ module Cornucopia
         @html_frame       = "use accessor"
         @screen_shot      = "use accessor"
         @html_file        = "use accessor"
+        @browser_logs     = "use accessor"
+        @browser_info     = "use accessor"
+        @all_cookies      = "use accessor"
       end
 
       def can_dump_details?
@@ -146,6 +151,44 @@ module Cornucopia
         end
 
         value
+      end
+
+      def execute_browser_function(function_symbol, unsupported_value, *args)
+        value = unsupported_value
+
+        unless @driver.browser.respond_to?(function_symbol) ||
+            @driver.browser.manage.respond_to?(function_symbol)
+          @unsupported_list << function_symbol unless @driver.browser.respond_to?(function_symbol)
+        end
+
+        begin
+          unless @unsupported_list.include?(function_symbol)
+            value = if @driver.browser.respond_to?(function_symbol)
+                      @driver.browser.send(function_symbol, *args)
+                    else
+                      @driver.browser.manage.send(function_symbol, *args)
+                    end
+          end
+        rescue ::Capybara::NotSupportedByDriverError
+          @unsupported_list << function_symbol
+        end
+
+        value
+      end
+
+      def browser_logs
+        value = execute_browser_function(:logs, nil)
+
+        types = value.available_types
+        types.each_with_object({}) { |type, hash| hash[type] = value.get(type) }
+      end
+
+      def browser_info
+        execute_browser_function(:logs, nil)
+      end
+
+      def all_cookies
+        execute_browser_function(:all_cookies, nil)
       end
 
       def page_url

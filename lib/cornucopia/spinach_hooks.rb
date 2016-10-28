@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require ::File.expand_path("../cornucopia", File.dirname(__FILE__))
-load ::File.expand_path("capybara/install_finder_extensions.rb", File.dirname(__FILE__))
-load ::File.expand_path("site_prism/install_element_extensions.rb", File.dirname(__FILE__))
+
+load ::File.expand_path("capybara/install_extensions.rb", File.dirname(__FILE__))
+load ::File.expand_path("site_prism/install_extensions.rb", File.dirname(__FILE__))
 
 Spinach.hooks.around_scenario do |scenario_data, step_definitions, &block|
   test_name = Cornucopia::Util::TestHelper.spinach_name(scenario_data)

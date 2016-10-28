@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require ::File.expand_path('report_builder', File.dirname(__FILE__))
 
 module Cornucopia

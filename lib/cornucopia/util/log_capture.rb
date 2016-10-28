@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # require ::File.expand_path('configuration', File.dirname(__FILE__))
 require ::File.expand_path('report_builder', File.dirname(__FILE__))
 
@@ -88,7 +90,7 @@ module Cornucopia
 
             num_lines  = options[:num_lines] || Cornucopia::Util::Configuration.num_lines
             num_lines  = Cornucopia::Util::Configuration.num_lines if num_lines <= 0
-            log_buffer = ""
+            log_buffer = "".dup
             file_size  = File.size(log_file_name)
 
             File.open(log_file_name) do |log_file|
