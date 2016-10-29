@@ -301,6 +301,19 @@ The configuration class contains the various configurations that are used by the
     The seed value represents the seed value for `rand`.  It is used by the testing hooks to allow tests with
     randomized values to still be repeatable.  This value can be set or read.
 
+* **context_seed**
+
+    The context_seed value represents the seed value for `rand` if called outside of a test within a group.
+    It is used by the testing hooks to allow tests with randomized values to still be repeatable.
+    This value can be set or read.
+
+* **suite_seed**
+
+    The seed value represents the seed value for `rand`.  It is used by the testing hooks to allow
+    test runs to be re-run with the same seed for the entire run.  It should make
+    randomized values including the context and seed values to still be repeatable.
+    This value can be set or read.
+
 * **order_seed**
 
     **Experimental** The order_seed value represents the seed value for the order that RSpec tests are run in if they 

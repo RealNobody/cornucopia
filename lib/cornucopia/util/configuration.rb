@@ -18,6 +18,7 @@ module Cornucopia
         configurations.order_seed                       = nil
         configurations.rand_seed                        = nil
         configurations.rand_context_seed                = nil
+        configurations.rand_suite_seed                = nil
         configurations.user_log_files                   = {}
         configurations.default_num_lines                = 500
         configurations.grab_logs                        = true
@@ -51,6 +52,7 @@ module Cornucopia
                                           :example,
                                           :seeds__seed_value,
                                           :seeds__context_seed_value,
+                                          :seeds__suite_seed_value,
                                           :example__example_group_instance,
                                           :example__metadata__caller,
                                           {
@@ -385,6 +387,21 @@ module Cornucopia
 
         def context_seed
           Cornucopia::Util::Configuration.instance.configurations.rand_context_seed
+        end
+
+        # rand_suite_seed is the seed value used to seed the srand function at the start of a context.
+        # This is done to allow tests with random elements in them to be repeatable.
+        # If a test fails, simply set Cornucopia::Util::Configuration.rand_suite_seed to the
+        # value of the failed tests suite_seed value (output in the stdout and the generated report)
+        # and run the test again.  This should re-run the exact same test, resulting in a
+        # repeatable test even with randomization in it.
+        def suite_seed=(value)
+          Cornucopia::Util::Configuration.instance.configurations.rand_suite_seed = value
+          srand(value) if value
+        end
+
+        def suite_seed
+          Cornucopia::Util::Configuration.instance.configurations.rand_suite_seed
         end
 
         # order_seed is the seed value used to set the order that randomly ordered tests are run in.

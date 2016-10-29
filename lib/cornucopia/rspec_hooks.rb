@@ -11,6 +11,7 @@ module Cornucopia
     include Singleton
 
     attr_accessor :last_reported_example
+    attr_accessor :suite_seed_value
     attr_accessor :context_seed_value
     attr_accessor :seed_value
 
@@ -23,7 +24,7 @@ module Cornucopia
         if (example.exception)
           @last_reported_example = example
 
-          puts("random seed for testing was: #{context_seed_value}, #{seed_value}")
+          puts("random seed for testing was: #{suite_seed_value}, #{context_seed_value}, #{seed_value}")
 
           Cornucopia::Util::ReportBuilder.current_report.
               within_section("Test Error: #{example.full_description}") do |report|
@@ -56,6 +57,11 @@ RSpec.configure do |config|
       puts "Cornucopia::Hook::suite end" if Cornucopia::Util::Configuration.benchmark
 
       Cornucopia::Util::ReportBuilder.current_report.close
+
+      Cornucopia::RSpecHelper.instance.suite_seed_value = Cornucopia::Util::Configuration.suite_seed ||
+          100000000000000000000000000000000000000 + Random.new.rand(899999999999999999999999999999999999999)
+
+      srand(Cornucopia::RSpecHelper.instance.suite_seed_value)
     end
 
     puts "Cornucopia::Hook::suite end time: #{time}" if Cornucopia::Util::Configuration.benchmark

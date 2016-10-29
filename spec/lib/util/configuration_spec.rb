@@ -36,6 +36,22 @@ describe "Cornucopia::Util::Configuration" do
     end
   end
 
+  it "has a default suite_seed value" do
+    expect(Cornucopia::Util::Configuration.suite_seed).not_to be
+  end
+
+  it "can set the suite_seed value" do
+    begin
+      suite_seed_value = rand(0..999999999999999999999999999)
+
+      Cornucopia::Util::Configuration.suite_seed = suite_seed_value
+
+      expect(Cornucopia::Util::Configuration.suite_seed).to be == suite_seed_value
+    ensure
+      Cornucopia::Util::Configuration.suite_seed = nil
+    end
+  end
+
   it "has a default order_seed value" do
     expect(Cornucopia::Util::Configuration.order_seed).not_to be
   end
