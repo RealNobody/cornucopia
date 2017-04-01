@@ -57,7 +57,7 @@ module Cornucopia
       def can_dump_details?
         can_dump = false
 
-        if (Object.const_defined?("Capybara"))
+        if Object.const_defined?("Capybara") && Capybara.send(:session_pool).count > 0
           my_page = ::Capybara.current_session
 
           if (my_page && my_page.current_url.present? && my_page.current_url != "about:blank")
