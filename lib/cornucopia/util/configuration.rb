@@ -4,6 +4,7 @@ require "singleton"
 require ::File.expand_path('configured_report', File.dirname(__FILE__))
 require ::File.expand_path('generic_settings', File.dirname(__FILE__))
 require ::File.expand_path('report_formatters', File.dirname(__FILE__))
+require ::File.expand_path('multiple_exception_formatter', File.dirname(__FILE__))
 
 module Cornucopia
   module Util
@@ -67,7 +68,9 @@ module Cornucopia
                                           :capybara_page_diagnostics,
                                           {
                                               report_element: :example__exception__all_exceptions,
-                                              report_options: { ignore_missing: true }
+                                              report_options: { ignore_missing:  true,
+                                                                format_object:   Cornucopia::Util::MultipleExceptionFormatter,
+                                                                format_function: :format_backtrace }
                                           }
                                       ],
                 expand_fields:        [
