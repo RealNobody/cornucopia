@@ -18,7 +18,7 @@ module Cornucopia
         configurations.order_seed                       = nil
         configurations.rand_seed                        = nil
         configurations.rand_context_seed                = nil
-        configurations.rand_suite_seed                = nil
+        configurations.rand_suite_seed                  = nil
         configurations.user_log_files                   = {}
         configurations.default_num_lines                = 500
         configurations.grab_logs                        = true
@@ -39,12 +39,12 @@ module Cornucopia
 
         # configurations.alternate_retry            = false
 
-        configurations.default_configuration            = {
+        configurations.default_configuration = {
             rspec:                       {
                 min_fields:           [
                                           :example__full_description,
                                           :example__location,
-                                          :example__exception__to_s,
+                                          :example__exception__message,
                                           :example__exception__backtrace
                                       ],
                 more_info_fields:     [
@@ -64,7 +64,11 @@ module Cornucopia
                                               report_options: { ignore_missing: true }
                                           },
                                           :logs,
-                                          :capybara_page_diagnostics
+                                          :capybara_page_diagnostics,
+                                          {
+                                              report_element: :example__exception__all_exceptions,
+                                              report_options: { ignore_missing: true }
+                                          }
                                       ],
                 expand_fields:        [
                                           :example,
@@ -121,7 +125,7 @@ module Cornucopia
                                               report_options: { format_object:   Cornucopia::Util::CucumberFormatter,
                                                                 format_function: :format_location }
                                           },
-                                          :scenario__exception__to_s,
+                                          :scenario__exception__message,
                                           :scenario__exception__backtrace
                                       ],
                 more_info_fields:     [
@@ -139,11 +143,15 @@ module Cornucopia
                                           # :scenario__current_visitor__configuration,
                                           :cucumber,
                                           :logs,
-                                          :capybara_page_diagnostics
+                                          :capybara_page_diagnostics,
+                                          {
+                                              report_element: :scenario__exception__all_exceptions,
+                                              report_options: { ignore_missing: true }
+                                          }
                                       ],
                 expand_fields:        [
                                           :scenario,
-                                          :cucumber,
+                                          :cucumber
                                       ],
                 expand_inline_fields: [
                                       ],
@@ -177,7 +185,7 @@ module Cornucopia
                                               report_options: { format_object:   Cornucopia::Util::CucumberFormatter,
                                                                 format_function: :format_location }
                                           },
-                                          :scenario__exception__to_s,
+                                          :scenario__exception__message,
                                           :scenario__exception__backtrace
                                       ],
                 more_info_fields:     [
@@ -192,12 +200,16 @@ module Cornucopia
                                           :scenario__scenario_outline,
                                           :cucumber,
                                           :logs,
-                                          :capybara_page_diagnostics
+                                          :capybara_page_diagnostics,
+                                          {
+                                              report_element: :scenario__exception__all_exceptions,
+                                              report_options: { ignore_missing: true }
+                                          }
                                       ],
                 expand_fields:        [
                                           :scenario,
                                           :scenario__scenario_outline,
-                                          :cucumber,
+                                          :cucumber
                                       ],
                 expand_inline_fields: [
                                       ],
@@ -224,7 +236,7 @@ module Cornucopia
                                           :running_scenario__line,
                                           :step_data__name,
                                           :step_data__line,
-                                          :exception__to_s,
+                                          :exception__message,
                                           :exception__backtrace
                                       ],
                 more_info_fields:     [
@@ -234,7 +246,11 @@ module Cornucopia
                                           :step_data,
                                           :step_definitions,
                                           :logs,
-                                          :capybara_page_diagnostics
+                                          :capybara_page_diagnostics,
+                                          {
+                                              report_element: :exception__all_exceptions,
+                                              report_options: { ignore_missing: true }
+                                          }
                                       ],
                 expand_fields:        [
                                           :running_scenario,
@@ -316,13 +332,17 @@ module Cornucopia
                                           :finder__args__0,
                                           :finder__search_args,
                                           :finder__options,
-                                          :exception__to_s,
+                                          :exception__message,
                                           :exception__backtrace
                                       ],
                 more_info_fields:     [
                                           :exception__class__name,
                                           :finder,
-                                          :capybara_page_diagnostics
+                                          :capybara_page_diagnostics,
+                                          {
+                                              report_element: :exception__all_exceptions,
+                                              report_options: { ignore_missing: true }
+                                          }
                                       ],
                 expand_fields:        [
                                           :finder,

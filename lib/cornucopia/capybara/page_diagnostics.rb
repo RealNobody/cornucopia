@@ -67,6 +67,8 @@ module Cornucopia
         end
 
         can_dump
+      rescue StandardError
+        false
       end
 
       def dump_details
