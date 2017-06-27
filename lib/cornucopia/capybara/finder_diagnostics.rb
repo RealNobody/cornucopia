@@ -142,10 +142,21 @@ module Cornucopia
           can_dump
         end
 
+        def capybara_session
+          if Object.const_defined?("::Capybara") &&
+              ::Capybara.send(:session_pool).present?
+            my_page = ::Capybara.current_session
+
+            my_page if (my_page && my_page.current_url.present? && my_page.current_url != "about:blank")
+          end
+        rescue StandardError
+          nil
+        end
+
         # def dump_detail_args(attempt_retry, attempt_alternate_retry)
         def dump_detail_args(attempt_retry)
           check_args = search_args.clone
-          my_page    = ::Capybara.current_session
+          my_page    = capybara_session
 
           check_args << options.clone
           check_args << !!attempt_retry
@@ -363,7 +374,9 @@ module Cornucopia
 
         def all_other_elements
           unless @all_other_elements
-            from_element = ::Capybara::current_session
+            from_element = capybara_session
+
+            return unless from_element
 
             begin
               @all_other_elements = from_element.all(*search_args, visible: false, __cornucopia_no_analysis: true).to_a
@@ -464,6 +477,17 @@ module Cornucopia
 
           attr_reader :found_element
 
+          def capybara_session
+            if Object.const_defined?("::Capybara") &&
+                ::Capybara.send(:session_pool).present?
+              my_page = ::Capybara.current_session
+
+              my_page if (my_page && my_page.current_url.present? && my_page.current_url != "about:blank")
+            end
+          rescue StandardError
+            nil
+          end
+
           def ==(comparison_object)
             comparison_object.equal?(self) ||
                 (comparison_object.instance_of?(self.class) &&
@@ -505,9 +529,10 @@ module Cornucopia
 
             instance_variable_set("@native_class", @found_element[:class])
 
-            if ::Capybara.current_session.driver.respond_to?(:browser) &&
-                ::Capybara.current_session.driver.browser.respond_to?(:execute_script) &&
-                ::Capybara.current_session.driver.browser.method(:execute_script).arity != 1
+            session = capybara_session
+            if session.driver.respond_to?(:browser) &&
+                session.driver.browser.respond_to?(:execute_script) &&
+                session.driver.browser.method(:execute_script).arity != 1
               begin
                 # This is a "trick" that works with Selenium, but which might not work with other drivers...
                 script = "var attrib_list = [];
@@ -519,23 +544,23 @@ for (var nIndex = 0; nIndex < attrs.length; nIndex += 1)
 };
 return attrib_list;"
 
-                attributes = ::Capybara.current_session.driver.browser.execute_script(script, @found_element.native)
+                attributes = session.driver.browser.execute_script(script, @found_element.native)
                 attributes.each do |attritue|
                   unless PREDEFINED_ATTRIBUTES.include?(attritue)
                     instance_variable_set("@native_#{attritue.gsub(/[\-]/, "_")}", @found_element[attritue])
                   end
                 end
 
-                @elem_outerHTML ||= ::Capybara.current_session.driver.browser.execute_script("return arguments[0].outerHTML", @found_element.native)
+                @elem_outerHTML ||= session.driver.browser.execute_script("return arguments[0].outerHTML", @found_element.native)
               rescue ::Capybara::NotSupportedByDriverError
               end
             end
 
             # information from Selenium that may not be available depending on the form, the full outerHTML of the element
-            if (::Capybara.current_session.respond_to?(:evaluate_script))
+            if (session.respond_to?(:evaluate_script))
               unless (@elem_id.blank?)
                 begin
-                  @elem_outerHTML ||= ::Capybara.current_session.evaluate_script("document.getElementById('#{@elem_id}').outerHTML")
+                  @elem_outerHTML ||= session.evaluate_script("document.getElementById('#{@elem_id}').outerHTML")
                 rescue ::Capybara::NotSupportedByDriverError
                 end
               end
