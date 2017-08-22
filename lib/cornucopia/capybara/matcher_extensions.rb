@@ -51,9 +51,11 @@ module Cornucopia
         retry_count = 0
         result      = nil
 
-        unless [:has_selector?, :has_no_selector?].include?(assert_selector_function)
-          support_options = __cornucopia__extract_selector_support_options(*args)
-        end
+        support_options = if [:has_selector?, :has_no_selector?].include?(assert_selector_function)
+                            []
+                          else
+                            __cornucopia__extract_selector_support_options(*args)
+                          end
 
         begin
           retry_count += 1
