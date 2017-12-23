@@ -65,6 +65,12 @@ describe Cornucopia::Util::PrettyFormatter do
     end
   end
 
+  it "formats a string" do
+    pretty = Cornucopia::Util::PrettyFormatter.format_string("#&lt;MetaDataOwnerTestModel _id: 5a3ea06e402cfe50bca1fc6b, &gt;\n".html_safe)
+
+    expect(pretty).to eq "#&lt;MetaDataOwnerTestModel\n  _id: 5a3ea06e402cfe50bca1fc6b,\n&gt;"
+  end
+
   it "formats a simple class" do
     pretty = Cornucopia::Util::PrettyFormatter.format_string(simple_class)
     expect(pretty).to be == simple_class

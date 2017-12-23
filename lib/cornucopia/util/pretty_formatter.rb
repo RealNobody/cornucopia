@@ -34,6 +34,8 @@ module Cornucopia
         end
 
         if do_pretty_print
+          @loop_pos           = [-1, -1]
+          @loop_count         = [0, 0]
           @indent_level       = 0
           @current_state      = :unknown
           @state_stack        = [:unknown]
@@ -43,6 +45,8 @@ module Cornucopia
           @formatted_string   = "".dup
 
           while @current_pos < @unknown_string_len
+            break if in_infinite_loop?
+
             case @current_state
               when :unknown
                 search_pos          = @current_pos
@@ -173,6 +177,9 @@ module Cornucopia
 
                   when :array
                     group_value_end :array_comma, "]"
+
+                  when :group_implied
+                    @current_pos += 1
                 end
 
                 @current_pos -= 1
@@ -576,6 +583,22 @@ module Cornucopia
             @formatted_string.rstrip!
           end
         end
+      end
+
+      private
+
+      def in_infinite_loop?
+        @loop_count[0] += 1
+        @loop_count[1] += 1
+        @loop_count[0] = 0 if @loop_pos[0] != @current_pos
+        @loop_count[1] = 0 if @loop_pos[1] != @start_pos
+        @loop_pos[0]   = @current_pos
+        @loop_pos[1]   = @start_pos
+
+        return false if @loop_count[0] < @unknown_string_len && @loop_count[1] < @unknown_string_len
+
+        @formatted_string += @unknown_string[@start_pos..-1]
+        true
       end
     end
   end
