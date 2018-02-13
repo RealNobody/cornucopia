@@ -167,7 +167,7 @@ end
 time = Benchmark.measure do
   puts "Cornucopia::Hook::suite start" if Cornucopia::Util::Configuration.benchmark
 
-  Cornucopia::Util::ReportBuilder.new_report("cucumber_report")
+  Cornucopia::Util::ReportBuilder.new_report("cucumber_report#{Cornucopia::Util::Configuration.report_postfix}")
 end
 
 puts "Cornucopia::Hook::suite start time: #{time}" if Cornucopia::Util::Configuration.benchmark

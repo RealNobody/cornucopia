@@ -71,4 +71,4 @@ Spinach.hooks.after_run do |status|
   Cornucopia::Util::ReportBuilder.current_report.close
 end
 
-Cornucopia::Util::ReportBuilder.new_report "spinach_report"
+Cornucopia::Util::ReportBuilder.new_report "spinach_report#{Cornucopia::Util::Configuration.report_postfix}"

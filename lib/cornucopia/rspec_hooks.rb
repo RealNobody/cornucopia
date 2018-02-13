@@ -46,7 +46,7 @@ RSpec.configure do |config|
     time = Benchmark.measure do
       puts "Cornucopia::Hook::suite start" if Cornucopia::Util::Configuration.benchmark
 
-      Cornucopia::Util::ReportBuilder.new_report("rspec_report")
+      Cornucopia::Util::ReportBuilder.new_report("rspec_report#{Cornucopia::Util::Configuration.report_postfix}")
     end
 
     puts "Cornucopia::Hook::suite start time: #{time}" if Cornucopia::Util::Configuration.benchmark

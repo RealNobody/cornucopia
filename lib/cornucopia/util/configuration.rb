@@ -37,6 +37,7 @@ module Cornucopia
         configurations.open_report_settings             = { default: false }
         configurations.base_folder                      = "cornucopia_report"
         configurations.benchmark                        = false
+        configurations.report_postfix                   = ""
 
         # configurations.alternate_retry            = false
 
@@ -508,7 +509,7 @@ module Cornucopia
         # num_lines returns the number of lines that will be grabbed
         # for a file.  If no file name is supplied, or the name does not match a
         # user file, the default log length will returned.
-        def num_lines(log_file_name=nil)
+        def num_lines(log_file_name = nil)
           Cornucopia::Util::Configuration.instance.configurations.user_log_files[log_file_name].try(:[], :num_lines) ||
               Cornucopia::Util::Configuration.instance.configurations.default_num_lines
         end
@@ -784,6 +785,17 @@ module Cornucopia
 
         def benchmark=(value)
           Cornucopia::Util::Configuration.instance.configurations.benchmark = value
+        end
+
+        # Adds a postfix to report names
+        #
+        # Defaults to empty string.
+        def report_postfix
+          Cornucopia::Util::Configuration.instance.configurations.report_postfix
+        end
+
+        def report_postfix=(value)
+          Cornucopia::Util::Configuration.instance.configurations.report_postfix = value
         end
       end
     end
