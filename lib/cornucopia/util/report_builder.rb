@@ -639,7 +639,7 @@ module Cornucopia
           dump_file.write page_text.force_encoding("UTF-8")
         end
 
-        padded_frame("<iframe src=\"#{dump_file_name}\" class=\"cornucopia-sample-frame\"></iframe>\n".html_safe)
+        padded_frame("<iframe src=\"#{dump_file_name}\" class=\"cornucopia-sample-frame\" sandbox></iframe>\n".html_safe)
       end
 
       def padded_frame(padded_text)

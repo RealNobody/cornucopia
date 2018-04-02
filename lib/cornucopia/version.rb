@@ -1,3 +1,3 @@
 module Cornucopia
-  VERSION = "0.1.51"
+  VERSION = "0.1.52"
 end
