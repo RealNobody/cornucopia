@@ -11,10 +11,10 @@ module Cornucopia
       extend ActiveSupport::Concern
 
       included do
-        alias_method :__cornucopia_orig_assert_selector, :assert_selector
-        alias_method :__cornucopia_orig_assert_no_selector, :assert_no_selector
-        alias_method :__cornucopia_orig_has_selector?, :has_selector?
-        alias_method :__cornucopia_orig_has_no_selector?, :has_no_selector?
+        alias_method :__cornucopia_capybara_orig_assert_selector, :assert_selector
+        alias_method :__cornucopia_capybara_orig_assert_no_selector, :assert_no_selector
+        alias_method :__cornucopia_capybara_orig_has_selector?, :has_selector?
+        alias_method :__cornucopia_capybara_orig_has_no_selector?, :has_no_selector?
 
         define_method :assert_selector do |*args|
           __cornucopia_assert_selector_function(:assert_selector, *args)
@@ -59,7 +59,7 @@ module Cornucopia
 
         begin
           retry_count += 1
-          result      = send("__cornucopia_orig_#{assert_selector_function}", *args)
+          result      = send("__cornucopia_capybara_orig_#{assert_selector_function}", *args)
         rescue Selenium::WebDriver::Error::StaleElementReferenceError
           retry if __cornucopia__retry_selector(retry_count, support_options)
 

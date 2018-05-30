@@ -47,7 +47,7 @@ describe Cornucopia::Capybara::MatcherExtensions, type: :feature do
         num_calls   = 0
 
         allow(contents_frame.page.document).
-            to receive(:__cornucopia_orig_assert_selector) do |*args|
+            to receive(:__cornucopia_capybara_orig_assert_selector) do |*args|
           num_calls += 1
 
           if time_count > 0
@@ -62,7 +62,7 @@ describe Cornucopia::Capybara::MatcherExtensions, type: :feature do
         second_found = contents_frame.assert_selector("a")
 
         allow(contents_frame.page.document).
-            to receive(:__cornucopia_orig_assert_selector).
+            to receive(:__cornucopia_capybara_orig_assert_selector).
                    and_call_original
 
         # I realize that this is almost like testing that the stub worked, which we don't need to test.
@@ -89,14 +89,14 @@ describe Cornucopia::Capybara::MatcherExtensions, type: :feature do
                    and_return(found_elements)
 
         allow(contents_frame.page.document).
-            to receive(:__cornucopia_orig_assert_selector) do |*args|
+            to receive(:__cornucopia_capybara_orig_assert_selector) do |*args|
           raise Selenium::WebDriver::Error::StaleElementReferenceError.new
         end
 
         second_found = contents_frame.assert_selector("a")
 
         allow(contents_frame.page.document).
-            to receive(:__cornucopia_orig_assert_selector).
+            to receive(:__cornucopia_capybara_orig_assert_selector).
                    and_call_original
 
         # I realize that this is almost like testing that the stub worked, which we don't need to test.
@@ -121,14 +121,14 @@ describe Cornucopia::Capybara::MatcherExtensions, type: :feature do
                    and_return(found_elements)
 
         allow(contents_frame.page.document).
-            to receive(:__cornucopia_orig_assert_no_selector) do |*args|
+            to receive(:__cornucopia_capybara_orig_assert_no_selector) do |*args|
           raise "This is an error"
         end
 
         second_found = contents_frame.assert_no_selector(".report-block")
 
         allow(contents_frame.page.document).
-            to receive(:__cornucopia_orig_assert_no_selector).
+            to receive(:__cornucopia_capybara_orig_assert_no_selector).
                    and_call_original
 
         # I realize that this is almost like testing that the stub worked, which we don't need to test.
