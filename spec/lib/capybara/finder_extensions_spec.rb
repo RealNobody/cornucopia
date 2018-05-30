@@ -47,7 +47,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
         num_calls   = 0
 
         allow(contents_frame.page.document).
-            to receive(:__cornucopia_orig_all) do |*args|
+            to receive(:__cornucopia_capybara_orig_all) do |*args|
           num_calls += 1
 
           if time_count > 0
@@ -62,7 +62,7 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
         second_found = contents_frame.all("a")
 
         allow(contents_frame.page.document).
-            to receive(:__cornucopia_orig_all).
+            to receive(:__cornucopia_capybara_orig_all).
                 and_call_original
 
         # I realize that this is almost like testing that the stub worked, which we don't need to test.
@@ -89,14 +89,14 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
                 and_return(found_elements)
 
         allow(contents_frame.page.document).
-            to receive(:__cornucopia_orig_all) do |*args|
+            to receive(:__cornucopia_capybara_orig_all) do |*args|
           raise Selenium::WebDriver::Error::StaleElementReferenceError.new
         end
 
         second_found = contents_frame.all("a")
 
         allow(contents_frame.page.document).
-            to receive(:__cornucopia_orig_all).
+            to receive(:__cornucopia_capybara_orig_all).
                 and_call_original
 
         # I realize that this is almost like testing that the stub worked, which we don't need to test.
@@ -121,14 +121,14 @@ describe Cornucopia::Capybara::FinderExtensions, type: :feature do
                 and_return(found_elements)
 
         allow(contents_frame.page.document).
-            to receive(:__cornucopia_orig_find) do |*args|
+            to receive(:__cornucopia_capybara_orig_find) do |*args|
           raise "This is an error"
         end
 
         second_found = contents_frame.find(".report-block")
 
         allow(contents_frame.page.document).
-            to receive(:__cornucopia_orig_find).
+            to receive(:__cornucopia_capybara_orig_find).
                 and_call_original
 
         # I realize that this is almost like testing that the stub worked, which we don't need to test.

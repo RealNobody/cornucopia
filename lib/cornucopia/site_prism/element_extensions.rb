@@ -9,13 +9,13 @@ module Cornucopia
 
       included do
         ::Capybara::Session::DSL_METHODS.each do |method|
-          alias_method "__cornucopia_orig_#{method}".to_sym, method
+          alias_method "__cornucopia_site_prism_orig_#{method}".to_sym, method
 
           define_method method do |*args, &block|
             if @__corunucopia_base_node
               @__corunucopia_base_node.send method, *args, &block
             else
-              send "__cornucopia_orig_#{method}", *args, &block
+              send "__cornucopia_site_prism_orig_#{method}", *args, &block
             end
           end
         end

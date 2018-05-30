@@ -11,8 +11,8 @@ module Cornucopia
       extend ActiveSupport::Concern
 
       included do
-        alias_method :__cornucopia_orig_find, :find
-        alias_method :__cornucopia_orig_all, :all
+        alias_method :__cornucopia_capybara_orig_find, :find
+        alias_method :__cornucopia_capybara_orig_all, :all
 
         define_method :find do |*args, &block|
           __cornucopia_finder_function(:find, *args, &block)
@@ -31,12 +31,12 @@ module Cornucopia
 
         begin
           retry_count += 1
-          result      = send("__cornucopia_orig_#{finder_function}", *args, &block)
+          result      = send("__cornucopia_capybara_orig_#{finder_function}", *args, &block)
         rescue Selenium::WebDriver::Error::StaleElementReferenceError
           retry if __cornucopia__retry_finder(retry_count, support_options)
 
           result = __cornucopia__analyze_finder(finder_function, support_options, *args, &block)
-        rescue Exception
+        rescue StandardError
           result = __cornucopia__analyze_finder(finder_function, support_options, *args, &block)
         end
 
