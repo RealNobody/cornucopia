@@ -572,6 +572,7 @@ return attrib_list;"
               begin
                 @found_element.send(attribute)
               rescue ::Capybara::NotSupportedByDriverError
+              rescue ArgumentError
               end
             elsif @found_element.respond_to?(:[]) && @found_element[attribute]
               @found_element[attribute]
