@@ -3,9 +3,6 @@
 require ::File.expand_path("../cornucopia", File.dirname(__FILE__))
 require "singleton"
 
-load ::File.expand_path("capybara/install_extensions.rb", File.dirname(__FILE__))
-load ::File.expand_path("site_prism/install_extensions.rb", File.dirname(__FILE__))
-
 module Cornucopia
   class RSpecHelper
     include Singleton
