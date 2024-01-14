@@ -38,4 +38,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "simplecov"
   spec.add_development_dependency "launchy"
   spec.add_development_dependency "rack"
+  spec.add_development_dependency "webrick"
 end
